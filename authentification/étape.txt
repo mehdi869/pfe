@@ -1,0 +1,10 @@
+récupérer de la data(client ----> serveur)
+génération des token 
+envoie le token (cookies)(serveur ----> client)
+générer les rafresh token automatiquement lorqsue il est expirer
+
+"token_type": "access",
+  "exp": 1741679346,
+  "iat": 1741679226,
+  "jti": "3dd57b69c1364719b82bb5eccf3c9d18",
+  "user_id": 2
