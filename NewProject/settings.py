@@ -47,7 +47,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',#propre a CORS
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -62,11 +62,12 @@ REST_FRAMEWORK = {
     )
 }
 
-AUTH_USER_MODEL = 'authentification.User'
+AUTH_USER_MODEL = 'authentification.User' # pour dire a django que j'utilise t'as propre table d'authentification on faisant une liaison a ma table User du modele
 
+#importer du site de JWTsimple
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(seconds=2),
-    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15), #access token expire dans 15 minutes
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7), #rafresh token expire dans 7 jours
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
@@ -128,11 +129,15 @@ WSGI_APPLICATION = 'NewProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+#connaxion avec la base de donnée POSTGRES
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / "db.sqlite3",
-        
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'DBdjango',
+        'USER': 'postgres',
+        'PASSWORD': 'database',
+        'HOST' : 'localhost',
+        'PORT' : '5432',
     }
 }
 

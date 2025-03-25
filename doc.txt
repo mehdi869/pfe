@@ -1,0 +1,9 @@
+fichier authentification :
+authentification des utilisateurs
+lorsque un utilisateur existe dans la base la donnée l'authentification est parfaite
+si il n'existe pas il ne rentre pas vers le l'application
+
+fichier frontend :
+on trouve le fichier API ou il y a les fetch
+le fichier pages ou on trouve toute les pages avec leurs styles et image assossier 
+et App.js c'est l'application principale
