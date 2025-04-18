@@ -1,9 +1,9 @@
 export const Log = async (e) => {
  
-    e.preventDefault()
+  e.preventDefault()
 
-    const username = e.target.username.value;
-    const password = e.target.password.value;
+  const username = e.target.username.value;
+  const password = e.target.password.value;
 
   try{
         const response = await fetch("http://localhost:8000/login/",{
@@ -14,7 +14,7 @@ export const Log = async (e) => {
          },
          body :  JSON.stringify({username,password})
          })
-         return (response)
+         return response
      }catch(error){
        console.log("probléme de connexion front-back")
      }

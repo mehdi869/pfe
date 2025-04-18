@@ -1,6 +1,7 @@
 .body1{
     background-image: url('login2.png');
     height: 100vh;
+    margin: 0px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -10,14 +11,13 @@
     background-color: #e5babab1;
     backdrop-filter: blur(7px); /* Applique un flou à l'arrière-plan */
     height: 500px;
-    width: 400px;
-    border-radius: 20px;
+    width: 350px;
+    border-radius: 15px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
-
 .login1{
     display: flex;
     flex-direction: column;
@@ -26,12 +26,22 @@
     background-color: #ED1C24;
     width: 100%;
     height: 100%;
-    border-top-left-radius: 20px;
-    border-top-right-radius:20px;
+    border-top-left-radius: 15px;
+    border-top-right-radius:15px;
     margin : 0px;
-    margin-bottom:30px;
+    margin-bottom: 30px;
 }
 
+
+.input1{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin : 0px;
+    border-radius: 12px;
+    margin-bottom:60px;
+}
 input{
     height: 35px;
     width: 275px;
@@ -42,21 +52,14 @@ input{
     background-color: rgba(255, 255,255, 0.5);
 }
 
-div{
-    margin:20px
+.input3{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
 }
-
-button{
-    width: 275px;
-    height: 40px;
-    border-radius: 10px;
-    border: none; /* Supprime la bordure */
-    outline: none; /* Supprime la bordure de focus */
-    box-shadow: none; /* Supprime l'ombre */
-    background-color: #ED1C24;
-}
-
-.p{
+.P{
     color: white;
     font-family: "Anton", sans-serif;
     font-weight: 400;
@@ -83,57 +86,40 @@ button{
     font-family:'Poppins', 'Inter', 'Roboto', sans-serif;
     font-size: 15px;
 }
-
-.input1{
-    display: flex;
-    flex-direction: row;
-    justify-content: start;
-    align-items: center;
-    margin : 0px;
-    margin-top : 20px;
-    border-radius: 12px;
-    margin-bottom:10px;
+.input1 input{
+    width: 285px;
+    font-size: 14px;
+    margin: 0px;
+    margin-top: 2px;
+    padding-left: 10px;
 
 }
-input{
-    font-size:17px;
-}
 
-.input2{
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
-    margin:0px;
-    margin-top : 20px;
-    margin-bottom:10px
-    
-}
-.input4{
-    margin:0
-}
-.input3{
-    margin : 0px;
-    margin-top :40px
-}
 #account{
     color: black;
+    font-size: 13px;
+    
 }
-button{
+.but{
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 35px;
+    width: 285px;
+    background-color: #ED1C24; 
+    border: none; /* Supprime la bordure */
+    outline: none; /* Supprime la bordure de focus */
+    box-shadow: none; /* Supprime l'ombre */
+    border-radius: 5px;   
 }
-.input1 label{
-    color :#f68d8d;
-    font-family:'Poppins', 'Inter', 'Roboto', sans-serif;
-    position :absolute;
-    padding: 0px 15px;
-    font-size: 18px;
+button:hover{
+    background-color: #e7494f8e;
 }
 a{
     color:#ED1C24;
     text-decoration: none;
     font-size:17px;
+    
 }
 .buttonlogin{
     color: white;
@@ -141,17 +127,35 @@ a{
     font-weight: bold;
     font-size: 20px;
 }
-
 .diverror{
     margin : 0px;
     height: 20px;
+    position: absolute;
+    margin-top: 265px;
+    transform: translateX(50%); 
 }
 .error{
    margin: 0px;
    color: red;
-   position: absolute;
    transform: translateX(-50%); 
-   font-size: 14px;
+   font-size: 15px;
    font-family: Arial, sans-serif;
    margin-top: 10px;
 } 
+.labels1{
+    display : flex;
+    flex-direction: column;
+    margin-bottom:10px
+}
+.labelpassword{
+    display : flex;
+    flex-direction: column;
+    margin-top: 10px;
+}
+
+label{
+    margin-left: 2px;
+    font-size: 18px;
+    font-family: 'Inter', sans-serif;
+    color: black;
+}

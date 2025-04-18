@@ -8,18 +8,20 @@
 
 
 }
-form{
+.FORM{
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     width: 450px;
-    height: 600px;
-    border-radius: 20px;
+    height: 650px;
+    border-radius: 12px;
     background-color: #e5babab1;
     backdrop-filter: blur(7px); /* Applique un flou à l'arrière-plan */
 }
-
+.header{
+    font-size: 12px;
+}
 header{
     display: flex;
     flex-direction:column;
@@ -27,10 +29,11 @@ header{
     align-items: center;
     background-color: white;
     width: 100%;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
     
 }
+
 .info{
     display: flex;
     flex-direction: column;
@@ -47,20 +50,19 @@ footer{
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-top: 10px;
-
-
+    margin-top: 40px;
 }
 
 input{
-   width: 325px;
+   width: 315px;
    height:35px;
    border-radius: 7px;
-   margin: 10px;
    border: none; /* Supprime la bordure */
    outline: none; /* Supprime la bordure de focus */
    box-shadow: none; /* Supprime l'ombre */
    background-color: rgba(255, 255, 255,0.5);
+   font-size: 15px;
+   padding-left:10px
 }
 
 img{
@@ -76,24 +78,28 @@ h1,.header{
     color: #ED1C24;
 }
 .button2{
-    width: 325px;
+    width: 310px;
     height: 40px;
     border-radius: 7px;
-    background-color: transparent; /* Assurez-vous que le fond est transparent */
     border: none; /* Supprimez les bordures */
     box-shadow: none; /* Supprimez les ombres */
     background: white;
     display: flex;
     justify-content: center;
     align-items: center;
-    
 }
-
+.button2:hover{
+    background-color: #221a1a36;
+}
 .p{
     font-family:'Poppins', 'Inter', 'Roboto', sans-serif;
     font-size: 18px;
     color: #ED1C24;
     font-weight: bold;
+}
+.paragraph{
+    margin-bottom: 30px;
+    font-size: 17px;
 }
 .a{
     color: white;
@@ -101,4 +107,26 @@ h1,.header{
     font-size: 15px;
     font-weight: bold;
     font-family: 'Poppins', 'Inter', 'Roboto', sans-serif;;
+}
+.name, .surname,.email, .username, .password{
+    display: flex;
+    flex-direction:column;
+    margin-top: 10px;
+}
+.diverreur{
+    margin : 0px;
+    height: 20px;
+    margin-top: 265px;
+}
+.erreur{
+    position: absolute;
+    transform: translate(-50%);
+    margin: 0px;
+    color: #ED1C24;
+    font-size: 15px;
+    font-family: Arial, sans-serif;
+    margin-top: 5px;
+}
+.Link{
+    font-size: 20px;
 }

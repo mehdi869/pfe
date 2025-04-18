@@ -17,7 +17,7 @@ export const Registration = async(e) => {
             },
             body : JSON.stringify({name,surname,email,username,password})
         })
-   
+        return response
     }catch(error){
       console.log("error") 
     }
