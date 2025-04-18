@@ -116,10 +116,10 @@ def Register(request):
     UserAll = User.objects.filter(username = username,email = email).first()
     UserUsername = User.objects.filter(username = username).first()
     UserEmail = User.objects.filter(email = email).first()
-
-
+    
+    
     if UserAll or UserUsername or UserEmail:
-        return JsonResponse({"resultat" : "this user already existe please enter anouther username or email"})
+        return JsonResponse({"resultat" : "this user already existe please enter anouther username or email"},status = 401)
     else:
        user = User.objects.create_user(first_name = FirstName, last_name = LastName, email = email ,username = username, password = password)
        user.save()
