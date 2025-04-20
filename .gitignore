@@ -1,0 +1,25 @@
+# General Python ignores
+*.pyc
+__pycache__/
+*.sqlite3
+*.sqlite3-journal
+
+# Django ignores
+/backend/db.sqlite3
+/backend/*.log
+/backend/*.pot
+/backend/venv
+/backend/.env
+
+# React ignores
+/frontend/node_modules
+/frontend/build
+/frontend/.env
+/frontend/.DS_Store
+
+# OS or Editor related ignores
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
