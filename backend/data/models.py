@@ -1,0 +1,36 @@
+from django.db import models
+class SurveyData2(models.Model):
+    ingestion_dttm = models.DateTimeField(blank=True, null=True)
+    msisdn = models.CharField(max_length=50, blank=True, null=True)
+    survey_type = models.DecimalField(max_digits=1, decimal_places=0, blank=True, null=True)
+    lang_id = models.CharField(max_length=3, blank=True, null=True)
+    question_number = models.DecimalField(max_digits=2, decimal_places=0, blank=True, null=True)
+    first_resp = models.DateTimeField(blank=True, null=True)
+    last_resp = models.DateTimeField(blank=True, null=True)
+    alert = models.CharField(max_length=20, blank=True, null=True)
+    alert_status = models.CharField(max_length=20, blank=True, null=True)
+    assigned_role = models.CharField(max_length=20, blank=True, null=True)
+    assigned_user = models.CharField(max_length=50, blank=True, null=True)
+    nps_score = models.DecimalField(max_digits=2, decimal_places=0, blank=True, null=True)
+    status = models.CharField(max_length=20, blank=True, null=True)
+    age_group = models.CharField(max_length=20, blank=True, null=True)
+    channel = models.CharField(max_length=2, blank=True, null=True)
+    city_id = models.DecimalField(max_digits=5, decimal_places=0, blank=True, null=True)
+    city_name = models.CharField(max_length=50, blank=True, null=True)
+    curr_price_plan_desc = models.CharField(max_length=70, blank=True, null=True)
+    curr_price_plan_key = models.CharField(max_length=10, blank=True, null=True)
+    handset_brand = models.CharField(max_length=50, blank=True, null=True)
+    handset_type = models.DecimalField(max_digits=2, decimal_places=0, blank=True, null=True)
+    retail_pos_id = models.CharField(max_length=50, blank=True, null=True)
+    retail_region_name = models.CharField(max_length=30, blank=True, null=True)
+    segment_type = models.CharField(max_length=3, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'survey_data2'
+    
+  
+    
+
+    
+

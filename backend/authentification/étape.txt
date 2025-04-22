@@ -1,0 +1,4 @@
+récupérer de la data(client ----> serveur)
+génération des token 
+envoie le token (cookies)(serveur ----> client)
+générer les rafresh token automatiquement lorqsue il est expirer
