@@ -1,5 +1,5 @@
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from django.http import JsonResponse
 from .models import User
 import jwt
@@ -7,9 +7,13 @@ from django.conf import settings
 from jwt.exceptions import ExpiredSignatureError
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import authenticate 
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
+from rest_framework.permissions import AllowAny
 
 #récupére la data/génére  JWT/envoyer des cookies
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def UserLogin(request):
     #récupérer les informations de utilisateur
     username  = request.data.get("username")
@@ -104,6 +108,7 @@ def GenereAccessToken(request):
 
 #API de registration
 @api_view(["POST"])
+@permission_classes([AllowAny])  # Add this line to allow unauthenticated access
 def Register(request):
     
     FirstName = request.data.get("name")
@@ -111,17 +116,61 @@ def Register(request):
     email = request.data.get("email")
     username = request.data.get("username")
     password = request.data.get("password")
-    
 
-    UserAll = User.objects.filter(username = username,email = email).first()
-    UserUsername = User.objects.filter(username = username).first()
-    UserEmail = User.objects.filter(email = email).first()
+    # Check for missing fields
+    required_fields = [FirstName, LastName, email, username, password]
+    if not all(required_fields):
+        missing = [field_name for field, field_name in zip(required_fields, ["name", "surname", "email", "username", "password"]) if not field]
+        return JsonResponse({"error": f"Missing required fields: {', '.join(missing)}"}, status=400)
+
+    # Validate email format
+    try:
+        validate_email(email)
+    except ValidationError:
+        return JsonResponse({"error": "Invalid email format"}, status=400)
+
+    # Check if username already exists
+    if User.objects.filter(username=username).exists():
+        return JsonResponse({"error": "Username already exists. Please choose another username."}, status=409) # 409 Conflict
+
+    # Check if email already exists
+    if User.objects.filter(email=email).exists():
+        return JsonResponse({"error": "Email already exists. Please use another email."}, status=409) # 409 Conflict
     
-    
-    if UserAll or UserUsername or UserEmail:
-        return JsonResponse({"resultat" : "this user already existe please enter anouther username or email"},status = 401)
-    else:
-       user = User.objects.create_user(first_name = FirstName, last_name = LastName, email = email ,username = username, password = password)
-       user.save()
-       return JsonResponse({"resultat" : "on a bien enregistrer cette utilisateur"})
-    
+    # If checks pass, create the user
+    try:
+        user = User.objects.create_user(first_name=FirstName, last_name=LastName, email=email, username=username, password=password)
+        
+        # Auto-login: Create tokens just like in the login function
+        refresh = RefreshToken.for_user(user) 
+        access = refresh.access_token 
+        
+        response = JsonResponse({
+            "resultat": "User registered successfully.",
+            "refresh": str(refresh),
+            "access": str(access),
+            "redirect": "/Dashboard"  # Add a redirect field that the frontend can use
+        }, status=201)
+        
+        # Set cookies just like in the login function
+        response.set_cookie(
+            key = "access",
+            value = str(access),
+            httponly=True,
+            secure=True,
+            samesite="Strict"
+        )
+
+        response.set_cookie(
+            key = "refresh",
+            value = str(refresh),
+            httponly=True,
+            samesite="Strict",
+            secure=True,  
+        )
+        
+        return response
+        
+    except Exception as e:
+        # Catch potential errors during user creation
+        return JsonResponse({"error": f"An error occurred during registration: {str(e)}"}, status=500) # Internal Server Error
