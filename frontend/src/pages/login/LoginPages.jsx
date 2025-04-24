@@ -40,12 +40,12 @@ const Login = () => {
             <div className="input1">
                 <div className="labels1">
                     <label>username</label>
-                    <input type="text" placeholder="please enter your username...." name="username" />
+                    <input type="text" placeholder="username or email" name="username" />
                 </div>
                 
                 <div className="labelpassword">
                  <label>password</label>
-                 <input type="password" placeholder="please enter your password...." name="password" />
+                 <input type="password" placeholder="password" name="password" />
                 </div>
             </div>
             <div className="diverror">

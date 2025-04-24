@@ -130,3 +130,33 @@ h1,.header{
 .Link{
     font-size: 20px;
 }
+
+/* Add red borders for invalid input fields */
+.input-field.invalid {
+    border: 1px solid red;
+}
+
+/* Style error messages consistently */
+.error-message {
+    color: #ED1C24;
+    font-size: 15px;
+    font-weight: bold;
+    margin-top: 8px;
+}
+
+/* Loading spinner style */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: #ED1C24;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+}
