@@ -1,21 +1,33 @@
-﻿# NPS Web App : corrected and clean version
-
-## Getting Started :
-### 1. Download the Backend requirements :
-    ```bash
+﻿# NPS Web App : Corrected and clean version
+This is an internal web application for data analysis dashboard and statistics showcase of NPS data for a large telecommunications enterprise.
+---
+## Index
+1. [Introduction](#nps-web-app--corrected-and-clean-version)
+2. [Getting Started](#getting-started)
+    - [Backend Setup](#1-download-the-backend-requirements)
+    - [Frontend Setup](#2-download-the-frontend-modules)
+    - [Environment Configuration](#3-create-the-env-files)
+    - [Running the Application](#4-run-the-app)
+3. [Development Progress](#progress)
+    - [April 23, 2025](#23-04-2025)
+    - [April 24, 2025](#24-04-2025)
+    - [April 25-26, 2025](#25-26-042025)
+4. [Future Features](#features-to-implement)
+---
+## Getting Started:
+### 1. Download the Backend Requirements:
     cd ./backend
     pip install -r requirements.txt
-    ```
 
-### 2. Download the Frontend modules :
-    ```bash
+### 2. Download the Frontend Modules:
+   
     cd ./frontend
     npm install
-    ```
-### 3. Create the .env files :
+    
+### 3. Create the .env Files:
 #### Backend:
-- in backend folder create new file ``.env``
-- copy and add these infos : 
+- In the backend folder, create a new file `.env`
+- Copy and add this information: 
     ```dotenv
     DB_NAME=your_db
     DB_USER=your_user
@@ -24,17 +36,16 @@
     DB_PORT=5432
     ```
 #### Frontend:
-- go now to forntend create new file ``.env``
-- copy and add these infos :
+- Go to frontend folder, create a new file `.env`
+- Copy and add this information:
     ```REACT_APP_API_URL=http://localhost:8000```
-
-#### 4. Run the app:
-- open the Terminal and Start the backend server:
+    ### 4. Run the App
+- Open the Terminal and start the backend server:
 ```bash
         cd ./backend
         python manage.py runserver
 ```
-- open **another** Terminal and Start the frontend development server:
+- Open **another** Terminal and start the frontend development server:
 ```bash
         cd ./frontend
         npm start
@@ -43,7 +54,7 @@
 
 ### Progress
 23-04-2025:
-I'm currently facing challenges with registration and authentication. Specifically:
+Currently
 - Struggling to use Postman effectively for testing.
 - Issues with user login and system authentication.
 - Need to streamline the registration process, including proper redirection.
@@ -71,12 +82,23 @@ Potential root cause:
     - Documenting
 
 ### Features to Implement:
+- Real Data Integration From DB
+- Advanced Data Filtering and Search
 - Prevelege and Authirization Levels (Admin,Agent) -Aymen-
 - Data Cashing featues -Aymen-
 - Remeber me Func -Aymen-
 - Session Management
+- Testing : Unit Testing
 - Enhance security and performance.
 - Enahance Logging and Error handling
+- Data Visualization Customization
+- App appearence parameteres and UI Customization
+- Report Generation and Export -Aymen-
+- User Profile Management -Aymen-
+- CSRF Protection
+- PWA and offline support
+- CSRF Protection
 
-> **Important🚨** : Contact the team before editing the code or create a new branch or just code, YOU ARE FREE.
-> **Note**: Do **not** commit the `.env` file. Add it to `.gitignore`.
+> **Important🚨** : Contact the team before editing the code, or create a new branch. or just code, YOU ARE FREE.
+
+> **Note📝**: Do **not** commit the `.env` file. Add it to `.gitignore`.

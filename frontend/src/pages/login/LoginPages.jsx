@@ -36,29 +36,40 @@ const Login = () => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!validateForm() || isLoading) return
+    if (!validateForm() || isLoading) return;
 
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     try {
-      const response = await Log(e)
+      const response = await Log(e);
       if (!response) {
-        setError("Connection failed. Please try again.")
+        setError("Cannot connect to the server. Please check your internet connection.");
       } else if (response.status === 200) {
-        console.log("User logged in:", response)
-        navigate("/Dashboard")
+        navigate("/Dashboard");
       } else {
-        setError("Invalid username or password. Please verify your information.")
+        let errorMsg = "Invalid username or password. Please verify your information.";
+        try {
+          const errorData = await response.json();
+          if (errorData && errorData.error) errorMsg = errorData.error;
+        } catch {
+          if (response.status >= 500) errorMsg = "Internal server error. Please try again later.";
+          else if (response.status === 0) errorMsg = "No response from server. Please check your connection.";
+        }
+        setError(errorMsg);
       }
     } catch (err) {
-      setError(err.message || "An unexpected error occurred. Please try again.")
+      if (err.message && err.message.includes("Network")) {
+        setError("Network error. Please check your internet connection.");
+      } else {
+        setError(err.message || "An unexpected error occurred. Please try again.");
+      }
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   // Clear error after 5 seconds
   useEffect(() => {

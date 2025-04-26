@@ -60,26 +60,42 @@ const Register = () => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!validateForm() || isLoading) return
+    if (!validateForm() || isLoading) return;
 
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     try {
-      const response = await Registration(e)
-      console.log("Registration successful:", response)
-      if (response.status === 201 || response.status === 200) {
-        setIsAuthenticated(true)
-        navigate("/Dashboard")
+      const response = await Registration(e);
+
+      if (!response) {
+        setError("Cannot connect to the server. Please check your internet connection.");
+      } else if (response.status === 201 || response.status === 200) {
+        setIsAuthenticated(true);
+        navigate("/Dashboard");
+      } else {
+        let errorMsg = "Registration failed. Please try again.";
+        try {
+          const errorData = await response.json();
+          if (errorData && errorData.error) errorMsg = errorData.error;
+        } catch {
+          if (response.status >= 500) errorMsg = "Internal server error. Please try again later.";
+          else if (response.status === 0) errorMsg = "No response from server. Please check your connection.";
+        }
+        setError(errorMsg);
       }
     } catch (err) {
-      setError(err.message || "Registration failed. Please try again.")
+      if (err.message && err.message.includes("Network")) {
+        setError("Network error. Please check your internet connection.");
+      } else {
+        setError(err.message || "An unexpected error occurred. Please try again.");
+      }
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   // Clear error after 5 seconds
   useEffect(() => {
