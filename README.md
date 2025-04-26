@@ -1,43 +1,45 @@
 ﻿# NPS Web App : corrected and clean version
 
-## Get Started :
-1. **backend**:
+## Getting Started :
+### 1. Download the Backend requirements :
     ```bash
     cd ./backend
     pip install -r requirements.txt
     ```
 
-2. **Frontend** : 
+### 2. Download the Frontend modules :
     ```bash
     cd ./frontend
     npm install
     ```
-3. **Create the .env files** :
+### 3. Create the .env files :
+#### Backend:
 - in backend folder create new file ``.env``
 - copy and add these infos : 
-```dotenv
-DB_NAME=your_db
-DB_USER=your_user
-DB_PASSWORD=your_password
-DB_HOST=localhost
-DB_PORT=5432
-DB_CONN_MAX_AGE=60
-```
+    ```dotenv
+    DB_NAME=your_db
+    DB_USER=your_user
+    DB_PASSWORD=your_password
+    DB_HOST=localhost
+    DB_PORT=5432
+    ```
+#### Frontend:
 - go now to forntend create new file ``.env``
 - copy and add these infos :
-```REACT_APP_API_URL=http://localhost:8000```
+    ```REACT_APP_API_URL=http://localhost:8000```
 
-4. **Run the app**:
-- Start the backend server:
-    ```bash
-    cd ./backend
-    python manage.py runserver
-    ```
-- Start the frontend development server:
-    ```bash
-    cd ./frontend
-    npm start
-    ```
+#### 4. Run the app:
+- open the Terminal and Start the backend server:
+```bash
+        cd ./backend
+        python manage.py runserver
+```
+- open **another** Terminal and Start the frontend development server:
+```bash
+        cd ./frontend
+        npm start
+```
+---
 
 ### Progress
 23-04-2025:
@@ -59,24 +61,22 @@ Potential root cause:
     - if user authentified or authenticated it redirects him to main page
     - enable the logout
     - enhance the UI : highlight the input box with red
-    
-### Features to Implement
-s
-- Implement caching for results.
-- Use `inspectdb` with `managed = False` to access existing PostgreSQL tables without creating models or running migrations.
+
+25-26/04/2025:
+- We have been through a lot in these two days but mainly it's about the frontend improuving :
+    - Enhanicng the UI/UX : Login and Registre Page (there's lot to say about this line)
+    - Implementing an Auth context
+    - Implementing a proper Routing and Session Managment
+    - Cleaning and orgnizing The project structure
+    - Documenting
+
+### Features to Implement:
+- Prevelege and Authirization Levels (Admin,Agent) -Aymen-
+- Data Cashing featues -Aymen-
+- Remeber me Func -Aymen-
+- Session Management
 - Enhance security and performance.
+- Enahance Logging and Error handling
 
-### ⚙️ Project Setup
-
-#### 1. PostgreSQL Setup with `.env`
-
-```dotenv
-DB_NAME=your_db
-DB_USER=your_user
-DB_PASSWORD=your_password
-DB_HOST=localhost
-DB_PORT=5432
-DB_CONN_MAX_AGE=60
-```
-
+> **Important🚨** : Contact the team before editing the code or create a new branch or just code, YOU ARE FREE.
 > **Note**: Do **not** commit the `.env` file. Add it to `.gitignore`.
