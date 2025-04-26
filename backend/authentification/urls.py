@@ -1,9 +1,10 @@
 from django.urls import path
-from . import views
+from .views import login_view, check_cookies, GenereAccessToken, Register
 
 urlpatterns = [
-  path('login/',views.UserLogin),
-  path('cookies/',views.SendCookies ),
-  path('refresh/',views.GenereAccessToken),
-  path('register/',views.Register)
+    path('login/', login_view, name='login'),
+    path('cookies/', check_cookies, name='check_cookies'),
+    # path('logout/', logout_view, name='logout'),
+    path('refresh/',GenereAccessToken),
+    path('register/',Register)
 ]
