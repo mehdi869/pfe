@@ -194,7 +194,7 @@ const Sidebar = () => {
             </Typography>
             <Item
               title="Bar Chart"
-              to="/bar"
+              to="/barChart"
               icon={<BarChartOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}

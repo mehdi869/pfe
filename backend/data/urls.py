@@ -7,6 +7,7 @@ urlpatterns = [
     path('age/',views.age_group),
     path('city_pourcentage/',views.city_poursentage),
     path('city/', views.city),
+    path('barchart/', views.question_type_stats_api),
     path('survey_1/',views.survey_1_nps),
     path('survey_2/',views.survey_2_nps),
     path('survey_3/',views.survey_3_nps),

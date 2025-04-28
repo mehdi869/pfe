@@ -84,7 +84,7 @@ Potential root cause:
 ### Features to Implement:
 - Real Data Integration From DB
 - Advanced Data Filtering and Search
-- Prevelege and Authirization Levels (Admin,Agent) -Aymen-
+- Prevelege and Authorization Levels (Admin,Agent) -Aymen-
 - Data Cashing featues -Aymen-
 - Remeber me Func -Aymen-
 - Session Management

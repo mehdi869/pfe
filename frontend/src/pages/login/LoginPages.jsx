@@ -1,39 +1,40 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useNavigate, Link } from "react-router-dom"
-import { Log } from "../../API/api"
-import { AlertCircle, Loader2 } from "lucide-react"
-import "../../styles/login.css"
-import logo from "../register/logo.png"
+import { useState, useEffect, useContext } from "react"; // ✨ Added useContext
+import { useNavigate, Link } from "react-router-dom";
+import { Log } from "../../API/api";
+import { AlertCircle, Loader2 } from "lucide-react";
+import "../../styles/login.css";
+import logo from "../register/logo.png";
+import { AuthContext } from "../../context/AuthContext"; // ✨ Added AuthContext
 
 const Login = () => {
-  const [error, setError] = useState(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     password: "",
-  })
-  const [formErrors, setFormErrors] = useState({})
-  const navigate = useNavigate()
+  });
+  const [formErrors, setFormErrors] = useState({});
+  const navigate = useNavigate();
+  const { setIsAuthenticated } = useContext(AuthContext); // ✨ Getting setIsAuthenticated
 
   const validateForm = () => {
-    const errors = {}
-    if (!formData.username) errors.username = "Username is required"
-    if (!formData.password) errors.password = "Password is required"
-    setFormErrors(errors)
-    return Object.keys(errors).length === 0
-  }
+    const errors = {};
+    if (!formData.username) errors.username = "Username is required";
+    if (!formData.password) errors.password = "Password is required";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target
-    setFormData({ ...formData, [name]: value })
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
 
-    // Clear specific field error when user types
     if (formErrors[name]) {
-      setFormErrors({ ...formErrors, [name]: null })
+      setFormErrors({ ...formErrors, [name]: null });
     }
-  }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,6 +49,16 @@ const Login = () => {
       if (!response) {
         setError("Cannot connect to the server. Please check your internet connection.");
       } else if (response.status === 200) {
+        const data = await response.json();
+
+        // ✨ Save tokens
+        localStorage.setItem("access_token", data.access);
+        localStorage.setItem("refresh_token", data.refresh);
+
+        // ✨ Set authenticated
+        setIsAuthenticated(true);
+
+        // ✨ Navigate to dashboard
         navigate("/Dashboard");
       } else {
         let errorMsg = "Invalid username or password. Please verify your information.";
@@ -73,14 +84,14 @@ const Login = () => {
 
   // Clear error after 5 seconds
   useEffect(() => {
-    let timer
+    let timer;
     if (error) {
       timer = setTimeout(() => {
-        setError(null)
-      }, 5000)
+        setError(null);
+      }, 5000);
     }
-    return () => clearTimeout(timer)
-  }, [error])
+    return () => clearTimeout(timer);
+  }, [error]);
 
   return (
     <div className="body1">
@@ -149,7 +160,7 @@ const Login = () => {
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

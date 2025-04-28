@@ -25,12 +25,23 @@ class SurveyData2(models.Model):
     retail_region_name = models.CharField(max_length=30, blank=True, null=True)
     segment_type = models.CharField(max_length=3, blank=True, null=True)
 
+
     class Meta:
         managed = False
         db_table = 'survey_data2'
     
-  
-    
 
+class NpsQuestions(models.Model):
+    survey_type = models.DecimalField(max_digits=1, decimal_places=0, blank=True, null=True)
+    lang_id =  models.CharField(max_length=3, blank=True, null=True)
+    question_number = models.DecimalField(max_digits=2, decimal_places=0, blank=True, null=True)
+    regexp_replace = models.CharField(max_length=500)
+    question_name = models.CharField(max_length=100)
+    question_type = models.CharField(max_length=20)
+
+    class Meta:
+        managed = False
+        db_table = 'nps_questions'
+        unique_together = (('survey_type', 'lang_id', 'question_number'),)
     
 

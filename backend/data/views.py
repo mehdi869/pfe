@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import render
-from .models import SurveyData2
+from .models import SurveyData2, NpsQuestions
 from rest_framework.decorators import api_view
 from django.db.models import Count
 
@@ -256,3 +256,37 @@ def survey_8_nps(request):
                            '1-6' : str(survey_nps_1_6),
                            '7-8' : str(survey_nps_7_8),
                            '9-10' : str(survey_nps_9_10)})
+
+@api_view(['GET'])
+def question_type_stats_api(request):
+    # Étape 1: Compter les tuples groupés par survey_type, lang_id, question_number
+    question_groups = SurveyData2.objects.values(
+        'survey_type', 'lang_id', 'question_number'
+    ).annotate(
+        group_count=Count('id')
+    ).order_by('survey_type', 'lang_id', 'question_number')
+    stats = {}
+    for group in question_groups:
+        try:
+            question = NpsQuestions.objects.get(
+                survey_type=group['survey_type'],
+                lang_id=group['lang_id'],
+                question_number=group['question_number']
+            )
+            question_type = question.question_type
+            # Étape 3: Agréger par question_type
+            if question_type in stats:
+                stats[question_type] += group['group_count']
+            else:
+                stats[question_type] = group['group_count']
+        except NpsQuestions.DoesNotExist:
+            continue
+    # Préparer les données pour JsonResponse (sans "status" ni "data")
+    response_data = {
+        'question_types': {
+            'labels': list(stats.keys()),
+            'counts': list(stats.values())
+        },
+        'total_responses': sum(stats.values())
+    }
+    return JsonResponse(response_data)

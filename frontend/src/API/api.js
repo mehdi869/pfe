@@ -20,6 +20,27 @@ export const Log = async (e) => {
      }
 }
 
+export const fetchQuestionTypeStats = async () => {
+  try {
+    const response = await fetch('http://localhost:8000/barchart/');
+
+    if (!response.ok) {
+      throw new Error(`Erreur HTTP: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (!data || !data.question_types) {
+      throw new Error('Format de réponse invalide');
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Erreur API:', error);
+    throw error; // Important pour que le composant puisse catcher l'erreur
+  }
+};
+
 export const Logout = async (setIsAuthenticated) => {
   try {
     const response = await fetch("http://localhost:8000/logout/", {

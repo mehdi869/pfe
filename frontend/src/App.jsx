@@ -10,6 +10,7 @@ import ProtectedRoute from "./components/ProtectedRoute"
 import PublicRoute from "./components/PublicRoute"
 import LoadingScreen from "./components/LoadingScreen"
 import NotFound from "./components/NotFound"
+import BarChart from "./scenes/barChart";
 
 // Import your components and pages
 import Login from "./pages/login/LoginPages.jsx"
@@ -55,13 +56,14 @@ function App() {
                     </div>
                   }
                 >
-                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/Dashboard" element={<Dashboard />} />
                   <Route path="/team" element={<Team />} />
                   <Route path="/invoices" element={<Invoices />} />
                   <Route path="/contacts" element={<Contacts />} />
                   <Route path="/form" element={<Form />} />
                   <Route path="/calendar" element={<Calendar />} />
                   <Route path="/map" element={<Map />} />
+                  <Route path="/barChart" element={<BarChart />} />
                 </Route>
               </Route>
 
