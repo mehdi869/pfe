@@ -56,9 +56,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "api",
+    'corsheaders',
     "rest_framework",
-    "corsheaders",
     "authentification",
     "data"
 ]
@@ -66,12 +65,12 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Correctly defined
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+#    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "corsheaders.middleware.CorsMiddleware"
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -153,5 +152,16 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
+# CORS settings
 CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOWS_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = True
+#CORS_ALLOWED_ORIGINS = [
+#    "http://localhost:3000",
+#]
+
+#CORS_ALLOWS_CREDENTIALS = True
+
+# CSRF_TRUSTED_ORIGINS = [
+#    "http://localhost:3000",
+#]

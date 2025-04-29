@@ -1,10 +1,11 @@
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from django.http import JsonResponse
 from .models import User
 import jwt
 from django.conf import settings
-from jwt.exceptions import ExpiredSignatureError
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import authenticate 
 from django.core.exceptions import ValidationError
@@ -13,9 +14,11 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from django.views.decorators.http import require_GET
 
+''''
 #récupére la data/génére  JWT/envoyer des cookies
-'''@api_view(['POST'])
+@api_view(['POST'])
 @permission_classes([AllowAny])
 def UserLogin(request):
     #récupérer les informations de utilisateur
@@ -177,40 +180,74 @@ def Register(request):
         # Catch potential errors during user creation
         return JsonResponse({"error": f"An error occurred during registration: {str(e)}"}, status=500) # Internal Server Error
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
+# @api_view(["POST"]) # Remove or comment out this line
+@require_GET # Use this decorator for GET requests
+# You might need to explicitly remove DRF's default authentication for this specific view
+# if JWTAuthentication interferes with manual cookie check.
+@authentication_classes([])
+@permission_classes([AllowAny]) # Use DRF's permission classes decorator explicitly here
 def check_cookies(request):
-    """Check if the user has valid authentication cookies"""
-    # Check if the user has a valid token in cookies
+    """Check if the user has valid authentication cookies (using GET)"""
+    response = JsonResponse({'status': 'not authenticated'}, status=401)
+    # Ensure Access-Control-Allow-Credentials is set explicitly if middleware fails
+    # Although django-cors-headers *should* handle this based on settings.py
+    response["Access-Control-Allow-Credentials"] = "true"
+
     try:
+        # Use the same cookie name as set during login ('access_token')
         token = request.COOKIES.get('access_token')
         if token:
-            # Here you would validate the token
-            # This is simplified - you should actually verify the token
-            # with your JWT library
-            return Response({'status': 'authenticated', 'expire': True}, status=status.HTTP_200_OK)
-        else:
-            return Response({'status': 'not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
+            # Decode using your SECRET_KEY
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+            # You could optionally return user info from payload if needed
+            response = JsonResponse({'status': 'authenticated', 'user_id': payload.get('user_id')}, status=200)
+            response["Access-Control-Allow-Credentials"] = "true" # Ensure it's on success too
+        # else: token is None, keep default 401 response
+
+    except ExpiredSignatureError:
+        response = JsonResponse({'status': 'not authenticated', 'error': 'Token expired'}, status=401)
+        response["Access-Control-Allow-Credentials"] = "true"
+    except InvalidTokenError:
+        response = JsonResponse({'status': 'not authenticated', 'error': 'Invalid token'}, status=401)
+        response["Access-Control-Allow-Credentials"] = "true"
     except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_401_UNAUTHORIZED)
+        # Catch other potential errors during decoding/processing
+        response = JsonResponse({'status': 'error', 'error': f'Server error during check: {str(e)}'}, status=500)
+        response["Access-Control-Allow-Credentials"] = "true" # Even on server error
+
+    # The Access-Control-Allow-Origin header should be added by django-cors-headers middleware based on settings
+    return response
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_view(request):
+    print(request)
     identifier = request.data.get('username')  # Could be username or email
     password = request.data.get('password')
 
     # Check if identifier is an email
     if '@' in identifier:
         try:
-            user_obj = User.objects.get(email=identifier)
-            username = user_obj.username
-        except User.DoesNotExist:
-            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            # Use filter() instead of get() to handle multiple users with same email
+            user_objs = User.objects.filter(email=identifier)
+            if user_objs.exists():
+                # Try authenticating with each user that has this email
+                for user_obj in user_objs:
+                    username = user_obj.username
+                    user = authenticate(username=username, password=password)
+                    if user is not None:
+                        # Found a match, proceed with this user
+                        break
+                else:
+                    # No matching user found with correct password
+                    return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            return Response({'error': f'Login error: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
         username = identifier
-
-    user = authenticate(username=username, password=password)
+        user = authenticate(username=username, password=password)
 
     if user is not None:
         refresh = RefreshToken.for_user(user)
@@ -226,16 +263,16 @@ def login_view(request):
         response.set_cookie(
             key='access_token',
             value=str(refresh.access_token),
-            httponly=True,  # Prevents JavaScript access
-            samesite='Lax',  # Helps prevent CSRF
-            max_age=60*30,  # 30 minutes
+            httponly=True,
+            samesite='Lax',
+            max_age=60*30,
         )
         response.set_cookie(
             key='refresh_token',
             value=str(refresh),
             httponly=True,
             samesite='Lax',
-            max_age=60*60*24,  # 1 day
+            max_age=60*60*24,
         )
 
         return response
@@ -269,3 +306,45 @@ def logout_view(request):
 @permission_classes([IsAuthenticated])
 def protected_view(request):
     return Response({"message": "You have access to this protected endpoint!"}, status=status.HTTP_200_OK)
+@api_view(['POST'])
+@permission_classes([AllowAny]) # Allow anyone to attempt verification
+@authentication_classes([]) # Don't run default auth for this view
+def verify_token_view(request):
+    """
+    Verifies a token sent in the request body.
+    """
+    token_str = request.data.get('token')
+
+    if not token_str:
+        return Response({'error': 'Token not provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        # Attempt to instantiate an AccessToken object which implicitly verifies
+        # the signature and expiration.
+        AccessToken(token_str)
+        # If the above line doesn't raise an exception, the token is valid
+        return Response({'status': 'Token is valid'}, status=status.HTTP_200_OK)
+    except TokenError as e:
+        # TokenError catches various issues like expiration, invalid signature etc.
+        return Response({'error': f'Token is invalid or expired: {str(e)}'}, status=status.HTTP_401_UNAUTHORIZED)
+    except Exception as e:
+        # Catch any other unexpected errors
+        return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def cookies(request):
+    AccessCook = request.COOKIES.get("access_token")  # <-- updated
+    RefreshCook = request.COOKIES.get("refresh_token")  # <-- updated
+      
+    if AccessCook and RefreshCook:
+        try:
+            access = jwt.decode(AccessCook, settings.SECRET_KEY, algorithms=['HS256'])
+            return JsonResponse({
+               "expire": str(access['exp']),
+            })
+        except ExpiredSignatureError:
+            return JsonResponse({
+                "resultat": "the token has expired",
+            })
+    return JsonResponse({"resultat": "failed cookies"})

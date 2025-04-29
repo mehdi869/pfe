@@ -160,6 +160,7 @@ return (
                             type="email"
                             placeholder="Enter your email..."
                             name="email"
+                            autocomplete="email"
                             required
                             value={formData.email}
                             onChange={handleInputChange}
@@ -176,6 +177,7 @@ return (
                             type="text"
                             placeholder="Enter your username..."
                             name="username"
+                            autocomplete="username"
                             maxLength={15}
                             required
                             value={formData.username}
@@ -193,6 +195,7 @@ return (
                             type="password"
                             placeholder="Enter your password..."
                             name="password"
+                            autocomplete="new-password"
                             minLength={4}
                             required
                             value={formData.password}

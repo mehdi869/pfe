@@ -51,10 +51,6 @@ const Login = () => {
       } else if (response.status === 200) {
         const data = await response.json();
 
-        // ✨ Save tokens
-        localStorage.setItem("access_token", data.access);
-        localStorage.setItem("refresh_token", data.refresh);
-
         // ✨ Set authenticated
         setIsAuthenticated(true);
 
@@ -111,6 +107,7 @@ const Login = () => {
                 type="text"
                 placeholder="Username or email"
                 name="username"
+                autocomplete="username" // Add this
                 value={formData.username}
                 onChange={handleInputChange}
                 className={formErrors.username ? "invalid" : ""}
@@ -126,6 +123,7 @@ const Login = () => {
                 type="password"
                 placeholder="Password"
                 name="password"
+                autocomplete="current-password" // Add this
                 value={formData.password}
                 onChange={handleInputChange}
                 className={formErrors.password ? "invalid" : ""}
