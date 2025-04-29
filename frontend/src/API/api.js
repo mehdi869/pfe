@@ -1,29 +1,48 @@
 export const Log = async (e) => {
- 
-  e.preventDefault()
+  e.preventDefault();
 
   const username = e.target.username.value;
   const password = e.target.password.value;
 
-  try{
-        const response = await fetch("http://localhost:8000/login/",{
-     
-         method : "POST",
-         headers: {
-            "Content-Type": "application/json",
-         },
-          credentials: "include",
-         body :  JSON.stringify({username,password})
-         })
-         return response
-     }catch(error){
-       console.log("probléme de connexion front-back")
-     }
-}
+  try {
+    const response = await fetch("http://localhost:8000/login/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
+    });
+
+    // Parse and return JSON if successful
+    if (response.ok) {
+      return await response.json();
+    } else {
+      // Try to parse error details
+      let errorData = { detail: `HTTP error! status: ${response.status}` };
+      try {
+        errorData = await response.json();
+      } catch {}
+      const error = new Error(errorData.detail || `Login failed with status ${response.status}`);
+      error.status = response.status;
+      error.data = errorData;
+      throw error;
+    }
+  } catch (error) {
+    console.log("probléme de connexion front-back");
+    throw error;
+  }
+};
 
 export const fetchQuestionTypeStats = async () => {
   try {
-    const response = await fetch('http://localhost:8000/barchart/');
+    const accessToken = localStorage.getItem('accessToken');
+    const response = await fetch('http://localhost:8000/barchart/', {
+      method: 'GET',
+      headers: {
+        "Content-Type": "application/json",
+        ...(accessToken && { "Authorization": `Bearer ${accessToken}` }),
+      },
+    });
 
     if (!response.ok) {
       throw new Error(`Erreur HTTP: ${response.status}`);

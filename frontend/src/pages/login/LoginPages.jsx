@@ -17,7 +17,7 @@ const Login = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const navigate = useNavigate();
-  const { setIsAuthenticated } = useContext(AuthContext); // ✨ Getting setIsAuthenticated
+  const { login } = useContext(AuthContext); // Get login function from context
 
   const validateForm = () => {
     const errors = {};
@@ -45,34 +45,30 @@ const Login = () => {
     setError(null);
 
     try {
-      const response = await Log(e);
-      if (!response) {
-        setError("Cannot connect to the server. Please check your internet connection.");
-      } else if (response.status === 200) {
-        const data = await response.json();
+      const data = await Log(e); // Call Log, await the data
 
-        // ✨ Set authenticated
-        setIsAuthenticated(true);
-
-        // ✨ Navigate to dashboard
-        navigate("/Dashboard");
+      // Store tokens using the login function from context
+      if (data.access && data.refresh) {
+        login(data.access, data.refresh); // Call context's login function
+        navigate("/Dashboard"); // Navigate on success
       } else {
-        let errorMsg = "Invalid username or password. Please verify your information.";
-        try {
-          const errorData = await response.json();
-          if (errorData && errorData.error) errorMsg = errorData.error;
-        } catch {
-          if (response.status >= 500) errorMsg = "Internal server error. Please try again later.";
-          else if (response.status === 0) errorMsg = "No response from server. Please check your connection.";
-        }
-        setError(errorMsg);
+         // Handle case where tokens might be missing in response
+         setError("Login successful, but token data is missing.");
       }
+
     } catch (err) {
-      if (err.message && err.message.includes("Network")) {
-        setError("Network error. Please check your internet connection.");
-      } else {
-        setError(err.message || "An unexpected error occurred. Please try again.");
-      }
+       // Handle errors thrown by Log function or network issues
+       let errorMsg = "An unexpected error occurred.";
+       if (err.status === 401) {
+           errorMsg = err.data?.detail || "Invalid username or password.";
+       } else if (err.message?.includes("Network") || err.message?.includes("fetch")) {
+           errorMsg = "Cannot connect to the server. Please check connection.";
+       } else if (err.status >= 500) {
+           errorMsg = "Server error. Please try again later.";
+       } else {
+           errorMsg = err.message || errorMsg;
+       }
+       setError(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -107,7 +103,7 @@ const Login = () => {
                 type="text"
                 placeholder="Username or email"
                 name="username"
-                autocomplete="username" // Add this
+                autoComplete="username" // Add this
                 value={formData.username}
                 onChange={handleInputChange}
                 className={formErrors.username ? "invalid" : ""}
@@ -123,7 +119,7 @@ const Login = () => {
                 type="password"
                 placeholder="Password"
                 name="password"
-                autocomplete="current-password" // Add this
+                autoComplete="current-password" // Add this
                 value={formData.password}
                 onChange={handleInputChange}
                 className={formErrors.password ? "invalid" : ""}

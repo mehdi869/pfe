@@ -3,6 +3,7 @@ from django.shortcuts import render
 from .models import SurveyData2, NpsQuestions
 from rest_framework.decorators import api_view
 from django.db.models import Count
+from django.db import connection
 
 # API pour les status
 @api_view(['GET'])
@@ -259,29 +260,30 @@ def survey_8_nps(request):
 
 @api_view(['GET'])
 def question_type_stats_api(request):
-    # Étape 1: Compter les tuples groupés par survey_type, lang_id, question_number
     question_groups = SurveyData2.objects.values(
         'survey_type', 'lang_id', 'question_number'
     ).annotate(
-        group_count=Count('id')
+        group_count=Count('*')
     ).order_by('survey_type', 'lang_id', 'question_number')
     stats = {}
+
     for group in question_groups:
-        try:
-            question = NpsQuestions.objects.get(
-                survey_type=group['survey_type'],
-                lang_id=group['lang_id'],
-                question_number=group['question_number']
-            )
-            question_type = question.question_type
-            # Étape 3: Agréger par question_type
-            if question_type in stats:
-                stats[question_type] += group['group_count']
-            else:
-                stats[question_type] = group['group_count']
-        except NpsQuestions.DoesNotExist:
+        # Skip groups with invalid key values (like -1)
+        if group['survey_type'] == -1 or group['lang_id'] == '-1' or group['question_number'] == -1:
             continue
-    # Préparer les données pour JsonResponse (sans "status" ni "data")
+
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT question_type
+                FROM nps_questions
+                WHERE survey_type = %s AND %s = ANY(lang_id) AND question_number = %s
+                LIMIT 1
+            """, [group['survey_type'], group['lang_id'], group['question_number']])            
+            row = cursor.fetchone()
+            if row:
+                question_type = row[0]
+                stats[question_type] = stats.get(question_type, 0) + group['group_count']
+
     response_data = {
         'question_types': {
             'labels': list(stats.keys()),

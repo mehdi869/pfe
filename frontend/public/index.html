@@ -3,10 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>React Vite App</title>
+    <title>React App</title> <!-- Changed title slightly -->
   </head>
   <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <script type="module" src="./src/main.jsx"></script>
+    <!-- Correct path relative to the root -->
+    <script type="module" src="/src/index.js"></script>
+    <!-- If using Vite and your entry is main.jsx, use /src/main.jsx -->
   </body>
 </html>
