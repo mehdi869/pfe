@@ -5,36 +5,39 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [accessToken, setAccessToken] = useState(null); // Store accessToken in memory
 
   useEffect(() => {
     const checkAuthStatus = async () => {
       setIsLoading(true);
       try {
-        const accessToken = localStorage.getItem('accessToken');
-        if (accessToken) {
-          // Verify the token with the backend
-          const verifyResponse = await fetch("http://localhost:8000/token/verify/", { // Correct verify endpoint
+        const storedRefreshToken = localStorage.getItem('refreshToken');
+        if (storedRefreshToken) {
+          // Attempt to refresh the access token
+          const refreshResponse = await fetch("http://localhost:8000/api/token/refresh/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token: accessToken }),
+            body: JSON.stringify({ refresh: storedRefreshToken }),
           });
-          if (verifyResponse.ok) {
-            setIsAuthenticated(true); // Token is valid
+
+          if (refreshResponse.ok) {
+            const data = await refreshResponse.json();
+            setAccessToken(data.access);
+            setIsAuthenticated(true);
           } else {
-            // Token invalid/expired - attempt refresh or clear tokens
-            console.log("Access token invalid, attempting refresh or clearing.");
-            // TODO: Implement refresh token logic here if desired
-            localStorage.removeItem('accessToken');
+            // Refresh token invalid/expired
+            console.log("Refresh token invalid, clearing tokens.");
             localStorage.removeItem('refreshToken');
+            setAccessToken(null);
             setIsAuthenticated(false);
           }
         } else {
-          setIsAuthenticated(false); // No token found
+          setIsAuthenticated(false); // No refresh token found
         }
       } catch (error) {
         console.error("Auth check failed:", error);
-        localStorage.removeItem('accessToken'); // Clean up on error
-        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('refreshToken'); // Clean up on error
+        setAccessToken(null);
         setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
@@ -44,21 +47,34 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (access, refresh) => {
-    localStorage.setItem('accessToken', access);
-    localStorage.setItem('refreshToken', refresh);
+    setAccessToken(access); // Store access token in memory
+    localStorage.setItem('refreshToken', refresh); // Store refresh token securely
     setIsAuthenticated(true);
   };
 
-  const logout = () => {
-    // Optionally call backend logout API first
-    // fetch("http://localhost:8000/api/logout/", { method: "POST", ... });
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    setIsAuthenticated(false);
+  const logout = async () => {
+    try {
+      // Call backend logout API
+      const response = await fetch("http://localhost:8000/logout/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refresh: localStorage.getItem('refreshToken') }),
+      });
+
+      if (response.ok) {
+        console.log("Logout successful.");
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      localStorage.removeItem('refreshToken');
+      setAccessToken(null);
+      setIsAuthenticated(false);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, isLoading, login, logout, accessToken }}>
       {children}
     </AuthContext.Provider>
   );
