@@ -36,10 +36,13 @@ This is an internal web application for data analysis dashboard and statistics s
     DB_PORT=5432
     ```
 #### Frontend:
-- Go to frontend folder, create a new file `.env`
+- Go to frontend folder, create a new file\ `.env`
 - Copy and add this information:
     ```REACT_APP_API_URL=http://localhost:8000```
-    ### 4. Run the App
+### 4. DB Configuration:
+- Insure that the DB tables are with correct names and types and also have data.
+- Cloud connection option is soon available.
+### 5. Run the App
 - Open the Terminal and start the backend server:
 ```bash
         cd ./backend

@@ -21,8 +21,8 @@ export const tokens = (mode) => ({
           200: "#a1a4ab",
           300: "#727681",
           400: "#1F2A40",
-          500: "#141b2d",
-          600: "#101624",
+          500: "#ed1c24", // Main brand red from login page
+          600: "#d01920", // Darker red (hover state)
           700: "#0c101b",
           800: "#080b12",
           900: "#040509",
@@ -43,7 +43,7 @@ export const tokens = (mode) => ({
           200: "#f1b9b7",
           300: "#e99592",
           400: "#e2726e",
-          500: "#db4f4a",
+          500: "#ed1c24", // Match with primary.500
           600: "#af3f3b",
           700: "#832f2c",
           800: "#58201e",
@@ -78,8 +78,8 @@ export const tokens = (mode) => ({
           200: "#080b12",
           300: "#0c101b",
           400: "#f2f0f0", // manually changed
-          500: "#141b2d",
-          600: "#1F2A40",
+          500: "#ed1c24", // Main brand red from login page
+          600: "#d01920", // Darker red (hover state)
           700: "#727681",
           800: "#a1a4ab",
           900: "#d0d1d5",
@@ -100,7 +100,7 @@ export const tokens = (mode) => ({
           200: "#58201e",
           300: "#832f2c",
           400: "#af3f3b",
-          500: "#db4f4a",
+          500: "#ed1c24", // Match with primary.500
           600: "#e2726e",
           700: "#e99592",
           800: "#f1b9b7",
@@ -141,13 +141,13 @@ export const themeSettings = (mode) => {
               light: colors.grey[100],
             },
             background: {
-              default: colors.primary[500],
+              default: colors.primary[400],
             },
           }
         : {
             // palette values for light mode
             primary: {
-              main: colors.primary[100],
+              main: colors.primary[500],
             },
             secondary: {
               main: colors.greenAccent[500],
@@ -164,30 +164,30 @@ export const themeSettings = (mode) => {
     },
     typography: {
       fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
-      fontSize: 10,
+      fontSize: 12,
       h1: {
         fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
-        fontSize: 30,
+        fontSize: 40,
       },
       h2: {
         fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
-        fontSize: 20,
+        fontSize: 32,
       },
       h3: {
         fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
-        fontSize: 18,
+        fontSize: 24,
       },
       h4: {
         fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
-        fontSize: 16,
+        fontSize: 20,
       },
       h5: {
         fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
-        fontSize: 10,
+        fontSize: 16,
       },
       h6: {
         fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
-        fontSize: 10,
+        fontSize: 14,
       },
     },
   };

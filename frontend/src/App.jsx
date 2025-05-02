@@ -47,9 +47,9 @@ function App() {
               <Route element={<ProtectedRoute />}>
                 <Route
                   element={
-                    <div className="app" style={{ display: "flex", height: "100vh", width: "100vw" }}>
+                    <div className="app" style={{ display: "flex", height: "100vh" }}>
                       <Sidebar isSider={isSider} />
-                      <main className="content" style={{ flexGrow: 1 }}>
+                      <main className="content" style={{ flexGrow: 1, overflow: "auto" }}>
                         <Topbar setIsSider={setIsSider} />
                         <Outlet />
                       </main>
