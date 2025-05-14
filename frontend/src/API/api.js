@@ -5,7 +5,7 @@ export const Log = async (e) => {
   const password = e.target.password.value;
 
   try {
-    const response = await fetch("http://localhost:8000/login/", {
+    const response = await fetch("http://localhost:8000/auth/login/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -33,14 +33,41 @@ export const Log = async (e) => {
   }
 };
 
-export const fetchQuestionTypeStats = async () => {
+export const fetchStatus = async () => {
+  
+  const response =await fetch("http://localhost:8000/status/",{
+    method: 'GET',
+    headers: {
+    'Content-Type' : 'application/json' // Corrected: 'content-Type' to 'Content-Type'
+   }
+  });
+  
+  return response
+}
+
+export const fetchNpsScore = async (accessToken) => { // Added accessToken parameter
+  const response = await fetch("http://localhost:8000/nps/",{ // Added trailing slash for consistency
+    method : 'GET',
+    headers: { // Corrected: geaders to headers
+      'Content-Type' : 'application/json', // Corrected: 'content-type', 'appliaction/json'
+      ...(accessToken && { "Authorization": `Bearer ${accessToken}` }),
+    }
+  })
+
+  return response
+}
+
+export const fetchQuestionTypeStats = async (accessToken) => { // Added accessToken parameter
   try {
-    const accessToken = localStorage.getItem('accessToken');
+    // const accessToken = localStorage.getItem('accessToken'); // Removed: Get token from argument
+    if (!accessToken) {
+      throw new Error("Access token is not available for fetching question type stats.");
+    }
     const response = await fetch('http://localhost:8000/barchart/', {
       method: 'GET',
       headers: {
         "Content-Type": "application/json",
-        ...(accessToken && { "Authorization": `Bearer ${accessToken}` }),
+        "Authorization": `Bearer ${accessToken}`, // Use the passed accessToken
       },
     });
 
@@ -61,17 +88,27 @@ export const fetchQuestionTypeStats = async () => {
   }
 };
 
-export const Logout = async (setIsAuthenticated) => {
+export const Logout = async (logoutFromContext) => { // Changed parameter to reflect context usage
   try {
     const response = await fetch("http://localhost:8000/logout/", {
       method: "POST",
-      credentials: "include",
+      headers: { // Added headers for consistency, and if backend expects refresh token in body
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ refresh: localStorage.getItem('refreshToken') }), // Assuming backend expects refresh token
+      credentials: "include", // Keep if backend relies on cookies for session invalidation alongside token
     });
     
-    if (response.status === 200) {
-      setIsAuthenticated(false);
+    if (response.ok) { // Check for response.ok instead of status === 200 for broader success cases
+      logoutFromContext(); // Call the logout function from AuthContext
       return true;
     }
+    // Attempt to parse error if not ok
+    let errorData = { detail: `Logout failed with status ${response.status}` };
+    try {
+      errorData = await response.json();
+    } catch {}
+    console.error("Logout API error:", errorData.detail);
     return false;
   } catch (error) {
     console.error("Logout failed:", error);

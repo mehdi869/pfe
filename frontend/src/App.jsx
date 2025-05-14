@@ -1,5 +1,4 @@
-"use client"
-
+ 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import { CssBaseline, ThemeProvider } from "@mui/material"
 import { ColorModeContext, useMode } from "./styles/theme"
@@ -23,7 +22,9 @@ import Invoices from "./scenes/invoices"
 import Contacts from "./scenes/contacts"
 import Form from "./scenes/form"
 import Calendar from "./scenes/calendar"
-import { Map } from "./scenes/Map/map.jsx"
+ import {Map} from "./scenes/Map/map.jsx"
+ import {StatusChart} from "./scenes/chart/StatusChart.jsx" 
+ import {NpsChart} from "./scenes/chart/NpsChart.jsx"
 
 function App() {
   const [theme, colorMode] = useMode()
@@ -64,6 +65,8 @@ function App() {
                   <Route path="/calendar" element={<Calendar />} />
                   <Route path="/map" element={<Map />} />
                   <Route path="/barChart" element={<BarChart />} />
+                  <Route path='/chart' element={<StatusChart/>}></Route>
+                  <Route path='/nps' element = {<NpsChart/>}></Route>
                 </Route>
               </Route>
 

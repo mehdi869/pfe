@@ -1,263 +1,466 @@
 from django.http import JsonResponse
-from django.shortcuts import render
-from .models import SurveyData2, NpsQuestions
+from .models import view_status,view_nps_score,age_group,city,survey,survey_nps_score
 from rest_framework.decorators import api_view
-from django.db.models import Count
-from django.db import connection
+from django.db.models import Sum,Q
 
 # API pour les status
 @api_view(['GET'])
 def status(request):
    
-   status = SurveyData2.objects.values('status').annotate(total = Count('*'))
-   # list_user = list(user)
-   count = SurveyData2.objects.count()
-   # poursentge = (list(user)[2]['total']*100)/count
-   i = 0
-   list_poursentage = []
-   for element in status:
-      poursentage = (element['total']*100)/count 
-      list_poursentage.append(poursentage)
-
-
-   return JsonResponse(list_poursentage, safe = False)
-
-
-@api_view(['GET'])
-def survey_8_nps(request):
-      count = SurveyData2.objects.filter(survey_type = 8).count()
-      count_null = SurveyData2.objects.filter(survey_type = 8,nps_score = -1).count()
-      survey_nps_0 = SurveyData2.objects.filter(survey_type = 8,nps_score = 0).count()
-      survey_nps_1_6 = SurveyData2.objects.filter(survey_type = 8,nps_score__gte = 1 ,nps_score__lte = 6).count()
-      survey_nps_7_8 = SurveyData2.objects.filter(survey_type = 8,nps_score__gte = 7 ,nps_score__lte = 8).count()
-      survey_nps_9_10 = SurveyData2.objects.filter(survey_type = 8,nps_score__gte = 9 ,nps_score__lte = 10).count()
-
+   status = view_status.objects.all().values("status", "total")
+   
+   null = view_status.objects.filter(
+        Q(status='-1') | Q(status='5')
+    ).aggregate(somme_total=Sum('total'))['somme_total'] or 0  
+    
+   somme = view_status.objects.exclude(
+        Q(status='-1') | Q(status='5')
+    ).aggregate(somme_total=Sum('total'))['somme_total'] or 0  
+   count = 61734113
+   for liste in status:
+      poursentage = (liste['total']*100)/count
+      liste['total'] = str(poursentage)
       
-      return JsonResponse({'count' : str(count),
-                           'null' : str(count_null),
-                           '0' : str(survey_nps_0),
-                           '1-6' : str(survey_nps_1_6),
-                           '7-8' : str(survey_nps_7_8),
-                           '9-10' : str(survey_nps_9_10)})
+
+   return JsonResponse({"list":list(status), "count" : str(count), "null" : str(null),"somme" : str(somme)})
 
 # API des score nps
 @api_view(['GET'])  
 def nps_score(request):
 
-   nps_count = SurveyData2.objects.exclude(nps_score = -1).count()
-   nps_1_6 = SurveyData2.objects.exclude(nps_score = -1).filter(nps_score__gte = 1, nps_score__lte = 6).count()
-   nps_7_8 = SurveyData2.objects.exclude(nps_score = -1).filter(nps_score__gte = 7, nps_score__lte = 8).count()
-   nps_9_10 = SurveyData2.objects.exclude(nps_score = -1).filter(nps_score__gte = 9, nps_score__lte = 10).count()
-   nps_0 = SurveyData2.objects.filter(nps_score = 0).count()
+   nps_count = 973455
+   nps_1_6 = view_nps_score.objects.filter(
+    nps_score__gte=1, nps_score__lte=6
+    ).aggregate(total_sum=Sum('total'))['total_sum']
    
-   poursentage_0 = (nps_0 * 100)/nps_count
-   poursentage_1_6 = (nps_1_6 * 100)/nps_count
-   poursentage_7_8 = (nps_7_8 * 100)/nps_count
-   poursentage_9_10 = (nps_9_10 * 100)/nps_count
-
-   return JsonResponse({'count' : str(nps_count),
-                        '0' : str(nps_0),
-                        '1-6' : str(nps_1_6),
-                        "7-8" : str(nps_7_8),
-                        "9-10" : str(nps_9_10),
-                        'poursentage 0' : str(poursentage_0) + ' %',
-                        'poursentage 1-6' : str(poursentage_1_6) + ' %',
-                        "poursentage 7-8" : str(poursentage_7_8)+ ' %',
-                        "poursentage 9-10" : str(poursentage_9_10) + ' %'})
+   nps_7_8 = view_nps_score.objects.filter(
+    nps_score__gte = 7,nps_score__lte = 8).aggregate(
+    total_sum=Sum('total'))['total_sum']
+   
+   nps_9_10 = view_nps_score.objects.filter(
+       nps_score__gte = 9, nps_score__lte = 10).aggregate(
+           total_sum= Sum('total'))['total_sum']
+   
+   nps_0 = view_nps_score.objects.filter(nps_score = 0).aggregate(total_sum=Sum('total'))['total_sum']
+   
+   return JsonResponse({'0' : str(nps_0*100/nps_count),
+                        '1-6' : str(nps_1_6*100/nps_count),
+                        '7-8': str(nps_7_8*100/nps_count),
+                        '9-10' : str(nps_9_10*100/nps_count)})
 
 # API des groupe d'age
 @api_view(['GET'])
-def age_group(request):
-   count = SurveyData2.objects.count()
-   count_Null = SurveyData2.objects.filter(age_group ="-1").count()
-   count_18_25 = SurveyData2.objects.filter(age_group = '18-25').count()
-   count_26_35 = SurveyData2.objects.filter(age_group = '26-35').count()
-   count_36_45 = SurveyData2.objects.filter(age_group = '36-45').count()
-   count_46_55 = SurveyData2.objects.filter(age_group = '46-55').count()
-   count_56_65 = SurveyData2.objects.filter(age_group = '56-65').count()
+def age_groupe(request):
+   count = age_group.objects.aggregate(
+        total_sum = Sum('total'))['total_sum']
+   
+   count_Null = age_group.objects.filter(
+        age_group ="-1").values("total").first()
+   
+   count_18_25 = age_group.objects.filter(
+        age_group = '18-25').values("total").first()
+   
+   count_26_35 = age_group.objects.filter(
+        age_group = '26-35').values("total").first()
+   
+   count_36_45 = age_group.objects.filter(
+        age_group = '36-45').values("total").first()
+   
+   count_46_55 = age_group.objects.filter(
+        age_group = '46-55').values("total").first()
+   
+   count_56_65 = age_group.objects.filter(
+        age_group = '56-65').values("total").first()
 
-   return JsonResponse({'count' : str(count),
-                        'NUll' : str((count_Null*100)/count),
-                        '18-25' : str((count_18_25*100)/count),
-                        '26-35' : str((count_26_35*100)/count),
-                        '36-45' : str((count_36_45*100)/count),
-                        '46-55' : str((count_46_55*100)/count),
-                        '56-65' : str((count_56_65*100)/count)})
+   return JsonResponse({'count' : count,
+                        'NUll' : count_Null["total"]*100/count,
+                        '18-25' : count_18_25["total"]*100/count,
+                        '26-35' : count_26_35["total"]*100/count,
+                        '36-45' : count_36_45["total"]*100/count,
+                        '46-55' : count_46_55["total"]*100/count,
+                        '56-65' : count_56_65["total"]*100/count
+                        })
 
 # API qui return le pourcentage de client qui ce trouve dans chaque city
-@api_view(['GET'])
-def city_poursentage(request): 
-   count = SurveyData2.objects.count()
-   city_count = SurveyData2.objects.values('city_name').annotate(total = Count('*'))
-   list_city = []
-   for element in city_count:
-      poursentage = (element['total'] * 100 / count)
-      element['total'] = str(poursentage)
-      list_city.append(element)
+# @api_view(['GET'])
+# def city_poursentage(request): 
+#    count = SurveyData2.objects.count()
+#    city_count = SurveyData2.objects.values('city_name').annotate(total = Count('*'))
+#    list_city = []
+#    for element in city_count:
+#       poursentage = (element['total'] * 100 / count)
+#       element['total'] = str(poursentage)
+#       list_city.append(element)
 
-   return JsonResponse(list_city,safe=False)
+#    return JsonResponse(list_city,safe=False)
 
-# API qui return le nombre le client (dataset) qui ce trouve dans chaque city
+# API qui return le nombre de client (dataset) qui ce trouve dans chaque city
 @api_view(['GET'])
-def city(request): 
+def city_views(request): 
    # count = SurveyData2.objects.count()
-   city_count = SurveyData2.objects.values('city_name').annotate(total = Count('*'))
+   city_count = city.objects.values('city_name', 'total')
 
    return JsonResponse(list(city_count),safe=False)
 
 # API qui return pur chaque survey le poursentage de client qui on reduit a ce survey
 @api_view(["GET"])
-def survey(request):
-   count = SurveyData2.objects.count()
-   count_null = SurveyData2.objects.filter(survey_type = -1).count()
-   count_1 = SurveyData2.objects.filter(survey_type = 1).count()
-   count_2 = SurveyData2.objects.filter(survey_type = 2).count()
-   count_3 = SurveyData2.objects.filter(survey_type = 3).count()
-   count_4 = SurveyData2.objects.filter(survey_type = 4).count()
-   count_5 = SurveyData2.objects.filter(survey_type = 5).count()
-   count_6 = SurveyData2.objects.filter(survey_type = 6).count()
-   count_7 = SurveyData2.objects.filter(survey_type = 7).count()
-   count_8 = SurveyData2.objects.filter(survey_type = 8).count()
+def survey_type(request):
+   count = survey.objects.aggregate(total_sum = Sum('total'))['total_sum']
+   count_null = survey.objects.filter(survey_type = -1).values('total').first()
+   count_1 = survey.objects.filter(survey_type = 1).values('total').first()
+   count_2 = survey.objects.filter(survey_type = 2).values('total').first()
+   count_3 = survey.objects.filter(survey_type = 3).values('total').first()
+   count_4 = survey.objects.filter(survey_type = 4).values('total').first()
+   count_5 = survey.objects.filter(survey_type = 5).values('total').first()
+   count_6 = survey.objects.filter(survey_type = 6).values('total').first()
+   count_8 = survey.objects.filter(survey_type = 8).values('total').first()
 
-   return JsonResponse({'count':str(count),
-                        '-1':str((count_null*100)/count),
-                        '1':str((count_1*100)/count),
-                        '2':str((count_2*100)/count),
-                        '3':str((count_3*100)/count),
-                        '4':str((count_4*100)/count),
-                        '5':str((count_5*100)/count),
-                        '6':str((count_6*100)/count),
-                        '7':str((count_7*100)/count),
-                        '8':str((count_8*100)/count)})
+   return JsonResponse({'count':count,
+                        '-1': count_null['total']*100/count,
+                        '1':count_1['total']*100/count,
+                        '2':count_2['total']*100/count,
+                        '3':count_3['total']*100/count,
+                        '4':count_4['total']*100/count,
+                        '5':count_5['total']*100/count,
+                        '6':count_6['total']*100/count,
+                        '8':count_8['total']*100/count
+                        })
 
 
 @api_view(['GET'])
 def survey_1_nps(request):
-      count = SurveyData2.objects.filter(survey_type = 1).count()
-      count_null = SurveyData2.objects.filter(survey_type = 1,nps_score = -1).count()
-      survey_nps_0 = SurveyData2.objects.filter(survey_type = 1,nps_score = 0).count()
-      survey_nps_1_6 = SurveyData2.objects.filter(survey_type = 1,nps_score__gte = 1 ,nps_score__lte = 6).count()
-      survey_nps_7_8 = SurveyData2.objects.filter(survey_type = 1,nps_score__gte = 7 ,nps_score__lte = 8).count()
-      survey_nps_9_10 = SurveyData2.objects.filter(survey_type = 1,nps_score__gte = 9 ,nps_score__lte = 10).count()
+      count = survey_nps_score.objects.filter(survey_type = 1).aggregate(total_sum = Sum('total'))['total_sum'] 
+      count_null = survey_nps_score.objects.filter(survey_type = 1,nps_score = -1).values('total').first()
+      count_not_null= survey_nps_score.objects.filter(survey_type = 1).exclude(nps_score = -1).aggregate(total_sum = Sum('total'))['total_sum'] 
+
+      survey_nps_0 = survey_nps_score.objects.filter(survey_type = 1,nps_score = 0).values('total').first()
+      survey_nps_1_6 = survey_nps_score.objects.filter(
+           survey_type = 1,
+           nps_score__gte = 1 ,
+           nps_score__lte = 6
+           ).aggregate(total_sum = Sum('total'))['total_sum']
+      
+
+      survey_nps_7_8 = survey_nps_score.objects.filter(survey_type = 1,nps_score__gte = 7 ,nps_score__lte = 8).aggregate(total_sum = Sum('total'))['total_sum']
+      survey_nps_9_10 = survey_nps_score.objects.filter(survey_type = 1,nps_score__gte = 9 ,nps_score__lte = 10).aggregate(total_sum = Sum('total'))['total_sum']
 
       
-      return JsonResponse({'count' : str(count),
-                           'null' : str(count_null),
-                           '0' : str(survey_nps_0),
-                           '1-6' : str(survey_nps_1_6),
-                           '7-8' : str(survey_nps_7_8),
-                           '9-10' : str(survey_nps_9_10)})
+      return JsonResponse({'count' :count,
+                           'null' : count_null['total'],
+                           'not null' : count_not_null,
+                           '0' : survey_nps_0['total']*100/count_not_null,
+                           '1-6' : survey_nps_1_6*100/count_not_null,
+                           '7-8' : survey_nps_7_8*100/count_not_null,
+                           '9-10' : survey_nps_9_10*100/count_not_null
+                           })
 
 
 
 @api_view(['GET'])
 def survey_2_nps(request):
-      count = SurveyData2.objects.filter(survey_type = 2).count()
-      count_null = SurveyData2.objects.filter(survey_type = 2,nps_score = -1).count()
-      survey_nps_0 = SurveyData2.objects.filter(survey_type = 2,nps_score = 0).count()
-      survey_nps_1_6 = SurveyData2.objects.filter(survey_type = 2,nps_score__gte = 1 ,nps_score__lte = 6).count()
-      survey_nps_7_8 = SurveyData2.objects.filter(survey_type = 2,nps_score__gte = 7 ,nps_score__lte = 8).count()
-      survey_nps_9_10 = SurveyData2.objects.filter(survey_type = 2,nps_score__gte = 9 ,nps_score__lte = 10).count()
+      count = survey_nps_score.objects.filter(survey_type = 2
+                ).aggregate(total_sum = Sum('total'))['total_sum']
+      
+      count_null = survey_nps_score.objects.filter(
+           survey_type = 2,
+           nps_score = -1).values('total').first()
+      
+      count_not_null = survey_nps_score.objects.filter(survey_type = 2
+                      ).exclude(nps_score = -1
+                      ).aggregate(total_sum = Sum('total'))['total_sum']
+      
+
+      survey_nps_0 = survey_nps_score.objects.filter(
+           survey_type = 2,
+           nps_score = 0
+           ).values('total').first()
+      
+
+      survey_nps_1_6 = survey_nps_score.objects.filter(
+           survey_type = 2,
+           nps_score__gte = 1 ,
+           nps_score__lte = 6
+           ).aggregate(total_sum = Sum('total'))['total_sum']
+      
+      
+      survey_nps_7_8 = survey_nps_score.objects.filter(
+           survey_type = 2,
+           nps_score__gte = 7 ,
+           nps_score__lte = 8
+           ).aggregate(total_sum = Sum('total'))['total_sum']
+      
+      
+      survey_nps_9_10 = survey_nps_score.objects.filter(
+           survey_type = 2,
+           nps_score__gte = 9 ,
+           nps_score__lte = 10
+           ).aggregate(total_sum = Sum('total'))['total_sum']
 
       
-      return JsonResponse({'count' : str(count),
-                           'null' : str(count_null),
-                           '0' : str(survey_nps_0),
-                           '1-6' : str(survey_nps_1_6),
-                           '7-8' : str(survey_nps_7_8),
-                           '9-10' : str(survey_nps_9_10)})
+      return JsonResponse({'count' : count,
+                           'null' : count_null['total'],
+                           'not null' : count_not_null,
+                           '0' : survey_nps_0['total']*100/count_not_null,
+                           '1-6' : survey_nps_1_6*100/count_not_null,
+                           '7-8' : survey_nps_7_8*100/count_not_null,
+                           '9-10' : survey_nps_9_10*100/count_not_null
+                           })
 
 
 @api_view(['GET'])
 def survey_3_nps(request):
-      count = SurveyData2.objects.filter(survey_type = 3).count()
-      count_null = SurveyData2.objects.filter(survey_type = 3,nps_score = -1).count()
-      survey_nps_0 = SurveyData2.objects.filter(survey_type = 3,nps_score = 0).count()
-      survey_nps_1_6 = SurveyData2.objects.filter(survey_type = 3,nps_score__gte = 1 ,nps_score__lte = 6).count()
-      survey_nps_7_8 = SurveyData2.objects.filter(survey_type = 3,nps_score__gte = 7 ,nps_score__lte = 8).count()
-      survey_nps_9_10 = SurveyData2.objects.filter(survey_type = 3,nps_score__gte = 9 ,nps_score__lte = 10).count()
+      count = survey_nps_score.objects.filter(
+           survey_type = 3
+           ).aggregate(total_sum = Sum('total'))['total_sum']
+      
+      
+      count_null = survey_nps_score.objects.filter(
+           survey_type = 3,
+           nps_score = -1
+           ).values('total').first()
+      
+      count_not_null = survey_nps_score.objects.filter(survey_type = 3
+                      ).exclude(nps_score = -1
+                      ).aggregate(total_sum = Sum('total'))['total_sum']
+      
+      survey_nps_0 = survey_nps_score.objects.filter(
+           survey_type = 3,
+           nps_score = 0
+           ).values('total').first()
+      
+      
+      survey_nps_1_6 = survey_nps_score.objects.filter(
+           survey_type = 3,
+           nps_score__gte = 1 ,
+           nps_score__lte = 6
+           ).aggregate(total_sum = Sum('total'))['total_sum']
+      
+      survey_nps_7_8 = survey_nps_score.objects.filter(
+           survey_type = 3,
+           nps_score__gte = 7 ,
+           nps_score__lte = 8
+           ).aggregate(total_sum = Sum('total'))['total_sum']
+      
+      survey_nps_9_10 = survey_nps_score.objects.filter(
+           survey_type = 3,
+           nps_score__gte = 9 ,
+           nps_score__lte = 10
+           ).aggregate(total_sum = Sum('total'))['total_sum']
 
       
-      return JsonResponse({'count' : str(count),
-                           'null' : str(count_null),
-                           '0' : str(survey_nps_0),
-                           '1-6' : str(survey_nps_1_6),
-                           '7-8' : str(survey_nps_7_8),
-                           '9-10' : str(survey_nps_9_10)})
+      return JsonResponse({'count' : count,
+                           'null' : count_null['total'],
+                           'not null' : count_not_null,
+                           '0' : survey_nps_0['total']*100/count_not_null,
+                           '1-6' : survey_nps_1_6*100/count_not_null,
+                           '7-8' : survey_nps_7_8*100/count_not_null,
+                           '9-10' : survey_nps_9_10*100/count_not_null
+                         })
 
 
 
 @api_view(['GET'])
 def survey_4_nps(request):
-      count = SurveyData2.objects.filter(survey_type = 4).count()
-      count_null = SurveyData2.objects.filter(survey_type = 4,nps_score = -1).count()
-      survey_nps_0 = SurveyData2.objects.filter(survey_type = 4,nps_score = 0).count()
-      survey_nps_1_6 = SurveyData2.objects.filter(survey_type = 4,nps_score__gte = 1 ,nps_score__lte = 6).count()
-      survey_nps_7_8 = SurveyData2.objects.filter(survey_type = 4,nps_score__gte = 7 ,nps_score__lte = 8).count()
-      survey_nps_9_10 = SurveyData2.objects.filter(survey_type = 4,nps_score__gte = 9 ,nps_score__lte = 10).count()
+      count = survey_nps_score.objects.filter(
+           survey_type = 4
+           ).aggregate(total_sum = Sum('total'))['total_sum']
+      
+
+      count_null = survey_nps_score.objects.filter(
+           survey_type = 4,
+           nps_score = -1
+           ).values('total').first()
+      
+      count_not_null = survey_nps_score.objects.filter(
+           survey_type = 4
+           ).exclude(
+                nps_score = -1
+                ).aggregate(total_sum = Sum('total'))['total_sum']
+      
+      survey_nps_0 = survey_nps_score.objects.filter(
+           survey_type = 4,
+           nps_score = 0
+           ).values('total').first()
+      
+      
+      survey_nps_1_6 = survey_nps_score.objects.filter(
+           survey_type = 4,
+           nps_score__gte = 1 ,
+           nps_score__lte = 6).aggregate(total_sum = Sum('total'))['total_sum']
+      
+
+      survey_nps_7_8 = survey_nps_score.objects.filter(
+           survey_type = 4,
+           nps_score__gte = 7 ,
+           nps_score__lte = 8
+           ).aggregate(total_sum = Sum('total'))['total_sum']
+      
+      survey_nps_9_10 = survey_nps_score.objects.filter(
+           survey_type = 4,
+           nps_score__gte = 9,
+           nps_score__lte = 10
+           ).aggregate(total_sum = Sum('total'))['total_sum']
 
       
-      return JsonResponse({'count' : str(count),
-                           'null' : str(count_null),
-                           '0' : str(survey_nps_0),
-                           '1-6' : str(survey_nps_1_6),
-                           '7-8' : str(survey_nps_7_8),
-                           '9-10' : str(survey_nps_9_10)})
+      return JsonResponse({'count' : count,
+                           'null' : count_null['total'],
+                           "not null" : count_not_null,
+                           '0' : survey_nps_0['total']*100/count_not_null,
+                           '1-6' : survey_nps_1_6*100/count_not_null,
+                           '7-8' : survey_nps_7_8*100/count_not_null,
+                           '9-10' : survey_nps_9_10*100/count_not_null
+                           })
 
                            
 @api_view(['GET'])
 def survey_5_nps(request):
-      count = SurveyData2.objects.filter(survey_type = 5).count()
-      count_null = SurveyData2.objects.filter(survey_type = 5,nps_score = -1).count()
-      survey_nps_0 = SurveyData2.objects.filter(survey_type = 5,nps_score = 0).count()
-      survey_nps_1_6 = SurveyData2.objects.filter(survey_type = 5,nps_score__gte = 1 ,nps_score__lte = 6).count()
-      survey_nps_7_8 = SurveyData2.objects.filter(survey_type = 5,nps_score__gte = 7 ,nps_score__lte = 8).count()
-      survey_nps_9_10 = SurveyData2.objects.filter(survey_type = 5,nps_score__gte = 9 ,nps_score__lte = 10).count()
+      count = survey_nps_score.objects.filter(
+           survey_type = 5
+           ).aggregate(total_sum = Sum('total'))['total_sum']  
+      
+      count_null = survey_nps_score.objects.filter(
+           survey_type = 5,
+           nps_score = -1
+           ).values('total').first()
+      
+      count_not_null = survey_nps_score.objects.filter(
+           survey_type = 5
+           ).exclude(
+                nps_score = -1
+                ).aggregate(total_sum = Sum('total'))['total_sum']
+
+      survey_nps_0 = survey_nps_score.objects.filter(
+           survey_type = 5,
+           nps_score = 0).values('total').first()
+      
+      survey_nps_1_6 = survey_nps_score.objects.filter(
+           survey_type = 5,
+           nps_score__gte = 1 ,
+           nps_score__lte = 6
+           ).aggregate(total_sum = Sum('total'))['total_sum']
+      
+      survey_nps_7_8 = survey_nps_score.objects.filter(
+           survey_type = 5,
+           nps_score__gte = 7 ,
+           nps_score__lte = 8
+           ).aggregate(total_sum = Sum('total'))['total_sum']
+      
+
+      survey_nps_9_10 = survey_nps_score.objects.filter(
+           survey_type = 5,
+           nps_score__gte = 9 ,
+           nps_score__lte = 10
+           ).aggregate(total_sum = Sum('total'))['total_sum']
 
       
-      return JsonResponse({'count' : str(count),
-                           'null' : str(count_null),
-                           '0' : str(survey_nps_0),
-                           '1-6' : str(survey_nps_1_6),
-                           '7-8' : str(survey_nps_7_8),
-                           '9-10' : str(survey_nps_9_10)})
+      return JsonResponse({'count' : count,
+                           'null' : count_null['total'],
+                           "not null" : count_not_null,
+                           '0' : survey_nps_0['total']*100/count_not_null,
+                           '1-6' : survey_nps_1_6*100/count_not_null,
+                           '7-8' : survey_nps_7_8*100/count_not_null,
+                           '9-10' : survey_nps_9_10*100/count_not_null})
 
 
 @api_view(['GET'])
 def survey_6_nps(request):
-      count = SurveyData2.objects.filter(survey_type = 6).count()
-      count_null = SurveyData2.objects.filter(survey_type = 6,nps_score = -1).count()
-      survey_nps_0 = SurveyData2.objects.filter(survey_type = 6,nps_score = 0).count()
-      survey_nps_1_6 = SurveyData2.objects.filter(survey_type = 6,nps_score__gte = 1 ,nps_score__lte = 6).count()
-      survey_nps_7_8 = SurveyData2.objects.filter(survey_type = 6,nps_score__gte = 7 ,nps_score__lte = 8).count()
-      survey_nps_9_10 = SurveyData2.objects.filter(survey_type = 6,nps_score__gte = 9 ,nps_score__lte = 10).count()
+      
+      count = survey_nps_score.objects.filter(
+           survey_type = 6
+           ).aggregate(total_sum = Sum('total'))['total_sum']
+      
+      count_null = survey_nps_score.objects.filter(
+           survey_type = 6,
+           nps_score = -1
+           ).values('total').first()
+      
+      count_not_null = survey_nps_score.objects.filter(
+           survey_type = 6
+           ).exclude(
+                nps_score = -1
+                ).aggregate(total_sum = Sum('total'))['total_sum']
+      
+      survey_nps_0 = survey_nps_score.objects.filter(
+           survey_type = 6,
+           nps_score = 0
+           ).values('total').first()
+      
+      survey_nps_1_6 = survey_nps_score.objects.filter(
+           survey_type = 6,
+           nps_score__gte = 1 ,
+           nps_score__lte = 6
+           ).aggregate(total_sum = Sum('total'))['total_sum']
+      
+      survey_nps_7_8 = survey_nps_score.objects.filter(
+           survey_type = 6,
+           nps_score__gte = 7 ,
+           nps_score__lte = 8
+           ).aggregate(total_sum = Sum('total'))['total_sum']
+      survey_nps_9_10 = survey_nps_score.objects.filter(
+           survey_type = 6,
+           nps_score__gte = 9 ,
+           nps_score__lte = 10
+           ).aggregate(total_sum = Sum('total'))['total_sum']
 
       
-      return JsonResponse({'count' : str(count),
-                           'null' : str(count_null),
-                           '0' : str(survey_nps_0),
-                           '1-6' : str(survey_nps_1_6),
-                           '7-8' : str(survey_nps_7_8),
-                           '9-10' : str(survey_nps_9_10)})
+      return JsonResponse({'count' : count,
+                           'null' : count_null['total'],
+                           'not null' : count_not_null,
+                           '0' : survey_nps_0['total']*100/count_not_null,
+                           '1-6' : survey_nps_1_6*100/count_not_null,
+                           '7-8' : survey_nps_7_8*100/count_not_null,
+                           '9-10' : survey_nps_9_10*100/count_not_null})
 
 
 @api_view(['GET'])
 def survey_8_nps(request):
-      count = SurveyData2.objects.filter(survey_type = 8).count()
-      count_null = SurveyData2.objects.filter(survey_type = 8,nps_score = -1).count()
-      survey_nps_0 = SurveyData2.objects.filter(survey_type = 8,nps_score = 0).count()
-      survey_nps_1_6 = SurveyData2.objects.filter(survey_type = 8,nps_score__gte = 1 ,nps_score__lte = 6).count()
-      survey_nps_7_8 = SurveyData2.objects.filter(survey_type = 8,nps_score__gte = 7 ,nps_score__lte = 8).count()
-      survey_nps_9_10 = SurveyData2.objects.filter(survey_type = 8,nps_score__gte = 9 ,nps_score__lte = 10).count()
+      
+      count = survey_nps_score.objects.filter(
+           survey_type = 8
+           ).aggregate(total_sum = Sum('total'))['total_sum']
+      
+      count_null = survey_nps_score.objects.filter(
+           survey_type = 8,
+           nps_score = -1
+           ).values('total').first()
+      
+      count_not_null = survey_nps_score.objects.filter(
+           survey_type = 8
+           ).exclude(
+                nps_score = -1
+                ).aggregate(total_sum = Sum('total'))['total_sum']
+      
+      survey_nps_0 = survey_nps_score.objects.filter(
+           survey_type = 8,
+           nps_score = 0
+           ).values('total').first()
+      
+      survey_nps_1_6 = survey_nps_score.objects.filter(survey_type = 8,
+      nps_score__gte = 1,
+      nps_score__lte = 6
+      ).aggregate(total_sum = Sum('total'))['total_sum']
+
+      survey_nps_7_8 = survey_nps_score.objects.filter(survey_type = 8,
+      nps_score__gte = 7,
+      nps_score__lte = 8
+      ).aggregate(total_sum = Sum('total'))['total_sum']
+
+      survey_nps_9_10 = survey_nps_score.objects.filter(survey_type = 8,
+      nps_score__gte = 9,
+      nps_score__lte = 10
+      ).aggregate(total_sum = Sum('total'))['total_sum']
 
       
-      return JsonResponse({'count' : str(count),
-                           'null' : str(count_null),
-                           '0' : str(survey_nps_0),
-                           '1-6' : str(survey_nps_1_6),
-                           '7-8' : str(survey_nps_7_8),
-                           '9-10' : str(survey_nps_9_10)})
+      return JsonResponse({'count' : count,
+                           'null' : count_null['total'],
+                           'not_null' : count_not_null,
+                           '0' : survey_nps_0['total']*100/count_not_null,
+                           '1-6' : survey_nps_1_6*100/count_not_null,
+                           '7-8' : survey_nps_7_8*100/count_not_null,
+                           '9-10' : survey_nps_9_10*100/count_not_null})
 
+# API qui return le pourcentage de client qui on reduit a ce survey
+#refactoirng issue here
 @api_view(['GET'])
 def question_type_stats_api(request):
     question_groups = SurveyData2.objects.values(
