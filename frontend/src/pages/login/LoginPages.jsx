@@ -1,12 +1,10 @@
-"use client";
-
-import { useState, useEffect, useContext } from "react"; // ✨ Added useContext
+import { useState, useEffect, useContext } from "react"; 
 import { useNavigate, Link } from "react-router-dom";
 import { Log } from "../../API/api";
 import { AlertCircle, Loader2 } from "lucide-react";
 import "../../styles/login.css";
 import logo from "../register/logo.png";
-import { AuthContext } from "../../context/AuthContext"; // ✨ Added AuthContext
+import { AuthContext } from "../../context/AuthContext"; 
 
 const Login = () => {
   const [error, setError] = useState(null);
@@ -17,7 +15,7 @@ const Login = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext); // Get login function from context
+  const { login } = useContext(AuthContext);
 
   const validateForm = () => {
     const errors = {};
@@ -37,19 +35,21 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevents the browser from refreshing or redirecting when the form is submitted — a must in React apps.
 
-    if (!validateForm() || isLoading) return;
+    if (!validateForm() || isLoading) return; // Validate form and prevent submission if already loading
 
-    setIsLoading(true);
-    setError(null);
+    setIsLoading(true); // Set loading state to true
+    setError(null); // Reset error state
 
     try {
-      const data = await Log(e); // Call Log, await the data
+      const data = await Log(formData.username, formData.password); // Call the Log function to authenticate no DOM event passed here
 
-      // Store tokens using the login function from context
-      if (data.access && data.refresh) {
-        login(data.access, data.refresh); // Call context's login function
+      
+      // Make sure both tokens exist before proceeding
+      if (data && data.access && data.refresh) {
+        // Store tokens using AuthContext login function
+        login(data.access, data.refresh , data.user); // Pass user data to login function 
         navigate("/Dashboard"); // Navigate on success
       } else {
          // Handle case where tokens might be missing in response

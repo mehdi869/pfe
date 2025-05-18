@@ -62,9 +62,9 @@ const Topbar = ({ setIsSider }) => {
             <LightModeOutlinedIcon />
           )}
         </IconButton>
-        <IconButton>
+        {/* <IconButton>
           <NotificationsOutlinedIcon />
-        </IconButton>
+        </IconButton> */}
         {/* Removed Settings and Person IconButtons */}
         
         {/* Profile Dropdown */}

@@ -10,14 +10,18 @@ import PublicRoute from "./components/PublicRoute"
 import LoadingScreen from "./components/LoadingScreen"
 import NotFound from "./components/NotFound"
 import BarChart from "./scenes/barChart";
+import AdminRoute from "./components/AdminRoute";
+// import AdminPanel from "./pages/admin/AdminPanel"; // Create this component
+
 
 // Import your components and pages
+import LandingPage from "./pages/lading/lading.jsx"
 import Login from "./pages/login/LoginPages.jsx"
 import Register from "./pages/register/registerpages"
 import Dashboard from "./scenes/dashboard"
 import Topbar from "./scenes/global/Topbar"
 import Sidebar from "./scenes/global/Sidebar"
-import Team from "./scenes/team"
+import Admin from "./scenes/admin-panel"
 import Invoices from "./scenes/invoices"
 import Contacts from "./scenes/contacts"
 import Form from "./scenes/form"
@@ -30,7 +34,6 @@ function App() {
   const [theme, colorMode] = useMode()
   const [isSider, setIsSider] = useState(true)
 
-  // Remove simulated timed loading. The AuthContext's checkAuthStatus handles loading logic.
   return (
     <AuthProvider>
       <ColorModeContext.Provider value={colorMode}>
@@ -41,7 +44,8 @@ function App() {
               {/* Public route: login/register only if NOT authenticated */}
               <Route element={<PublicRoute />}>
                 <Route path="/register" element={<Register />} />
-                <Route path="/" element={<Login />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/" element={<LandingPage />} />
               </Route>
 
               {/* Protected route: main app if authenticated */}
@@ -58,7 +62,6 @@ function App() {
                   }
                 >
                   <Route path="/Dashboard" element={<Dashboard />} />
-                  <Route path="/team" element={<Team />} />
                   <Route path="/invoices" element={<Invoices />} />
                   <Route path="/contacts" element={<Contacts />} />
                   <Route path="/form" element={<Form />} />
@@ -67,6 +70,10 @@ function App() {
                   <Route path="/barChart" element={<BarChart />} />
                   <Route path='/chart' element={<StatusChart/>}></Route>
                   <Route path='/nps' element = {<NpsChart/>}></Route>
+                  {/* Admin-only route */}
+                <Route element={<AdminRoute />}>
+                  <Route path="/admin-panel" element={<Admin/>} />
+                </Route>
                 </Route>
               </Route>
 

@@ -1,5 +1,3 @@
-"use client"
-
 import {
   Box,
   Typography,
@@ -30,9 +28,9 @@ import MoreVertIcon from "@mui/icons-material/MoreVert"
 import AddIcon from "@mui/icons-material/Add"
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline"
 import EditIcon from "@mui/icons-material/Edit"
-import { useState } from "react"
+import { useState , useEffect } from "react"
 
-const Team = () => {
+const Admin = () => {
   const theme = useTheme()
   const colors = tokens(theme.palette.mode)
   const [searchText, setSearchText] = useState("")
@@ -183,6 +181,14 @@ const Team = () => {
       ),
     },
   ]
+
+  // Add useEffect import at the top of your file if it's not already there
+  // import { useState, useEffect } from "react"
+  
+  // Add this effect inside your component
+  useEffect(() => {
+    console.log("I'm in Admin page");
+  }, []);
 
   return (
     <Box m="20px">
@@ -375,4 +381,4 @@ const Team = () => {
   )
 }
 
-export default Team
+export default Admin
