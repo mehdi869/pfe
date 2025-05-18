@@ -70,6 +70,7 @@ function App() {
                   <Route path="/barChart" element={<BarChart />} />
                   <Route path='/chart' element={<StatusChart/>}></Route>
                   <Route path='/nps' element = {<NpsChart/>}></Route>
+                  <Route path="/status" element={<StatusChart />} />
                   {/* Admin-only route */}
                 <Route element={<AdminRoute />}>
                   <Route path="/admin-panel" element={<Admin/>} />

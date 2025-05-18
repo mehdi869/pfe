@@ -111,7 +111,7 @@ const Sidebar = () => {
     else if (path === "/profile") setSelected("Profile");
     else if (path === "/barChart") setSelected("Bar Chart");
     else if (path === "/pie") setSelected("Pie Chart");
-    else if (path === "/line") setSelected("Line Chart");
+    else if (path === "/status") setSelected("Status Chart");
     else if (path === "/Map") setSelected("Geography Chart");
   }, [location]);
 
@@ -309,8 +309,8 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
             <Item
-              title="Line Chart"
-              to="/line"
+              title="Status Chart"
+              to="/status"
               icon={<TimelineOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
