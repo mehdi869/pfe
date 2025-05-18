@@ -47,3 +47,56 @@ export const fetchQuestionTypeStats = async (authContext) => {
   if (!response.ok) throw new Error("Failed to fetch chart data");
   return await response.json();
 };
+
+// --- Admin User Management Endpoints ---
+
+// List/search users
+export const fetchUsers = async (authContext, search = "") => {
+  const url = search
+    ? `http://localhost:8000/api/admin/users/?search=${encodeURIComponent(search)}`
+    : "http://localhost:8000/api/admin/users/";
+  const response = await authFetch(url, { method: "GET" }, authContext);
+  if (!response.ok) throw new Error("Failed to fetch users");
+  return await response.json();
+};
+
+// Create user
+export const createUser = async (authContext, userData) => {
+  const response = await authFetch(
+    "http://localhost:8000/api/admin/users/create/",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(userData),
+    },
+    authContext
+  );
+  if (!response.ok) throw new Error("Failed to create user");
+  return await response.json();
+};
+
+// Update user
+export const updateUser = async (authContext, userId, userData) => {
+  const response = await authFetch(
+    `http://localhost:8000/api/admin/users/${userId}/update/`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(userData),
+    },
+    authContext
+  );
+  if (!response.ok) throw new Error("Failed to update user");
+  return await response.json();
+};
+
+// Delete user
+export const deleteUser = async (authContext, userId) => {
+  const response = await authFetch(
+    `http://localhost:8000/api/admin/users/${userId}/delete/`,
+    { method: "DELETE" },
+    authContext
+  );
+  if (!response.ok) throw new Error("Failed to delete user");
+  return true;
+};

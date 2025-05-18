@@ -84,7 +84,55 @@ Potential root cause:
     - Cleaning and orgnizing The project structure
     - Documenting
 
-### Features to Implement:
+## Features to Implement:
+### 1. NPS Overview Page
+- [x] Create the frontend components
+- [x] Create the frontend data visualization (needs customization)
+- [ ] Create the DB view for the NPS overview page
+- [ ] Create the backend endpoints (views, urls, serializers)
+- [ ] Create the frontend endpoints
+
+### 2. NPS Map Page
+- [ ] Create the DB view for the NPS Map page
+- [ ] Create the backend endpoints (views, urls, serializers)
+- [ ] Create the frontend components
+- [ ] Create the frontend endpoints
+- [ ] Create the frontend data visualization
+
+### Map Features
+- [ ] Interactive choropleth
+- [ ] Filtering and search functionality
+- [ ] Toggle controls between city and region
+- [ ] Hover functionality to show:
+  - Region name
+  - Average NPS
+  - Response count
+- [ ] Legend with color scale for NPS
+
+### 3. NPS Trends (Bar Chart Page)
+- [ ] Title: "NPS Score Over Time"
+- [ ] Controls:
+  - Date range selector
+  - Granularity toggle (day/week/month)
+- [ ] Bar chart of NPS value per period
+
+### 4. Demographics Section
+
+#### 4.1 By Age Group
+- [ ] Title: "NPS by Age Group"
+- [ ] Chart: Bar chart (age groups on X, avg NPS on Y)
+- [ ] Table: Counts and NPS per group
+
+#### 4.2 By Survey Type
+- [ ] Title: "Survey Type Performance"
+- [ ] Chart: Grouped bar showing count vs NPS per type
+- [ ] Filters: Select survey types to compare
+
+#### 4.3 By Question Type
+- [ ] Title: "Responses by Question Number"
+- [ ] Chart: Bar chart of counts or avg score per question
+
+Annotations: Highlight significant drops or peaks
 - Real Data Integration From DB
 - Advanced Data Filtering and Search
 - Prevelege and Authorization Levels (Admin,Agent) -Aymen-

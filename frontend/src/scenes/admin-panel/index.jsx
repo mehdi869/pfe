@@ -14,198 +14,263 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-} from "@mui/material"
-import { DataGrid, GridToolbar } from "@mui/x-data-grid"
-import { tokens } from "../../styles/theme"
-import { mockDataTeam } from "../../Data/mockData"
-import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined"
-import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined"
-import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined"
-import Header from "../../components/Header"
-import SearchIcon from "@mui/icons-material/Search"
-import FilterListIcon from "@mui/icons-material/FilterList"
-import MoreVertIcon from "@mui/icons-material/MoreVert"
-import AddIcon from "@mui/icons-material/Add"
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline"
-import EditIcon from "@mui/icons-material/Edit"
-import { useState , useEffect } from "react"
+  Select,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { tokens } from "../../styles/theme";
+import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
+import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
+import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
+import Header from "../../components/Header";
+import SearchIcon from "@mui/icons-material/Search";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import EditIcon from "@mui/icons-material/Edit";
+import PersonIcon from "@mui/icons-material/Person"; // Import a default user icon
+import { useState, useEffect, useContext } from "react";
+import {
+  fetchUsers,
+  createUser,
+  updateUser,
+  deleteUser,
+} from "../../API/api";
+import { AuthContext } from "../../context/AuthContext"; // adjust path as needed
 
 const Admin = () => {
-  const theme = useTheme()
-  const colors = tokens(theme.palette.mode)
-  const [searchText, setSearchText] = useState("")
-  const [anchorEl, setAnchorEl] = useState(null)
-  const [selectedUser, setSelectedUser] = useState(null)
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  const authContext = useContext(AuthContext);
 
+  const [users, setUsers] = useState([]);
+  const [searchText, setSearchText] = useState("");
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [editForm, setEditForm] = useState({ username: "", email: "", user_type: "agent" });
+  const [addForm, setAddForm] = useState({ username: "", email: "", password: "", user_type: "agent" });
+  const [loading, setLoading] = useState(false);
+
+  // Fetch users
+  const loadUsers = async (search = "") => {
+    setLoading(true);
+    try {
+      const data = await fetchUsers(authContext, search);
+      setUsers(data);
+    } catch (e) {
+      // handle error (show toast/snackbar)
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadUsers();
+    // eslint-disable-next-line
+  }, []);
+
+  // Search effect
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      loadUsers(searchText);
+    }, 400);
+    return () => clearTimeout(delayDebounce);
+    // eslint-disable-next-line
+  }, [searchText]);
+
+  // Menu actions
   const handleMenuClick = (event, user) => {
-    setAnchorEl(event.currentTarget)
-    setSelectedUser(user)
-  }
+    setAnchorEl(event.currentTarget);
+    setSelectedUser(user);
+  };
 
   const handleMenuClose = () => {
-    setAnchorEl(null)
-  }
+    setAnchorEl(null);
+  };
 
+  // Delete
   const handleDeleteClick = () => {
-    setOpenDeleteDialog(true)
-    handleMenuClose()
-  }
+    setOpenDeleteDialog(true);
+    handleMenuClose();
+  };
 
-  const handleDeleteConfirm = () => {
-    // Delete logic would go here
-    console.log("Deleting user:", selectedUser)
-    setOpenDeleteDialog(false)
-  }
+  const handleDeleteConfirm = async () => {
+    if (!selectedUser) return;
+    await deleteUser(authContext, selectedUser.id);
+    setOpenDeleteDialog(false);
+    setSelectedUser(null);
+    loadUsers(searchText);
+  };
 
   const handleDeleteCancel = () => {
-    setOpenDeleteDialog(false)
-  }
+    setOpenDeleteDialog(false);
+  };
 
-  const filteredData = mockDataTeam.filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchText.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchText.toLowerCase()),
-  )
+  // Edit
+  const handleEditClick = () => {
+    setEditForm({
+      username: selectedUser.username,
+      email: selectedUser.email,
+      user_type: selectedUser.user_type,
+    });
+    setOpenEditDialog(true);
+    handleMenuClose();
+  };
 
+  const handleEditChange = (e) => {
+    setEditForm({ ...editForm, [e.target.name]: e.target.value });
+  };
+
+  const handleEditSubmit = async () => {
+    await updateUser(authContext, selectedUser.id, editForm);
+    setOpenEditDialog(false);
+    setSelectedUser(null);
+    loadUsers(searchText);
+  };
+
+  // Add
+  const handleAddClick = () => {
+    setAddForm({ username: "", email: "", password: "", user_type: "agent" });
+    setOpenAddDialog(true);
+  };
+
+  const handleAddChange = (e) => {
+    setAddForm({ ...addForm, [e.target.name]: e.target.value });
+  };
+
+  const handleAddSubmit = async () => {
+    await createUser(authContext, addForm);
+    setOpenAddDialog(false);
+    loadUsers(searchText);
+  };
+
+  // Table columns
   const columns = [
+    { field: "id", headerName: "ID", flex: 0.5, headerAlign: "left" },
     {
-      field: "id",
-      headerName: "ID",
-      flex: 0.5,
-      headerAlign: "left",
-    },
-    {
-      field: "name",
-      headerName: "Name",
+      field: "username",
+      headerName: "Username",
       flex: 1,
-      cellClassName: "name-column--cell",
       renderCell: ({ row }) => (
         <Box display="flex" alignItems="center">
           <Avatar
-            src={`/assets/user.png`}
             sx={{
               width: 32,
               height: 32,
               mr: 1,
               border: `2px solid ${
-                row.access === "admin"
-                  ? colors.greenAccent[500]
-                  : row.access === "manager"
-                    ? colors.blueAccent[500]
-                    : colors.redAccent[500]
+                row.user_type === "admin"
+                  ? colors.blueAccent[400] // Admin color
+                  : colors.redAccent[300]   // Agent color
               }`,
+              backgroundColor: // Optional: if you want a background color for the icon Avatar
+                row.user_type === "admin"
+                  ? colors.blueAccent[900]
+                  : colors.redAccent[800],
+              color: colors.grey[100] // Icon color
             }}
-          />
+          >
+            <PersonIcon fontSize="small" />
+          </Avatar>
           <Typography color={colors.grey[100]} fontWeight="500">
-            {row.name}
+            {row.username}
           </Typography>
         </Box>
       ),
     },
     {
-      field: "age",
-      headerName: "Age",
-      type: "number",
-      headerAlign: "left",
-      align: "left",
-    },
-    {
-      field: "phone",
-      headerName: "Phone Number",
-      flex: 1,
-      renderCell: ({ row }) => <Typography color={colors.grey[300]}>{row.phone}</Typography>,
-    },
-    {
       field: "email",
       headerName: "Email",
       flex: 1,
-      renderCell: ({ row }) => <Typography color={colors.grey[300]}>{row.email}</Typography>,
+      renderCell: ({ row }) => (
+        <Typography color={colors.grey[300]}>{row.email}</Typography>
+      ),
     },
     {
-      field: "access",
+      field: "user_type",
       headerName: "Access Level",
       flex: 1,
-      renderCell: ({ row: { access } }) => {
-        return (
-          <Chip
-            icon={
-              access === "admin" ? (
-                <AdminPanelSettingsOutlinedIcon fontSize="small" />
-              ) : access === "manager" ? (
-                <SecurityOutlinedIcon fontSize="small" />
-              ) : (
-                <LockOpenOutlinedIcon fontSize="small" />
-              )
-            }
-            label={access}
-            size="small"
-            sx={{
-              backgroundColor:
-                access === "admin"
-                  ? colors.greenAccent[900]
-                  : access === "manager"
-                    ? colors.blueAccent[900]
-                    : colors.redAccent[900],
+      renderCell: ({ row }) => (
+        <Chip
+          icon={
+            row.user_type === "admin" ? (
+              <AdminPanelSettingsOutlinedIcon fontSize="small" />
+            ) : (
+              <LockOpenOutlinedIcon fontSize="small" />
+            )
+          }
+          label={row.user_type.charAt(0).toUpperCase() + row.user_type.slice(1)} // Capitalize
+          size="small"
+          sx={{
+            backgroundColor:
+              row.user_type === "admin"
+                ? colors.blueAccent[900]  // Admin background
+                : colors.redAccent[800],   // Agent background
+            color:
+              row.user_type === "admin"
+                ? colors.blueAccent[400]  // Admin text/icon
+                : colors.redAccent[300],   // Agent text/icon
+            borderRadius: "4px",
+            fontWeight: "bold",
+            "& .MuiChip-icon": {
               color:
-                access === "admin"
-                  ? colors.greenAccent[500]
-                  : access === "manager"
-                    ? colors.blueAccent[500]
-                    : colors.redAccent[500],
-              borderRadius: "4px",
-              fontWeight: "bold",
-              "& .MuiChip-icon": {
-                color:
-                  access === "admin"
-                    ? colors.greenAccent[500]
-                    : access === "manager"
-                      ? colors.blueAccent[500]
-                      : colors.redAccent[500],
-              },
-            }}
-          />
-        )
-      },
+                row.user_type === "admin"
+                  ? colors.blueAccent[400]
+                  : colors.redAccent[300],
+            },
+          }}
+        />
+      ),
     },
     {
       field: "actions",
       headerName: "Actions",
       flex: 0.5,
+      filterable: false, // <-- Add this line
       renderCell: ({ row }) => (
         <Box>
-          <IconButton onClick={(e) => handleMenuClick(e, row)} sx={{ color: colors.grey[300] }}>
+          <IconButton
+            onClick={(e) => handleMenuClick(e, row)}
+            sx={{ color: colors.grey[300] }}
+          >
             <MoreVertIcon />
           </IconButton>
         </Box>
       ),
     },
-  ]
-
-  // Add useEffect import at the top of your file if it's not already there
-  // import { useState, useEffect } from "react"
-  
-  // Add this effect inside your component
-  useEffect(() => {
-    console.log("I'm in Admin page");
-  }, []);
+  ];
 
   return (
-    <Box m="20px">
-      <Box display="flex" justifyContent="space-between" alignItems="center">
+    <Box // Root container for the Admin page
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%', // Take full height available from parent (Outlet)
+        p: '20px',
+        boxSizing: 'border-box', // Padding included in height calculation
+        overflow: 'hidden', // Prevent this Box from scrolling
+      }}
+    >
+      {/* Header and Add Button Row */}
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} flexShrink={0}>
         <Header title="TEAM" subtitle="Managing the Team Members" />
         <Button
           variant="contained"
           startIcon={<AddIcon />}
+          onClick={handleAddClick}
           sx={{
-            backgroundColor: colors.redAccent[500],
+            backgroundColor: colors.primary[500], // Use primary red from theme
             color: colors.grey[100],
             fontSize: "14px",
             fontWeight: "bold",
             padding: "10px 20px",
             borderRadius: "8px",
             "&:hover": {
-              backgroundColor: colors.redAccent[400],
+              backgroundColor: colors.primary[600], // Darker shade from theme
             },
           }}
         >
@@ -213,36 +278,24 @@ const Admin = () => {
         </Button>
       </Box>
 
+      {/* Search Bar Row */}
       <Box
         display="flex"
         justifyContent="space-between"
         alignItems="center"
         p={2}
         mb={2}
-        bgcolor={colors.primary[400]}
+        bgcolor={colors.primary[400]} // Consistent with DataGrid background
         borderRadius="8px"
         boxShadow="0 4px 20px rgba(0, 0, 0, 0.1)"
+        flexShrink={0}
       >
         <TextField
           variant="outlined"
-          placeholder="Search by name or email..."
+          placeholder="Search by username or email..."
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
-          sx={{
-            width: "300px",
-            "& .MuiOutlinedInput-root": {
-              borderRadius: "8px",
-              "& fieldset": {
-                borderColor: colors.grey[800],
-              },
-              "&:hover fieldset": {
-                borderColor: colors.grey[700],
-              },
-              "&.Mui-focused fieldset": {
-                borderColor: colors.redAccent[500],
-              },
-            },
-          }}
+          sx={{ width: "300px" /* Other styles inherited from theme */ }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -251,66 +304,52 @@ const Admin = () => {
             ),
           }}
         />
-        <Button
-          variant="outlined"
-          startIcon={<FilterListIcon />}
-          sx={{
-            borderColor: colors.grey[700],
-            color: colors.grey[100],
-            "&:hover": {
-              borderColor: colors.grey[600],
-              backgroundColor: "transparent",
-            },
-          }}
-        >
-          Filter
-        </Button>
       </Box>
 
+      {/* DataGrid Container - Takes remaining space and handles its own scroll */}
       <Box
-        height="75vh"
         sx={{
-          "& .MuiDataGrid-root": {
-            border: "none",
-            borderRadius: "8px",
-            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-            backgroundColor: colors.primary[400],
+          flexGrow: 1, // Allow this box to grow and fill available vertical space
+          minHeight: 0, // Important for flex children to shrink correctly and allow internal scrolling
+          '& .MuiDataGrid-root': {
+            border: 'none',
+            borderRadius: '8px',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+            backgroundColor: colors.primary[400], // Ensure this matches overall theme
+            height: '100%', // Make DataGrid fill this container
           },
-          "& .MuiDataGrid-cell": {
+          '& .MuiDataGrid-cell': {
             borderBottom: `1px solid ${colors.grey[800]}`,
           },
-          "& .name-column--cell": {
-            color: colors.greenAccent[300],
+          '& .MuiDataGrid-columnHeaders': {
+            backgroundColor: colors.primary[500], // Darker header
+            borderBottom: 'none',
+            color: colors.grey[100],
           },
-          "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: colors.primary[500],
-            borderBottom: "none",
-          },
-          "& .MuiDataGrid-virtualScroller": {
+          '& .MuiDataGrid-virtualScroller': {
             backgroundColor: colors.primary[400],
           },
-          "& .MuiDataGrid-footerContainer": {
-            borderTop: "none",
-            backgroundColor: colors.primary[500],
-          },
-          "& .MuiCheckbox-root": {
+          '& .MuiCheckbox-root': {
             color: `${colors.greenAccent[200]} !important`,
           },
-          "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
+          '& .MuiDataGrid-toolbarContainer .MuiButton-text': {
             color: `${colors.grey[100]} !important`,
           },
         }}
       >
         <DataGrid
-          rows={filteredData}
+          rows={users}
           columns={columns}
           components={{ Toolbar: GridToolbar }}
           disableSelectionOnClick
-          pageSize={10}
-          rowsPerPageOptions={[5, 10, 20]}
+          loading={loading}
+          getRowId={(row) => row.id}
+          hideFooter={true} // Keeps pagination hidden
+          // No explicit height on DataGrid, it will fill its parent Box
         />
       </Box>
 
+      {/* Actions Menu, Delete Dialog, Edit Dialog, Add Dialog remain the same */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
@@ -323,7 +362,7 @@ const Admin = () => {
           },
         }}
       >
-        <MenuItem onClick={handleMenuClose}>
+        <MenuItem onClick={handleEditClick}>
           <EditIcon fontSize="small" sx={{ mr: 1 }} />
           Edit
         </MenuItem>
@@ -333,6 +372,7 @@ const Admin = () => {
         </MenuItem>
       </Menu>
 
+      {/* Delete Dialog */}
       <Dialog
         open={openDeleteDialog}
         onClose={handleDeleteCancel}
@@ -347,19 +387,11 @@ const Admin = () => {
         <DialogTitle sx={{ color: colors.grey[100] }}>Confirm Deletion</DialogTitle>
         <DialogContent>
           <Typography variant="body1" color={colors.grey[300]}>
-            Are you sure you want to delete {selectedUser?.name}? This action cannot be undone.
+            Are you sure you want to delete {selectedUser?.username}? This action cannot be undone.
           </Typography>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button
-            onClick={handleDeleteCancel}
-            sx={{
-              color: colors.grey[300],
-              "&:hover": {
-                backgroundColor: "rgba(255, 255, 255, 0.05)",
-              },
-            }}
-          >
+          <Button onClick={handleDeleteCancel} sx={{ color: colors.grey[300] }}>
             Cancel
           </Button>
           <Button
@@ -377,8 +409,153 @@ const Admin = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
-  )
-}
 
-export default Admin
+      {/* Edit Dialog */}
+      <Dialog
+        open={openEditDialog}
+        onClose={() => setOpenEditDialog(false)}
+        PaperProps={{
+          sx: {
+            borderRadius: "12px",
+            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)",
+            backgroundColor: colors.primary[400],
+          },
+        }}
+      >
+        <DialogTitle sx={{ color: colors.grey[100] }}>Edit User</DialogTitle>
+        <DialogContent>
+          <TextField
+            margin="dense"
+            label="Username"
+            name="username"
+            value={editForm.username}
+            onChange={handleEditChange}
+            fullWidth
+            variant="outlined"
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            margin="dense"
+            label="Email"
+            name="email"
+            value={editForm.email}
+            onChange={handleEditChange}
+            fullWidth
+            variant="outlined"
+            sx={{ mb: 2 }}
+          />
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel>User Type</InputLabel>
+            <Select
+              name="user_type"
+              value={editForm.user_type}
+              label="User Type"
+              onChange={handleEditChange}
+            >
+              <MenuItem value="admin">Admin</MenuItem>
+              <MenuItem value="agent">Agent</MenuItem>
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenEditDialog(false)} sx={{ color: colors.grey[300] }}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleEditSubmit}
+            variant="contained"
+            sx={{
+              backgroundColor: colors.greenAccent[500],
+              color: colors.grey[100],
+              "&:hover": {
+                backgroundColor: colors.greenAccent[400],
+              },
+            }}
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Add Dialog */}
+      <Dialog
+        open={openAddDialog}
+        onClose={() => setOpenAddDialog(false)}
+        PaperProps={{
+          sx: {
+            borderRadius: "12px",
+            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)",
+            backgroundColor: colors.primary[400],
+          },
+        }}
+      >
+        <DialogTitle sx={{ color: colors.grey[100] }}>Add New User</DialogTitle>
+        <DialogContent>
+          <TextField
+            margin="dense"
+            label="Username"
+            name="username"
+            value={addForm.username}
+            onChange={handleAddChange}
+            fullWidth
+            variant="outlined"
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            margin="dense"
+            label="Email"
+            name="email"
+            value={addForm.email}
+            onChange={handleAddChange}
+            fullWidth
+            variant="outlined"
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            margin="dense"
+            label="Password"
+            name="password"
+            type="password"
+            value={addForm.password}
+            onChange={handleAddChange}
+            fullWidth
+            variant="outlined"
+            sx={{ mb: 2 }}
+          />
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel>User Type</InputLabel>
+            <Select
+              name="user_type"
+              value={addForm.user_type}
+              label="User Type"
+              onChange={handleAddChange}
+            >
+              <MenuItem value="admin">Admin</MenuItem>
+              <MenuItem value="agent">Agent</MenuItem>
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenAddDialog(false)} sx={{ color: colors.grey[300] }}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleAddSubmit}
+            variant="contained"
+            sx={{
+              backgroundColor: colors.greenAccent[500],
+              color: colors.grey[100],
+              "&:hover": {
+                backgroundColor: colors.greenAccent[400],
+              },
+            }}
+          >
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
+};
+
+export default Admin;

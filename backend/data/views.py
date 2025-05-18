@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from .models import view_status,view_nps_score,age_group,city,survey,survey_nps_score
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from django.db.models import Sum,Q
 
 # API pour les status
@@ -495,3 +496,52 @@ def question_type_stats_api(request):
         'total_responses': sum(stats.values())
     }
     return JsonResponse(response_data)
+
+
+
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def quick_stats(request):
+    nps_data = view_nps_score.objects.all()
+
+    promoters = nps_data.filter(nps_score__gte=9, nps_score__lte=10).aggregate(total=Sum('count'))['total'] or 0
+    passives = nps_data.filter(nps_score__gte=7, nps_score__lte=8).aggregate(total=Sum('count'))['total'] or 0
+    detractors = nps_data.filter(nps_score__gte=0, nps_score__lte=6).aggregate(total=Sum('count'))['total'] or 0
+
+    total_responses = nps_data.exclude(nps_score=-1).aggregate(total=Sum('count'))['total'] or 0
+    null_responses = nps_data.filter(nps_score=-1).aggregate(total=Sum('count'))['total'] or 0
+
+    nps_score = 0
+    if total_responses > 0:
+        nps_score = ((promoters - detractors) * 100) / total_responses
+
+    # --- Response Rate ---
+    # You need to define what is the total population (all possible respondents)
+    # For now, let's assume it's the sum of all responses (including nulls)
+    total_population = total_responses + null_responses
+    response_rate = 0
+    if total_population > 0:
+        response_rate = (total_responses * 100) / total_population
+
+    # --- Last Refresh Date ---
+    # the dates are flatted in the DB i.e they've used one date for all records 
+    # 
+    last_refresh_date = None  # <-- You need to provide this from your DB or ETL process
+
+    # --- NPS Score Trend ---
+     #
+    nps_score_trend = []  # <-- You need to provide this from a time-series table or view
+
+    return JsonResponse({
+        "nps_score": round(nps_score, 2),
+        "promoters": promoters,
+        "passives": passives,
+        "detractors": detractors,
+        "total_responses": total_responses,
+        "null_responses": null_responses,
+        "response_rate": round(response_rate, 2),
+        "last_refresh_date": last_refresh_date,
+        "nps_score_trend": nps_score_trend
+    })

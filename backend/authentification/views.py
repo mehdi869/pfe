@@ -1,7 +1,7 @@
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView 
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes, action
 from django.http import JsonResponse
 from .models import User
 from django.contrib.auth import authenticate
@@ -11,6 +11,7 @@ from rest_framework import status, generics
 from .serializers import UserSerializer 
 from .serializers import MyTokenObtainPairSerializer 
 from django.contrib.auth import get_user_model
+from .permission import IsAdmin
 
 User = get_user_model()
 
@@ -84,3 +85,40 @@ class MyTokenObtainPairView(TokenObtainPairView):
 def get_user_details(request):
     serializer = UserSerializer(request.user)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# Admin Panel Views
+
+from rest_framework.views import APIView
+
+class UserListView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+    def get_queryset(self):
+        search = self.request.query_params.get('search')
+        qs = super().get_queryset()
+        if search:
+            qs = qs.filter(username__icontains=search)
+        return qs
+
+class UserCreateView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+class UserUpdateView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated, IsAdmin]
+    lookup_field = 'pk'
+
+    def partial_update(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+class UserDeleteView(generics.DestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated, IsAdmin]
+    lookup_field = 'pk'

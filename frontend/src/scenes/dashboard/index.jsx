@@ -89,6 +89,8 @@ const Dashboard = () => {
     newComments: 87,
     lastUpdated: "Today at 10:45 AM",
   })
+  // real data integration
+
 
   // Mock data for charts
   const [chartData, setChartData] = useState({

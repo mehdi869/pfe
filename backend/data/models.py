@@ -44,7 +44,7 @@ class view_status(models.Model):
 class view_nps_score (models.Model):
     id = models.IntegerField(primary_key=True)
     nps_score = models.IntegerField()
-    total = models.BigIntegerField()
+    count = models.BigIntegerField()
 
     class Meta:
         managed = False
@@ -66,7 +66,6 @@ class city(models.Model):
     class Meta:
         managed = False
         db_table = 'city_view'
-
 
 
 class survey(models.Model):

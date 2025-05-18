@@ -5,7 +5,7 @@ class IsAdmin(permissions.BasePermission):
     Custom permission to only allow admin users to access the view.
     """
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.user_type == 'admin'
+        return request.user.is_authenticated and (request.user.user_type == 'admin' or request.user.user_type == 'Admin')
 
 class IsAgent(permissions.BasePermission):
     """
