@@ -1,13 +1,18 @@
+import copy
 from django.http import JsonResponse
 from .models import view_status,view_nps_score,age_group,city,survey,survey_nps_score
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from django.db.models import Sum,Q
 
 # API pour les status
 @api_view(['GET'])
+#allow any one
+@permission_classes([AllowAny])
 def status(request):
    
    status = view_status.objects.all().values("status", "total")
+   list_status = copy.deepcopy(status)
    
    null = view_status.objects.filter(
         Q(status='-1') | Q(status='5')
@@ -22,10 +27,17 @@ def status(request):
       liste['total'] = str(poursentage)
       
 
-   return JsonResponse({"list":list(status), "count" : str(count), "null" : str(null),"somme" : str(somme)})
+   return JsonResponse({"list":list(status), 
+                        "count" : str(count), 
+                        "null" : str(null),
+                        "somme" : str(somme),
+                        'list_status' : list(list_status)
+                        })
 
 # API des score nps
-@api_view(['GET'])  
+@api_view(['GET']) 
+#allow any one
+@permission_classes([AllowAny]) 
 def nps_score(request):
 
    nps_count = 973455
@@ -43,10 +55,15 @@ def nps_score(request):
    
    nps_0 = view_nps_score.objects.filter(nps_score = 0).aggregate(total_sum=Sum('total'))['total_sum']
    
-   return JsonResponse({'0' : str(nps_0*100/nps_count),
-                        '1-6' : str(nps_1_6*100/nps_count),
-                        '7-8': str(nps_7_8*100/nps_count),
-                        '9-10' : str(nps_9_10*100/nps_count)})
+   return JsonResponse({'count': nps_count,
+                        '_0' : nps_0*100/nps_count,
+                        '1-6' : nps_1_6*100/nps_count,
+                        '7-8': nps_7_8*100/nps_count,
+                        '9-10' : nps_9_10*100/nps_count,
+                        'count_0' : nps_0,
+                        'count_1_6' : nps_1_6,
+                        'count_7_8' : nps_7_8,
+                        'count_9_10' : nps_9_10})
 
 # API des groupe d'age
 @api_view(['GET'])

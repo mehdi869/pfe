@@ -9,8 +9,8 @@ import ProtectedRoute from "./components/ProtectedRoute"
 import PublicRoute from "./components/PublicRoute"
 import LoadingScreen from "./components/LoadingScreen"
 import NotFound from "./components/NotFound"
-import BarChart from "./scenes/barChart";
-
+import {StatusChart} from "../src/scenes/chart/StatusChart.jsx";
+import {NpsChart} from "../src/scenes/chart/NpsChart.jsx"
 // Import your components and pages
 import Login from "./pages/login/LoginPages.jsx"
 import Register from "./pages/register/registerpages"
@@ -23,10 +23,8 @@ import Contacts from "./scenes/contacts"
 import Form from "./scenes/form"
 import Calendar from "./scenes/calendar"
  import {Map} from "./scenes/Map/map.jsx"
- import {StatusChart} from "./scenes/chart/StatusChart.jsx" 
- import {NpsChart} from "./scenes/chart/NpsChart.jsx"
-
-function App() {
+ import './style.css'
+ function App() {
   const [theme, colorMode] = useMode()
   const [isSider, setIsSider] = useState(true)
 
@@ -64,8 +62,7 @@ function App() {
                   <Route path="/form" element={<Form />} />
                   <Route path="/calendar" element={<Calendar />} />
                   <Route path="/map" element={<Map />} />
-                  <Route path="/barChart" element={<BarChart />} />
-                  <Route path='/chart' element={<StatusChart/>}></Route>
+                  <Route path="/barChart" element={<StatusChart />} />
                   <Route path='/nps' element = {<NpsChart/>}></Route>
                 </Route>
               </Route>

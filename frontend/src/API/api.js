@@ -5,7 +5,7 @@ export const Log = async (e) => {
   const password = e.target.password.value;
 
   try {
-    const response = await fetch("http://localhost:8000/auth/login/", {
+    const response = await fetch("http://localhost:8000/login/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -33,9 +33,9 @@ export const Log = async (e) => {
   }
 };
 
-export const fetchStatus = async () => {
+export const fetchStatus = async (accessToken) => {
   
-  const response =await fetch("http://localhost:8000/status/",{
+  const response =await fetch("http://localhost:8000/data/",{
     method: 'GET',
     headers: {
     'Content-Type' : 'application/json' // Corrected: 'content-Type' to 'Content-Type'
@@ -57,36 +57,36 @@ export const fetchNpsScore = async (accessToken) => { // Added accessToken param
   return response
 }
 
-export const fetchQuestionTypeStats = async (accessToken) => { // Added accessToken parameter
-  try {
-    // const accessToken = localStorage.getItem('accessToken'); // Removed: Get token from argument
-    if (!accessToken) {
-      throw new Error("Access token is not available for fetching question type stats.");
-    }
-    const response = await fetch('http://localhost:8000/barchart/', {
-      method: 'GET',
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${accessToken}`, // Use the passed accessToken
-      },
-    });
+// export const fetchQuestionTypeStats = async (accessToken) => { // Added accessToken parameter
+//   try {
+//     // const accessToken = localStorage.getItem('accessToken'); // Removed: Get token from argument
+//     if (!accessToken) {
+//       throw new Error("Access token is not available for fetching question type stats.");
+//     }
+//     const response = await fetch('http://localhost:8000/barchart/', {
+//       method: 'GET',
+//       headers: {
+//         "Content-Type": "application/json",
+//         "Authorization": `Bearer ${accessToken}`, // Use the passed accessToken
+//       },
+//     });
 
-    if (!response.ok) {
-      throw new Error(`Erreur HTTP: ${response.status}`);
-    }
+//     if (!response.ok) {
+//       throw new Error(`Erreur HTTP: ${response.status}`);
+//     }
 
-    const data = await response.json();
+//     const data = await response.json();
 
-    if (!data || !data.question_types) {
-      throw new Error('Format de réponse invalide');
-    }
+//     if (!data || !data.question_types) {
+//       throw new Error('Format de réponse invalide');
+//     }
 
-    return data;
-  } catch (error) {
-    console.error('Erreur API:', error);
-    throw error; // Important pour que le composant puisse catcher l'erreur
-  }
-};
+//     return data;
+//   } catch (error) {
+//     console.error('Erreur API:', error);
+//     throw error; // Important pour que le composant puisse catcher l'erreur
+//   }
+// };
 
 export const Logout = async (logoutFromContext) => { // Changed parameter to reflect context usage
   try {

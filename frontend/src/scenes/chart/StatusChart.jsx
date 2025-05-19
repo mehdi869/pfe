@@ -1,114 +1,192 @@
-import { useState,useEffect } from "react";
-import {fetchStatus} from "../../API/api.js"
-import { Bar } from 'react-chartjs-2';
-import groupe from '../chart/profil.png'
-import valide from '../chart/check_1828640.png'
-import crois from '../chart/erreur.png'
-import { 
+import { useState, useEffect } from "react"
+import { fetchStatus } from "../../API/api.js"
+import { Bar, Doughnut } from "react-chartjs-2"
+import { XCircle, Lightbulb, CheckCircle, Users } from "lucide-react"
+import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   BarElement,
   Title,
   Tooltip,
-  Legend
-} from 'chart.js';
+  Legend,
+  ArcElement,
+} from "chart.js"
 
-// Enregistrez les composants nécessaires
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-); 
- 
-export const StatusChart =  () => {
-    const [data,setdata] = useState({ list: [], count: 0 , null: 0, somme: 0})
-    
-    // const location = useLocation()
-    useEffect(() => {
-        const fetchData = async () => {
-          
-         try{
-          const response = await fetchStatus()
-          if(!response.ok){
-            throw new Error('erreur dans le serveur')
-          }else if(response.status!==200){
-            throw new Error('envoie est fait mais pas le status')
-          }else{
-            const Dataresponse = await response.json()
-            setdata(Dataresponse);
-          }
-         }catch(error){
-           throw new Error('error')
-         }
-         }
-         fetchData();
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement)
 
-    },[])
-    
-    const chart = {
-        labels : data.list.map(item => item.status),
-        datasets: [
-            {
-              label: 'Ventes 2023',
-              data:data.list.map(item => parseInt(item.total)),
-              backgroundColor: 'rgba(75, 192, 192, 0.6)',
-              borderColor: 'rgba(75, 192, 192, 1)',
-              borderWidth: 1,
-            },
-          ],
+export const StatusChart = () => {
+  const [data, setData] = useState({
+    list: [],
+    count: 0,
+    null: 0,
+    somme: 0,
+    list_status: [],
+  })
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetchStatus()
+        if (!response.ok) {
+          throw new Error("Erreur dans le serveur")
+        } else if (response.status !== 200) {
+          throw new Error("La requête a réussi mais le statut n'est pas 200")
+        } else {
+          const Dataresponse = await response.json()
+          setData({
+            list: Dataresponse.list || [],
+            count: Dataresponse.count || 0,
+            null: Dataresponse.null || 0,
+            somme: Dataresponse.somme || 0,
+            list_status: Dataresponse.list_status || [],
+          })
+        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération des données :", error)
+      }
     }
+    fetchData()
+  }, [])
 
-    return(
-        <div style={{display : 'grid', gridTemplateRows: '15% 1fr', width: '100%', height: '90vh'}}>
-           <div style={{display :'grid', gridTemplateColumns:'1fr 1fr 1fr'}}>
-                <div style={{
-                   backgroundColor:'white',
-                   margin :'5px',
-                   borderRadius: '10px'}}>
-                   <div style= {{display: 'flex', flexDirection: 'Row',padding:'25px'}}>
-                     <img src={groupe}/>
-                     <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'start',marginLeft:'20px'}}>
-                      <p style={{color:"black" ,margin :'0px', fontSize:'20px', fontWeight:'bold'}}>{data.count}</p>
-                      <p style={{margin :'0px',fontSize:'14px',color: '#888'}}>nombre total des reponses</p>
-                     </div>
-                   </div>
+  const colors_background = (data.list || []).map((_, index) => (index % 2 === 0 ? "#FF6666" : "#E60000"))
+  const colors_border = (data.list || []).map((_, index) => (index % 2 === 1 ? "#FF6666" : "#E60000"))
 
-                </div>
-                <div style={{
-                   backgroundColor:'white',
-                   margin :'5px',
-                   borderRadius: '10px',
-                  }}>
-                  <div style ={{display: 'flex', flexDirection: 'row',padding:'25px'}}>
-                    <img src ={crois} />
-                    <div style={{display: 'flex',flexDirection : 'column', justifyContent: 'center', alignItems: 'start',marginLeft:'20px'}}>
-                     <p style={{color:"black",margin :'0px', fontSize:'24px', fontWeight:'bold'}}> {data.null}</p>
-                     <p style={{margin :'0px', color:'#888', fontSize:'14px'}}>reponse non validee</p>
-                    </div>
-                  </div>
-                </div>
-                <div style={{
-                  backgroundColor:'white',
-                  margin :'5px', 
-                  borderRadius: '10px', 
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  alignItems: 'center'}}>
-                  <div> 
-                    <img src={valide} />
-                    <p style={{color:"black",margin :'0px', fontFamily:"'Poppins', sans-serif"}}>reponse valide</p></div> 
-                    <p style={{color:"black",margin :'0px', fontFamily:"'Poppins', sans-serif"}}> {data.somme}</p>
-                 </div>
-           </div>
-            <div style={{width:'50%', marginTop:'100px'}}>
-             <Bar data={chart}></Bar>
+  const chart = {
+    labels: data.list.map((item) => item.status),
+    datasets: [
+      {
+        label: "Status de 2021 à 2023",
+        data: data.list.map((item) => Number.parseInt(item.total)),
+        backgroundColor: colors_background,
+        borderColor: colors_border,
+        borderWidth: 2,
+      },
+    ],
+  }
+
+  const chartOptions = {
+    responsive: true,
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: (value) => value.toExponential(2),
+        },
+      },
+    },
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: (context) => context.parsed.y.toExponential(2),
+        },
+      },
+    },
+  }
+
+  const chart_cercle = {
+    labels: data.list_status.map((item) => item.status),
+    datasets: [
+      {
+        data: data.list_status.map((item) => item.total),
+        backgroundColor: ["#E60000", "#FF6666", "#E60000", "#FF6666", "#E60000", "#FF6666"],
+      },
+    ],
+  }
+
+  const cerclechartOptions = {
+    plugins: {
+      legend: {
+        position: "right",
+        labels: {
+          boxWidth: 20,
+          padding: 10,
+        },
+      },
+    },
+  }
+
+  return (
+    <div className="grid grid-rows-[15%_1fr] gap-4 h[100%]">
+      {/* Stat Cards */}
+      <div className="grid grid-cols-4 gap-4 w-[99%]">
+        {[
+          {
+            icon: <Users className="w-10 h-10 text-blue-600" />,
+            value: data.count,
+            label: "Nombre total des réponses",
+          },
+          {
+            icon: <XCircle className="w-10 h-10 text-red-600" />,
+            value: data.null,
+            label: "Réponses non validées",
+          },
+          {
+            icon: <CheckCircle className="w-10 h-10 text-green-600" />,
+            value: data.somme,
+            label: "Réponses validées",
+          },
+          {
+            icon: <Lightbulb className="w-10 h-10 text-yellow-500" />,
+            value: data.list_status.length,
+            label: "Nombre de statuts possibles",
+          },
+        ].map((item, i) => (
+          <div key={i} className="bg-white shadow-md rounded-xl p-4 flex items-center">
+            {item.icon}
+            <div className="ml-4">
+              <p className="text-xl font-semibold text-gray-900">{item.value}</p>
+              <p className="text-sm text-gray-500">{item.label}</p>
             </div>
+          </div>
+        ))}
+      </div>
 
+      {/* Charts and Table */}
+      <div className="grid grid-cols-[60%_40%] gap-4 h-[80%] w-[98%]">
+        {/* Bar Chart */}
+        <div className="bg-white shadow-md rounded-xl p-6 h-full">
+          <h2 className="text-xl font-semibold text-gray-600 mb-6">Histogramme des statuts</h2>
+          <Bar data={chart} options={chartOptions} />
+          
         </div>
-    )
+
+        {/* Table + Doughnut */}
+        <div className="grid grid-rows-2 gap-4 h-full">
+          {/* Status Table */}
+          <div className="bg-white shadow-md rounded-xl p-4 overflow-auto">
+            <h2 className="text-xl font-semibold text-gray-600 mb-4">Tableau des statuts</h2>
+           <table className="w-full ">
+              <thead>
+                <tr className="text-left" style={{backgroundColor: "#E60000"}}>
+                  <th className="pl-[3%] text-white font-extrabold text-[18px]">#</th>
+                  <th className="text-white pl-[3%] font-extrabold text-[15px]">Status</th>
+                  <th className="text-white pl-[3%] font-extrabold text-[15px]">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.list_status.map((item, index) => (
+                  <tr key={index} className={index % 2 === 1 ? 'bg-red-100' : 'bg-white'}>
+                    <td className="text-black pl-[3%] font-semibold text-[15px]">0{index + 1}</td>
+                    <td className="text-black pl-[3%] font-semibold text-[15px]">{item.status}</td>
+                    <td className="text-black pl-[3%] font-semibold text-[15px]">{item.total}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Doughnut Chart */}
+             <div className="bg-white shadow-md rounded-xl p-6 flex flex-col h-full">
+               <h2 className="text-xl font-semibold text-gray-600 mb-6 ">
+                  Analyse des statuts
+               </h2>
+
+              <div className="flex flex-row justify-center items-center flex-grow">
+              </div>
+              </div>
+        </div>
+      </div>
+    </div>
+  )
 }
