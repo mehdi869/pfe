@@ -100,3 +100,10 @@ export const deleteUser = async (authContext, userId) => {
   if (!response.ok) throw new Error("Failed to delete user");
   return true;
 };
+
+// --- NPS Quick Stat Endpoints ---
+export const fetchQuickStats = async () => {
+  const response = await fetch("http://localhost:8000/nps/quick-stats");
+  if (!response.ok) throw new Error("Failed to fetch quick stats");
+  return await response.json();
+};

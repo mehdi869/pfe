@@ -51,6 +51,7 @@ import {
   LineElement,
   Filler,
 } from "chart.js"
+import { fetchQuickStats } from "../../API/api"; // Add this import
 
 // Register ChartJS components
 ChartJS.register(
@@ -76,21 +77,68 @@ const Dashboard = () => {
   const [tabValue, setTabValue] = useState(0)
   const [animateCharts, setAnimateCharts] = useState(false)
 
-  // Mock data for NPS scores
   const [npsData, setNpsData] = useState({
-    currentScore: 42,
-    previousScore: 38,
-    trend: "+4",
-    promoters: 52,
-    passives: 38,
-    detractors: 10,
-    responseRate: 28,
-    totalResponses: 1243,
-    newComments: 87,
-    lastUpdated: "Today at 10:45 AM",
-  })
+    nps_score: null,
+    promoters: null,
+    passives: null,
+    detractors: null,
+    total_responses: null,
+    null_responses: null,
+    response_rate: null,
+    last_refresh_date: null,
+    nps_score_trend: null,
+  });
   // real data integration
+  // Utility to validate quick stats data
+  const isValidQuickStats = (data) => {
+    return (
+      data &&
+      typeof data === "object" &&
+      typeof data.nps_score === "number" &&
+      typeof data.promoters === "number" &&
+      typeof data.passives === "number" &&
+      typeof data.detractors === "number" &&
+      typeof data.total_responses === "number"
+    );
+  };
+  // Fetch and cache quick stats
+  useEffect(() => {
+    const loadQuickStats = async () => {
+      // Try to get from localStorage
+      const cached = localStorage.getItem("quickStats");
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          if (isValidQuickStats(parsed)) {
+            setNpsData(parsed);
+            return;
+          }
+        } catch (e) {
+          // Ignore and fetch from server
+        }
+      }
+      // Fetch from server if missing or invalid
+      try {
+        const stats = await fetchQuickStats();
+        setNpsData(stats);
+        localStorage.setItem("quickStats", JSON.stringify(stats));
+      } catch (e) {
+        // handle error (show message or fallback)
+      }
+    };
+    loadQuickStats();
+  }, []);
 
+  // Optionally, add a refresh button to clear cache and refetch
+  const handleRefreshStats = async () => {
+    try {
+      const stats = await fetchQuickStats();
+      setNpsData(stats);
+      localStorage.setItem("quickStats", JSON.stringify(stats));
+    } catch (e) {
+      // handle error
+    }
+  };
 
   // Mock data for charts
   const [chartData, setChartData] = useState({
@@ -188,8 +236,8 @@ const Dashboard = () => {
       }
 
       // Calculate new trend
-      updatedNpsData.trend = (updatedNpsData.currentScore - npsData.previousScore).toString()
-      if (updatedNpsData.trend > 0) updatedNpsData.trend = "+" + updatedNpsData.trend
+      /* updatedNpsData.trend = (updatedNpsData.currentScore - npsData.previousScore).toString()
+      if (updatedNpsData.trend > 0) updatedNpsData.trend = "+" + updatedNpsData.trend */
 
       setNpsData(updatedNpsData)
       setIsLoading(false)
@@ -238,6 +286,7 @@ const Dashboard = () => {
 
   // NPS Score Card Component
   const NPSScoreCard = () => {
+    if (!npsData) return <CircularProgress />;
     // Calculate the color based on NPS score
     const getScoreColor = (score) => {
       if (score < 0) return "#d32f2f" // Red for negative
@@ -246,7 +295,7 @@ const Dashboard = () => {
       return "#4caf50" // Green for high
     }
 
-    const scoreColor = getScoreColor(npsData.currentScore)
+    const scoreColor = getScoreColor(npsData.nps_score)
 
     return (
       <Card
@@ -297,7 +346,7 @@ const Dashboard = () => {
                   transition: "color 0.3s ease",
                 }}
               >
-                {npsData.currentScore}
+                {npsData.nps_score}
               </Typography>
 
               <Box ml={2} display="flex" flexDirection="column">
@@ -335,7 +384,7 @@ const Dashboard = () => {
                 </Box>
                 <Fade in={animateCharts} timeout={800}>
                   <Typography variant="h5" fontWeight="bold" color="#4caf50">
-                    {npsData.promoters}%
+                    {npsData.promoters}
                   </Typography>
                 </Fade>
               </Box>
@@ -350,7 +399,7 @@ const Dashboard = () => {
                 </Box>
                 <Fade in={animateCharts} timeout={800}>
                   <Typography variant="h5" fontWeight="bold" color="#ff9800">
-                    {npsData.passives}%
+                    {npsData.passives}
                   </Typography>
                 </Fade>
               </Box>
@@ -365,7 +414,7 @@ const Dashboard = () => {
                 </Box>
                 <Fade in={animateCharts} timeout={800}>
                   <Typography variant="h5" fontWeight="bold" color={colors.primary[500]}>
-                    {npsData.detractors}%
+                    {npsData.detractors}
                   </Typography>
                 </Fade>
               </Box>
@@ -374,7 +423,7 @@ const Dashboard = () => {
 
           <Box mt={2} display="flex" justifyContent="flex-end">
             <Typography variant="caption" color={colors.grey[500]}>
-              Last updated: {npsData.lastUpdated}
+              Last updated: {npsData.last_refresh_date || "N/A"}
             </Typography>
           </Box>
         </CardContent>
@@ -753,9 +802,9 @@ const Dashboard = () => {
 
               <Grid item xs={12} sm={6} md={3} lg={2}>
                 <StatCard
-                  title="RESPONSE RATE"
-                  value={`${npsData.responseRate}%`}
-                  subtitle={`${npsData.totalResponses.toLocaleString()} total responses`}
+                  title="TOTAL RESPONSES"
+                  value={`${npsData.total_responses}%`}
+                  subtitle={`${npsData.totalResponses} total responses`}
                   icon={<PeopleIcon sx={{ color: "#fff", fontSize: 24 }} />}
                   color="#2196f3" // Blue
                 />

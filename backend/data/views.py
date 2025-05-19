@@ -1,8 +1,9 @@
 from django.http import JsonResponse
-from .models import view_status,view_nps_score,age_group,city,survey,survey_nps_score
+from .models import view_status,view_nps_score,age_group,city,survey,survey_nps_score,SurveyResponseCounts
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from django.db.models import Sum,Q
+from django.db import connection
 
 # API pour les status
 @api_view(['GET'])
@@ -463,42 +464,27 @@ def survey_8_nps(request):
 # API qui return le pourcentage de client qui on reduit a ce survey
 #refactoirng issue here
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def question_type_stats_api(request):
-    question_groups = SurveyData2.objects.values(
-        'survey_type', 'lang_id', 'question_number'
-    ).annotate(
-        group_count=Count('*')
-    ).order_by('survey_type', 'lang_id', 'question_number')
-    stats = {}
+    rows = SurveyResponseCounts.objects.all().order_by('-response_count')
+    labels = []
+    counts = []
+    total = 0
 
-    for group in question_groups:
-        # Skip groups with invalid key values (like -1)
-        if group['survey_type'] == -1 or group['lang_id'] == '-1' or group['question_number'] == -1:
-            continue
-
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT question_type
-                FROM nps_questions
-                WHERE survey_type = %s AND %s = ANY(lang_id) AND question_number = %s
-                LIMIT 1
-            """, [group['survey_type'], group['lang_id'], group['question_number']])            
-            row = cursor.fetchone()
-            if row:
-                question_type = row[0]
-                stats[question_type] = stats.get(question_type, 0) + group['group_count']
+    for row in rows:
+        labels.append(row.question_type)
+        count = int(row.response_count)
+        counts.append(count)
+        total += count
 
     response_data = {
         'question_types': {
-            'labels': list(stats.keys()),
-            'counts': list(stats.values())
+            'labels': labels,
+            'counts': counts
         },
-        'total_responses': sum(stats.values())
+        'total_responses': total
     }
     return JsonResponse(response_data)
-
-
-
 
 
 @api_view(['GET'])

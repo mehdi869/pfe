@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import { Box, Card, CardContent, Typography, useTheme, CircularProgress, Alert, Button, IconButton, Snackbar, Grid, MenuItem, FormControl, Select, InputLabel } from '@mui/material';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
@@ -9,6 +9,7 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { fetchQuestionTypeStats } from '../../API/api';
+import { AuthContext } from "../../context/AuthContext";
 
 // Register ChartJS components
 ChartJS.register(
@@ -24,6 +25,7 @@ const BarChart = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const chartRef = useRef(null);
+  const authContext = useContext(AuthContext);
   
   // State for data and UI
   const [stats, setStats] = useState(null);
@@ -42,7 +44,7 @@ const BarChart = () => {
     const loadData = async () => {
       try {
         setLoading(true);
-        const data = await fetchQuestionTypeStats();
+        const data = await fetchQuestionTypeStats(authContext);
         setStats(data);
         setError(null);
       } catch (err) {

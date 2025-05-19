@@ -97,3 +97,11 @@ class NpsQuestions(models.Model):
         managed = False
         db_table = 'nps_questions'
         unique_together = (('survey_type', 'lang_id', 'question_number'),)
+
+class SurveyResponseCounts(models.Model):
+    question_type = models.CharField(max_length=20, primary_key=True)
+    response_count = models.BigIntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'survey_response_counts'
