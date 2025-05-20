@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path('nps/quick-stats', views.quick_stats),
     path('data/', views.status),
     path('nps/', views.nps_score),
     path('age/',views.age_groupe),
@@ -16,5 +17,6 @@ urlpatterns = [
     path('survey_6/',views.survey_6_nps),
     path('survey_8/',views.survey_8_nps),
     path('survey/',views.survey_type),
+    path('api/geo-nps-stats/', views.geo_nps_stats, name='geo-nps-stats'),
 
 ] 

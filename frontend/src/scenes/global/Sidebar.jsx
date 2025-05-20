@@ -1,11 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react"; // added useContext
 import { ProSidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
 import { Box, IconButton, Typography, useTheme, Avatar, Divider, Badge, Tooltip } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
 import 'react-pro-sidebar/dist/css/styles.css';
 import { tokens } from "../../styles/theme";
+import { AuthContext } from "../../context/AuthContext"; // import AuthContext
 
 // Icons
+import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
@@ -24,6 +26,7 @@ import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import GroupsIcon from "@mui/icons-material/Groups";
 import FeedbackIcon from "@mui/icons-material/Feedback";
 import AnalyticsIcon from "@mui/icons-material/Analytics";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 const Item = ({ title, to, icon, selected, setSelected, badge }) => {
   const theme = useTheme();
@@ -88,24 +91,27 @@ const Sidebar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [selected, setSelected] = useState("Dashboard");
+  const [selected, setSelected] = useState("NPS Overview");
   const location = useLocation();
+
+  // Get the user info from AuthContext (which should be stored in browser/localStorage)
+  const { user } = useContext(AuthContext);
 
   // Set selected based on current route
   useEffect(() => {
     const path = location.pathname;
-    if (path === "/Dashboard") setSelected("Dashboard");
-    else if (path === "/nps-overview") setSelected("NPS Overview");
-    else if (path === "/response-analysis") setSelected("Response Analysis");
+    if (path === "/Dashboard") setSelected("NPS Overview");
+//  else if (path === "/nps-overview") setSelected("NPS Overview");
+//  else if (path === "/response-analysis") setSelected("Response Analysis");
     else if (path === "/segmentation") setSelected("Segmentation");
     else if (path === "/trends") setSelected("Trends & Forecasting");
     else if (path === "/comments") setSelected("Comment Analysis");
     else if (path === "/benchmarks") setSelected("Benchmarks");
-    else if (path === "/team") setSelected("Team Management");
+    else if (path === "/admin-panel") setSelected("Admin Panel");
     else if (path === "/profile") setSelected("Profile");
     else if (path === "/barChart") setSelected("Bar Chart");
     else if (path === "/pie") setSelected("Pie Chart");
-    else if (path === "/line") setSelected("Line Chart");
+    else if (path === "/status") setSelected("Status Chart");
     else if (path === "/Map") setSelected("Geography Chart");
   }, [location]);
 
@@ -167,7 +173,7 @@ const Sidebar = () => {
               >
                 <Box display="flex" alignItems="center">
                   <img 
-                    src="assets\logo.png" 
+                    src="/Djezzy_Logo_2015.svg.png" 
                     alt="Djezzy Logo" 
                     style={{ 
                       height: "30px", 
@@ -193,15 +199,10 @@ const Sidebar = () => {
             <Box mb="25px">
               <Box display="flex" justifyContent="center" alignItems="center">
                 <Avatar
-                  alt="Profile User"
-                  src="/pages/register/logo.png"
-                  sx={{ 
-                    width: 70, 
-                    height: 70,
-                    border: `3px solid ${colors.primary[500]}`,
-                    boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
-                  }}
-                />
+                sx={{ width: 56, height: 56, bgcolor: colors.primary[500] }}
+                >
+                  <AccountCircleIcon sx={{ fontSize: 56, color: "#fff" }} />
+                </Avatar>
               </Box>
               <Box textAlign="center" mt="10px">
                 <Typography
@@ -210,28 +211,29 @@ const Sidebar = () => {
                   fontWeight="bold"
                   sx={{ m: "10px 0 0 0" }}
                 >
-                  Admin User
+                  {user?.username || "Guest"}
                 </Typography>
                 <Typography 
                   variant="body2" 
                   color={colors.primary[500]}
                   fontWeight="500"
                 >
-                  NPS Administrator
+                  {user?.user_type || ""}
                 </Typography>
               </Box>
             </Box>
           )}
 
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
-            {/* DASHBOARD */}
+            {/* NPS Overview */}
             <Item
-              title="Dashboard"
+              title="NPS Overview"
               to="/Dashboard"
-              icon={<HomeOutlinedIcon />}
+              icon={<InsightsIcon />}
               selected={selected}
               setSelected={setSelected}
             />
+          {/*
           <Item
             title="NPS Overview"
             to="/nps-overview"
@@ -239,6 +241,7 @@ const Sidebar = () => {
             selected={selected}
             setSelected={setSelected}
           />
+          */}
           {/*
           <Item
             title="Response Analysis"
@@ -321,8 +324,8 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
             <Item
-              title="Line Chart"
-              to="/line"
+              title="Status Chart"
+              to="/status"
               icon={<TimelineOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
@@ -349,22 +352,25 @@ const Sidebar = () => {
             >
               Management
             </Typography>
-            <Item
-              title="Team Management"
-              to="/team"
-              icon={<PeopleOutlinedIcon />}
+            
+            {(user?.user_type === "admin" || user?.user_type === "Admin") && (
+              <Item
+              title="Admin Panel"
+              to="/admin-panel"
+              icon={<AdminPanelSettingsOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
-            />
-            <Item
-              title="Feedback Collection"
-              to="/feedback"
-              icon={<FeedbackIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
+                      />
+                      )}
+                    <Item
+                      title="Feedback Collection"
+                      to="/feedback"
+                      icon={<FeedbackIcon />}
+                      selected={selected}
+                      setSelected={setSelected}
+                    />
 
-            {/* USER */}
+                    {/* USER */}
             <Typography
               variant="body2"
               color={colors.grey[300]}

@@ -1,9 +1,10 @@
 import copy
 from django.http import JsonResponse
-from .models import view_status,view_nps_score,age_group,city,survey,survey_nps_score
+from .models import view_status,view_nps_score,age_group,city,survey,survey_nps_score,SurveyResponseCounts,SurveyData2,CityRegionNps
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
-from django.db.models import Sum,Q
+from django.db.models import Sum,Q,Avg , IntegerField , Count, Case, When
+from django.db import connection
 
 # API pour les status
 @api_view(['GET'])
@@ -482,36 +483,144 @@ def survey_8_nps(request):
 # API qui return le pourcentage de client qui on reduit a ce survey
 #refactoirng issue here
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def question_type_stats_api(request):
-    question_groups = SurveyData2.objects.values(
-        'survey_type', 'lang_id', 'question_number'
-    ).annotate(
-        group_count=Count('*')
-    ).order_by('survey_type', 'lang_id', 'question_number')
-    stats = {}
+    rows = SurveyResponseCounts.objects.all().order_by('-response_count')
+    labels = []
+    counts = []
+    total = 0
 
-    for group in question_groups:
-        # Skip groups with invalid key values (like -1)
-        if group['survey_type'] == -1 or group['lang_id'] == '-1' or group['question_number'] == -1:
-            continue
-
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT question_type
-                FROM nps_questions
-                WHERE survey_type = %s AND %s = ANY(lang_id) AND question_number = %s
-                LIMIT 1
-            """, [group['survey_type'], group['lang_id'], group['question_number']])            
-            row = cursor.fetchone()
-            if row:
-                question_type = row[0]
-                stats[question_type] = stats.get(question_type, 0) + group['group_count']
+    for row in rows:
+        labels.append(row.question_type)
+        count = int(row.response_count)
+        counts.append(count)
+        total += count
 
     response_data = {
         'question_types': {
-            'labels': list(stats.keys()),
-            'counts': list(stats.values())
+            'labels': labels,
+            'counts': counts
         },
-        'total_responses': sum(stats.values())
+        'total_responses': total
     }
     return JsonResponse(response_data)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def quick_stats(request):
+    nps_data = view_nps_score.objects.all()
+
+    promoters = nps_data.filter(nps_score__gte=9, nps_score__lte=10).aggregate(total=Sum('count'))['total'] or 0
+    passives = nps_data.filter(nps_score__gte=7, nps_score__lte=8).aggregate(total=Sum('count'))['total'] or 0
+    detractors = nps_data.filter(nps_score__gte=0, nps_score__lte=6).aggregate(total=Sum('count'))['total'] or 0
+
+    print( "sum of 3 : ", promoters + passives + detractors)
+
+    total_responses = nps_data.exclude(nps_score=-1).aggregate(total=Sum('count'))['total'] or 0
+    null_responses = nps_data.filter(nps_score=-1).aggregate(total=Sum('count'))['total'] or 0
+    print('total : ',total_responses)
+    print('null : ',null_responses)
+
+    # NPS score breakdown by segment_type
+    nps_by_segment = SurveyData2.objects.exclude(nps_score=-1).exclude(segment_type='-1') \
+        .values('segment_type') \
+        .annotate(
+    total_valid=Count('id'),
+    promotors=Count(Case(When(nps_score__range=(9, 10), then=1), output_field=IntegerField())),
+    passives=Count(Case(When(nps_score__range=(7, 8), then=1), output_field=IntegerField())),
+    detractors=Count(Case(When(nps_score__range=(0, 6), then=1), output_field=IntegerField()))
+    )
+
+    
+    nps_score = 0
+    if total_responses > 0:
+        nps_score = ((promoters - detractors) * 100) / total_responses
+
+    # --- Response Rate ---
+    # You need to define what is the total population (all possible respondents)
+    # For now, let's assume it's the sum of all responses (including nulls)
+    response_rate = total_responses / (total_responses + null_responses) * 100 if (total_responses + null_responses) > 0 else 0
+   
+    # --- Last Refresh Date ---
+    # the dates are flatted in the DB i.e they've used one date for all records 
+    # 
+    last_refresh_date = None  # <-- You need to provide this from your DB or ETL process
+
+    # --- NPS Score Trend ---
+     #
+    nps_score_trend = []  # <-- You need to provide this from a time-series table or view
+
+    return JsonResponse({
+        "nps_score": round(nps_score, 2),
+        "promoters": promoters,
+        "passives": passives,
+        "detractors": detractors,
+        "total_responses": total_responses,
+        "null_responses": null_responses,
+        "response_rate": round(response_rate, 2),
+        "nps_by_segment": list(nps_by_segment),
+        "last_refresh_date": last_refresh_date,
+        "nps_score_trend": nps_score_trend
+    })
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def geo_nps_stats(request):
+    """
+    Returns NPS statistics for regions and cities.
+    - For each region: name, avg NPS, total responses, promoters, passives, detractors.
+    - For each city: name, avg NPS, total responses, promoters, passives, detractors.
+    Excludes entries where the category name itself is '-1'.
+    """
+
+    # Region statistics:
+    # Fetches rows where city_name is '-1' (aggregated for the region)
+    # and retail_region_name is an actual region name (not '-1').
+    region_data_queryset = CityRegionNps.objects.filter(
+        city_name='-1').values(
+        'retail_region_name',
+        'avg_nps',
+        'total_valid',
+        'promotors',
+        'passives',
+        'detractors'
+    )
+
+    regions = []
+    for item in region_data_queryset:
+        regions.append({
+            'name': item['retail_region_name'],
+            'avg_nps': float(item['avg_nps']) if item['avg_nps'] is not None else None,
+            'total_responses': item['total_valid'],
+            'promoters': item['promotors'],
+            'passives': item['passives'],
+            'detractors': item['detractors']
+        })
+
+    # City statistics:
+    # Fetches rows where retail_region_name is '-1' (aggregated for the city)
+    city_data_queryset = CityRegionNps.objects.filter(retail_region_name='-1' ).values(
+        'city_name',
+        'avg_nps',
+        'total_valid',
+        'promotors',
+        'passives',
+        'detractors'
+    )
+
+    cities = []
+    for item in city_data_queryset:
+        cities.append({
+            'name': item['city_name'],
+            'avg_nps': float(item['avg_nps']) if item['avg_nps'] is not None else None,
+            'total_responses': item['total_valid'],
+            'promoters': item['promotors'],
+            'passives': item['passives'],
+            'detractors': item['detractors']
+        })
+
+    return JsonResponse({
+        'regions': regions,
+        'cities': cities
+    })

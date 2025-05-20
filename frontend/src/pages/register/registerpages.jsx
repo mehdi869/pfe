@@ -1,4 +1,3 @@
-"use client"
 
 import { useState, useEffect, useContext } from "react"
 import { useNavigate, Link } from "react-router-dom"
@@ -75,6 +74,14 @@ const Register = () => {
       } else if (response.status === 201 || response.status === 200) {
         setIsAuthenticated(true);
         navigate("/Dashboard");
+        if (response && response.access && response.refresh) {
+        // Store tokens using AuthContext login function
+        login(response.access, response.refresh , response.user); // Pass user data to login function 
+        navigate("/Dashboard"); // Navigate on success
+      } else {
+         // Handle case where tokens might be missing in response
+         setError("Login successful, but token data is missing.");
+      }
       } else {
         let errorMsg = "Registration failed. Please try again.";
         try {

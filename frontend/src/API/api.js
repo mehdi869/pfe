@@ -1,117 +1,89 @@
-export const Log = async (e) => {
-  e.preventDefault();
+import { authFetch } from "./authFetch";
 
-  const username = e.target.username.value;
-  const password = e.target.password.value;
+// Login without DOM event
+export const Log = async (username, password) => {
+  const response = await fetch("http://localhost:8000/login/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password }),
+  });
 
-  try {
-    const response = await fetch("http://localhost:8000/login/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, password }),
-    });
+  const data = await response.json();
+  if (!response.ok) throw { status: response.status, data };
 
-    // Parse and return JSON if successful
-    if (response.ok) {
-      return await response.json();
-    } else {
-      // Try to parse error details
-      let errorData = { detail: `HTTP error! status: ${response.status}` };
-      try {
-        errorData = await response.json();
-      } catch {}
-      const error = new Error(errorData.detail || `Login failed with status ${response.status}`);
-      error.status = response.status;
-      error.data = errorData;
-      throw error;
-    }
-  } catch (error) {
-    console.log("probléme de connexion front-back");
-    throw error;
-  }
+  return data; // { access, refresh }
 };
 
-export const fetchStatus = async (accessToken) => {
-  
-  const response =await fetch("http://localhost:8000/data/",{
-    method: 'GET',
-    headers: {
-    'Content-Type' : 'application/json' // Corrected: 'content-Type' to 'Content-Type'
-   }
+// Logout
+export const Logout = async () => {
+  const refresh = localStorage.getItem("refreshToken");
+  const response = await fetch("http://localhost:8000/logout/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ refresh }),
   });
-  
-  return response
-}
 
-export const fetchNpsScore = async (accessToken) => { // Added accessToken parameter
-  const response = await fetch("http://localhost:8000/nps/",{ // Added trailing slash for consistency
-    method : 'GET',
-    headers: { // Corrected: geaders to headers
-      'Content-Type' : 'application/json', // Corrected: 'content-type', 'appliaction/json'
-    }
-  })
+  if (!response.ok) throw new Error("Logout failed");
+  return true;
+};
 
-  return response
-}
+// Protected API Call: Status
+export const fetchStatus = async (authContext) => {
+  const response = await authFetch("http://localhost:8000/status/", { method: "GET" }, authContext);
+  if (!response.ok) throw new Error("Failed to fetch status");
+  return await response.json();
+};
 
-// export const fetchQuestionTypeStats = async (accessToken) => { // Added accessToken parameter
-//   try {
-//     // const accessToken = localStorage.getItem('accessToken'); // Removed: Get token from argument
-//     if (!accessToken) {
-//       throw new Error("Access token is not available for fetching question type stats.");
-//     }
-//     const response = await fetch('http://localhost:8000/barchart/', {
-//       method: 'GET',
-//       headers: {
-//         "Content-Type": "application/json",
-//         "Authorization": `Bearer ${accessToken}`, // Use the passed accessToken
-//       },
-//     });
+// Protected API Call: NPS Score
+export const fetchNpsScore = async (authContext) => { 
+  const response = await authFetch("http://localhost:8000/nps/", { method: "GET" }, authContext);
+  if (!response.ok) throw new Error("Failed to fetch NPS score");
+  return await response.json();
+};
 
-//     if (!response.ok) {
-//       throw new Error(`Erreur HTTP: ${response.status}`);
-//     }
+// Protected API Call: Bar Chart
+export const fetchQuestionTypeStats = async (authContext) => {
+  const response = await authFetch("http://localhost:8000/barchart/", { method: "GET" }, authContext);
+  if (!response.ok) throw new Error("Failed to fetch chart data");
+  return await response.json();
+};
 
-//     const data = await response.json();
+// --- Admin User Management Endpoints ---
 
-//     if (!data || !data.question_types) {
-//       throw new Error('Format de réponse invalide');
-//     }
+// List/search users
+export const fetchUsers = async (authContext, search = "") => {
+  const url = search
+    ? `http://localhost:8000/api/admin/users/?search=${encodeURIComponent(search)}`
+    : "http://localhost:8000/api/admin/users/";
+  const response = await authFetch(url, { method: "GET" }, authContext);
+  if (!response.ok) throw new Error("Failed to fetch users");
+  return await response.json();
+};
 
-//     return data;
-//   } catch (error) {
-//     console.error('Erreur API:', error);
-//     throw error; // Important pour que le composant puisse catcher l'erreur
-//   }
-// };
-
-export const Logout = async (logoutFromContext) => { // Changed parameter to reflect context usage
+// Create user
+export const createUser = async (authContext, userData) => {
   try {
-    const response = await fetch("http://localhost:8000/logout/", {
-      method: "POST",
-      headers: { // Added headers for consistency, and if backend expects refresh token in body
-        "Content-Type": "application/json",
+    const response = await authFetch(
+      "http://localhost:8000/api/admin/users/create/",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
       },
-      body: JSON.stringify({ refresh: localStorage.getItem('refreshToken') }), // Assuming backend expects refresh token
-      credentials: "include", // Keep if backend relies on cookies for session invalidation alongside token
-    });
+      authContext
+    );
     
-    if (response.ok) { // Check for response.ok instead of status === 200 for broader success cases
-      logoutFromContext(); // Call the logout function from AuthContext
-      return true;
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || `Create user failed with status ${response.status}`);
     }
-    // Attempt to parse error if not ok
-    let errorData = { detail: `Logout failed with status ${response.status}` };
-    try {
-      errorData = await response.json();
-    } catch {}
-    console.error("Logout API error:", errorData.detail);
-    return false;
+    
+    return await response.json();
   } catch (error) {
-    console.error("Logout failed:", error);
-    return false;
+    console.error("Create user failed:", error);
+    throw error;
   }
 };
 

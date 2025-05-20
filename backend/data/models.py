@@ -44,7 +44,7 @@ class view_status(models.Model):
 class view_nps_score (models.Model):
     id = models.IntegerField(primary_key=True)
     nps_score = models.IntegerField()
-    total = models.BigIntegerField()
+    count = models.BigIntegerField()
 
     class Meta:
         managed = False
@@ -66,7 +66,6 @@ class city(models.Model):
     class Meta:
         managed = False
         db_table = 'city_view'
-
 
 
 class survey(models.Model):
@@ -98,3 +97,25 @@ class NpsQuestions(models.Model):
         managed = False
         db_table = 'nps_questions'
         unique_together = (('survey_type', 'lang_id', 'question_number'),)
+
+class SurveyResponseCounts(models.Model):
+    question_type = models.CharField(max_length=20, primary_key=True)
+    response_count = models.BigIntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'survey_response_counts'
+
+class CityRegionNps(models.Model):
+    city_name = models.CharField(max_length=50)
+    retail_region_name = models.CharField(max_length=30)
+    total_valid = models.BigIntegerField()
+    promotors = models.BigIntegerField()
+    passives = models.BigIntegerField()
+    detractors = models.BigIntegerField()
+    avg_nps = models.DecimalField(max_digits=5, decimal_places=2)
+
+    class Meta:
+        managed = False
+        db_table = 'mv_city_region_nps'
+        unique_together = (('city_name', 'retail_region_name'),)

@@ -1,4 +1,3 @@
- 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import { CssBaseline, ThemeProvider } from "@mui/material"
 import { ColorModeContext, useMode } from "./styles/theme"
@@ -9,27 +8,32 @@ import ProtectedRoute from "./components/ProtectedRoute"
 import PublicRoute from "./components/PublicRoute"
 import LoadingScreen from "./components/LoadingScreen"
 import NotFound from "./components/NotFound"
+import BarChart from "./scenes/barChart";
 import {StatusChart} from "../src/scenes/chart/StatusChart.jsx";
 import {NpsChart} from "../src/scenes/chart/NpsChart.jsx"
 import { AgeChart } from "./scenes/chart/AgeChart.jsx"
+
 // Import your components and pages
+import LandingPage from "./pages/lading/lading.jsx"
 import Login from "./pages/login/LoginPages.jsx"
 import Register from "./pages/register/registerpages"
 import Dashboard from "./scenes/dashboard"
 import Topbar from "./scenes/global/Topbar"
 import Sidebar from "./scenes/global/Sidebar"
-import Team from "./scenes/team"
+import Admin from "./scenes/admin-panel"
 import Invoices from "./scenes/invoices"
 import Contacts from "./scenes/contacts"
 import Form from "./scenes/form"
 import Calendar from "./scenes/calendar"
  import {Map} from "./scenes/Map/map.jsx"
+ import {StatusChart} from "./scenes/chart/StatusChart.jsx" 
+ import {NpsChart} from "./scenes/chart/NpsChart.jsx"
  import './style.css'
- function App() {
+
+function App() {
   const [theme, colorMode] = useMode()
   const [isSider, setIsSider] = useState(true)
 
-  // Remove simulated timed loading. The AuthContext's checkAuthStatus handles loading logic.
   return (
     <AuthProvider>
       <ColorModeContext.Provider value={colorMode}>
@@ -40,7 +44,8 @@ import Calendar from "./scenes/calendar"
               {/* Public route: login/register only if NOT authenticated */}
               <Route element={<PublicRoute />}>
                 <Route path="/register" element={<Register />} />
-                <Route path="/" element={<Login />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/" element={<LandingPage />} />
               </Route>
 
               {/* Protected route: main app if authenticated */}
@@ -57,7 +62,6 @@ import Calendar from "./scenes/calendar"
                   }
                 >
                   <Route path="/Dashboard" element={<Dashboard />} />
-                  <Route path="/team" element={<Team />} />
                   <Route path="/invoices" element={<Invoices />} />
                   <Route path="/contacts" element={<Contacts />} />
                   <Route path="/form" element={<Form />} />
@@ -66,6 +70,11 @@ import Calendar from "./scenes/calendar"
                   <Route path="/barChart" element={<StatusChart />} />
                   <Route path='/nps' element = {<NpsChart/>}></Route>
                   <Route path='/age' element = {<AgeChart/>}></Route>
+                  <Route path="/status" element={<StatusChart />} />
+                  {/* Admin-only route */}
+                <Route element={<AdminRoute />}>
+                  <Route path="/admin-panel" element={<Admin/>} />
+                </Route>
                 </Route>
               </Route>
 
