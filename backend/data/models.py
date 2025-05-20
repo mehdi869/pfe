@@ -105,3 +105,17 @@ class SurveyResponseCounts(models.Model):
     class Meta:
         managed = False
         db_table = 'survey_response_counts'
+
+class CityRegionNps(models.Model):
+    city_name = models.CharField(max_length=50)
+    retail_region_name = models.CharField(max_length=30)
+    total_valid = models.BigIntegerField()
+    promotors = models.BigIntegerField()
+    passives = models.BigIntegerField()
+    detractors = models.BigIntegerField()
+    avg_nps = models.DecimalField(max_digits=5, decimal_places=2)
+
+    class Meta:
+        managed = False
+        db_table = 'mv_city_region_nps'
+        unique_together = (('city_name', 'retail_region_name'),)

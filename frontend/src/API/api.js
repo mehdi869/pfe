@@ -35,7 +35,7 @@ export const fetchStatus = async (authContext) => {
 };
 
 // Protected API Call: NPS Score
-export const fetchNpsScore = async (authContext) => {
+export const fetchNpsScore = async (authContext) => { 
   const response = await authFetch("http://localhost:8000/nps/", { method: "GET" }, authContext);
   if (!response.ok) throw new Error("Failed to fetch NPS score");
   return await response.json();
@@ -106,4 +106,16 @@ export const fetchQuickStats = async () => {
   const response = await fetch("http://localhost:8000/nps/quick-stats");
   if (!response.ok) throw new Error("Failed to fetch quick stats");
   return await response.json();
+};
+
+// --- Geo NPS Stats Endpoint ---
+export const fetchGeoNpsStats = async () => {
+
+  const response = await fetch("http://localhost:8000/api/geo-nps-stats/"); // Ensure this URL is correct
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: "Failed to fetch Geo NPS stats and could not parse error" }));
+    throw new Error(errorData.message || `Failed to fetch Geo NPS stats: ${response.statusText}`);
+  }
+  const data = await response.json();
+  return data;
 };

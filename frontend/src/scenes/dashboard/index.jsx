@@ -101,6 +101,11 @@ const Dashboard = () => {
       typeof data.total_responses === "number"
     );
   };
+  // create some variables to hold the percentage of promoters, passives, and detractors\
+  const promotersPercentage = ((npsData.promoters / npsData.total_responses) * 100).toFixed(2);
+  const passivesPercentage = ((npsData.passives / npsData.total_responses) * 100).toFixed(2);
+  const detractorsPercentage = ((npsData.detractors / npsData.total_responses) * 100).toFixed(2);
+
   // Fetch and cache quick stats
   useEffect(() => {
     const loadQuickStats = async () => {
@@ -140,6 +145,8 @@ const Dashboard = () => {
     }
   };
 
+
+    
   // Mock data for charts
   const [chartData, setChartData] = useState({
     npsOverTime: {
@@ -164,10 +171,14 @@ const Dashboard = () => {
       labels: ["Promoters", "Passives", "Detractors"],
       datasets: [
         {
-          data: [52, 38, 10],
+          data: [
+            Math.round(Number(promotersPercentage) || 0),
+            Math.round(Number(passivesPercentage)  || 0),
+            Math.round(Number(detractorsPercentage) || 0)
+          ],
           backgroundColor: [
             "#4caf50", // Green for promoters
-            "#ff9800", // Orange for passives
+            "orange", // Orange for passives
             colors.primary[500], // Red for detractors
           ],
           borderColor: theme.palette.background.paper,
@@ -220,6 +231,25 @@ const Dashboard = () => {
       ],
     },
   })
+
+  useEffect(() => {
+    if (npsData.total_responses > 0) {
+      setChartData(prev => ({
+        ...prev,
+        responseDistribution: {
+          ...prev.responseDistribution,
+          datasets: [{
+            ...prev.responseDistribution.datasets[0],
+            data: [
+              Math.round(Number(promotersPercentage)),
+              Math.round(Number(passivesPercentage)),
+              Math.round(Number(detractorsPercentage))
+            ]
+          }]
+        }
+      }))
+    }
+  }, [promotersPercentage, passivesPercentage, detractorsPercentage])
 
   // Function to handle refresh
   const handleRefresh = () => {
@@ -349,7 +379,7 @@ const Dashboard = () => {
                 {npsData.nps_score}
               </Typography>
 
-              <Box ml={2} display="flex" flexDirection="column">
+              {/* <Box ml={2} display="flex" flexDirection="column">
                 <Box display="flex" alignItems="center">
                   {Number.parseFloat(npsData.trend) >= 0 ? (
                     <TrendingUpIcon sx={{ color: "#4caf50", fontSize: "20px", mr: "5px" }} />
@@ -367,7 +397,7 @@ const Dashboard = () => {
                 <Typography variant="body2" color={colors.grey[100]}>
                   vs previous {timeRange}
                 </Typography>
-              </Box>
+              </Box> */}
             </Box>
           </Zoom>
 
@@ -573,6 +603,13 @@ const Dashboard = () => {
         padding: 12,
         boxPadding: 6,
         usePointStyle: true,
+        callbacks: {
+          label: (context) => {
+            const label = context.label || "";
+            const value = context.parsed;
+            return `${label}: ${value}%`;
+          }
+        }
       },
     },
     cutout: "65%",
@@ -799,11 +836,10 @@ const Dashboard = () => {
               <Grid item xs={12} md={6} lg={4}>
                 <NPSScoreCard />
               </Grid>
-
               <Grid item xs={12} sm={6} md={3} lg={2}>
                 <StatCard
                   title="TOTAL RESPONSES"
-                  value={`${npsData.total_responses}%`}
+                  value={`${npsData.total_responses}`}
                   subtitle={`${npsData.totalResponses} total responses`}
                   icon={<PeopleIcon sx={{ color: "#fff", fontSize: 24 }} />}
                   color="#2196f3" // Blue
@@ -813,17 +849,27 @@ const Dashboard = () => {
               <Grid item xs={12} sm={6} md={3} lg={2}>
                 <StatCard
                   title="PROMOTERS"
-                  value={`${npsData.promoters}%`}
+                  value={`${promotersPercentage}%`}
                   subtitle="9-10 ratings"
                   icon={<ThumbUpAltIcon sx={{ color: "#fff", fontSize: 24 }} />}
                   color="#4caf50" // Green
                 />
               </Grid>
 
+                  <Grid item xs={12} sm={6} md={3} lg={2}>
+                  <StatCard
+                    title="PASSIVES"
+                    value={`${passivesPercentage}%`}
+                    subtitle="7-8 ratings"
+                    icon={<RemoveIcon sx={{ color: "#fff", fontSize: 24 }} />}
+                    color="gray" // Orange
+                  />
+                  </Grid>
+
               <Grid item xs={12} sm={6} md={3} lg={2}>
                 <StatCard
                   title="DETRACTORS"
-                  value={`${npsData.detractors}%`}
+                  value={`${detractorsPercentage}%`}
                   subtitle="0-6 ratings"
                   icon={<ThumbDownAltIcon sx={{ color: "#fff", fontSize: 24 }} />}
                   color={colors.primary[500]} // Red
@@ -834,7 +880,7 @@ const Dashboard = () => {
 
           {/* CHARTS */}
           <Grid container spacing={3}>
-            <Grid item xs={12} lg={8}>
+            {/* <Grid item xs={12} lg={8}>
               <Paper
                 elevation={0}
                 sx={{
@@ -862,7 +908,7 @@ const Dashboard = () => {
                   />
                 </Box>
               </Paper>
-            </Grid>
+            </Grid> */}
             <Grid item xs={12} md={6} lg={4}>
               <Paper
                 elevation={0}
@@ -893,34 +939,53 @@ const Dashboard = () => {
               </Paper>
             </Grid>
             <Grid item xs={12} md={6} lg={6}>
-              <Paper
-                elevation={0}
-                sx={{
-                  backgroundColor: theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-                  borderRadius: "16px",
-                  p: 3,
-                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                  "&:hover": {
-                    boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
-                  },
-                }}
-              >
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} minWidth={"500px"}>
-                  <Typography variant="h5" fontWeight="bold">
-                    NPS by Segment
-                  </Typography>
-                </Box>
-                <Box height={300}>
-                  <Bar
-                    data={chartData.segmentComparison}
-                    options={barOptions}
-                    key={animateCharts ? "animated" : "static"}
-                  />
-                </Box>
-              </Paper>
-            </Grid>
-            <Grid item xs={12} md={6} lg={6}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    backgroundColor: theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+                    borderRadius: "16px",
+                    p: 3,
+                    transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                    "&:hover": {
+                      boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
+                    },
+                  }}
+                > 
+                  <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} minWidth={"500px"}>
+                    <Typography variant="h5" fontWeight="bold">
+                      NPS by Segment
+                    </Typography>
+                  </Box>
+                  <Box height={300}>
+                    <Bar
+                      data={chartData.segmentComparison}
+                      options={{
+                        ...barOptions,
+                        scales: {
+                          y: {
+                            min: 0, // Hide negative part of the Y-axis
+                            max: 100,
+                            ticks: {
+                              stepSize: 20,
+                            },
+                            grid: {
+                              color: theme.palette.mode === "dark" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)",
+                            },
+                          },
+                          x: {
+                            grid: {
+                              display: false,
+                            },
+                          },
+                        },
+                      }}
+                      key={animateCharts ? "animated" : "static"}
+                    />
+                  </Box>
+                </Paper>
+              </Grid>
+            {/* <Grid item xs={12} md={6} lg={6}>
               <Paper
                 elevation={0}
                 sx={{
@@ -947,7 +1012,7 @@ const Dashboard = () => {
                   />
                 </Box>
               </Paper>
-            </Grid>
+            </Grid> */}
           </Grid>
         </>
       )}

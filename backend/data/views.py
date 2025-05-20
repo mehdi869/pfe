@@ -1,8 +1,8 @@
 from django.http import JsonResponse
-from .models import view_status,view_nps_score,age_group,city,survey,survey_nps_score,SurveyResponseCounts
+from .models import view_status,view_nps_score,age_group,city,survey,survey_nps_score,SurveyResponseCounts,SurveyData2,CityRegionNps
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
-from django.db.models import Sum,Q
+from django.db.models import Sum,Q,Avg , IntegerField , Count, Case, When
 from django.db import connection
 
 # API pour les status
@@ -496,9 +496,24 @@ def quick_stats(request):
     passives = nps_data.filter(nps_score__gte=7, nps_score__lte=8).aggregate(total=Sum('count'))['total'] or 0
     detractors = nps_data.filter(nps_score__gte=0, nps_score__lte=6).aggregate(total=Sum('count'))['total'] or 0
 
+    print( "sum of 3 : ", promoters + passives + detractors)
+
     total_responses = nps_data.exclude(nps_score=-1).aggregate(total=Sum('count'))['total'] or 0
     null_responses = nps_data.filter(nps_score=-1).aggregate(total=Sum('count'))['total'] or 0
+    print('total : ',total_responses)
+    print('null : ',null_responses)
 
+    # NPS score breakdown by segment_type
+    nps_by_segment = SurveyData2.objects.exclude(nps_score=-1).exclude(segment_type='-1') \
+        .values('segment_type') \
+        .annotate(
+    total_valid=Count('id'),
+    promotors=Count(Case(When(nps_score__range=(9, 10), then=1), output_field=IntegerField())),
+    passives=Count(Case(When(nps_score__range=(7, 8), then=1), output_field=IntegerField())),
+    detractors=Count(Case(When(nps_score__range=(0, 6), then=1), output_field=IntegerField()))
+    )
+
+    
     nps_score = 0
     if total_responses > 0:
         nps_score = ((promoters - detractors) * 100) / total_responses
@@ -506,11 +521,8 @@ def quick_stats(request):
     # --- Response Rate ---
     # You need to define what is the total population (all possible respondents)
     # For now, let's assume it's the sum of all responses (including nulls)
-    total_population = total_responses + null_responses
-    response_rate = 0
-    if total_population > 0:
-        response_rate = (total_responses * 100) / total_population
-
+    response_rate = total_responses / (total_responses + null_responses) * 100 if (total_responses + null_responses) > 0 else 0
+   
     # --- Last Refresh Date ---
     # the dates are flatted in the DB i.e they've used one date for all records 
     # 
@@ -528,6 +540,68 @@ def quick_stats(request):
         "total_responses": total_responses,
         "null_responses": null_responses,
         "response_rate": round(response_rate, 2),
+        "nps_by_segment": list(nps_by_segment),
         "last_refresh_date": last_refresh_date,
         "nps_score_trend": nps_score_trend
+    })
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def geo_nps_stats(request):
+    """
+    Returns NPS statistics for regions and cities.
+    - For each region: name, avg NPS, total responses, promoters, passives, detractors.
+    - For each city: name, avg NPS, total responses, promoters, passives, detractors.
+    Excludes entries where the category name itself is '-1'.
+    """
+
+    # Region statistics:
+    # Fetches rows where city_name is '-1' (aggregated for the region)
+    # and retail_region_name is an actual region name (not '-1').
+    region_data_queryset = CityRegionNps.objects.filter(
+        city_name='-1').values(
+        'retail_region_name',
+        'avg_nps',
+        'total_valid',
+        'promotors',
+        'passives',
+        'detractors'
+    )
+
+    regions = []
+    for item in region_data_queryset:
+        regions.append({
+            'name': item['retail_region_name'],
+            'avg_nps': float(item['avg_nps']) if item['avg_nps'] is not None else None,
+            'total_responses': item['total_valid'],
+            'promoters': item['promotors'],
+            'passives': item['passives'],
+            'detractors': item['detractors']
+        })
+
+    # City statistics:
+    # Fetches rows where retail_region_name is '-1' (aggregated for the city)
+    city_data_queryset = CityRegionNps.objects.filter(retail_region_name='-1' ).values(
+        'city_name',
+        'avg_nps',
+        'total_valid',
+        'promotors',
+        'passives',
+        'detractors'
+    )
+
+    cities = []
+    for item in city_data_queryset:
+        cities.append({
+            'name': item['city_name'],
+            'avg_nps': float(item['avg_nps']) if item['avg_nps'] is not None else None,
+            'total_responses': item['total_valid'],
+            'promoters': item['promotors'],
+            'passives': item['passives'],
+            'detractors': item['detractors']
+        })
+
+    return JsonResponse({
+        'regions': regions,
+        'cities': cities
     })

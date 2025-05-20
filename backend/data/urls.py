@@ -17,5 +17,6 @@ urlpatterns = [
     path('survey_6/',views.survey_6_nps),
     path('survey_8/',views.survey_8_nps),
     path('survey/',views.survey),
+    path('api/geo-nps-stats/', views.geo_nps_stats, name='geo-nps-stats'),
 
 ] 
