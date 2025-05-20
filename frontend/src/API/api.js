@@ -62,38 +62,60 @@ export const fetchUsers = async (authContext, search = "") => {
 
 // Create user
 export const createUser = async (authContext, userData) => {
-  try {
-    const response = await authFetch(
-      "http://localhost:8000/api/admin/users/create/",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
-      },
-      authContext
-    );
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || `Create user failed with status ${response.status}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error("Create user failed:", error);
-    throw error;
-  }
+  const response = await authFetch(
+    "http://localhost:8000/api/admin/users/create/",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(userData),
+    },
+    authContext
+  );
+  if (!response.ok) throw new Error("Failed to create user");
+  return await response.json();
 };
 
-export const fetchAgeChart = async ()=> {
-  const response = await fetch("http://localhost:8000/age/",{ // Added trailing slash for consistency
-    method : 'GET',
-    headers: { // Corrected: geaders to headers
-      'Content-Type' : 'application/json', // Corrected: 'content-type', 'appliaction/json'
-    }
-  })
+// Update user
+export const updateUser = async (authContext, userId, userData) => {
+  const response = await authFetch(
+    `http://localhost:8000/api/admin/users/${userId}/update/`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(userData),
+    },
+    authContext
+  );
+  if (!response.ok) throw new Error("Failed to update user");
+  return await response.json();
+};
 
-  return response
-}
+// Delete user
+export const deleteUser = async (authContext, userId) => {
+  const response = await authFetch(
+    `http://localhost:8000/api/admin/users/${userId}/delete/`,
+    { method: "DELETE" },
+    authContext
+  );
+  if (!response.ok) throw new Error("Failed to delete user");
+  return true;
+};
+
+// --- NPS Quick Stat Endpoints ---
+export const fetchQuickStats = async () => {
+  const response = await fetch("http://localhost:8000/nps/quick-stats");
+  if (!response.ok) throw new Error("Failed to fetch quick stats");
+  return await response.json();
+};
+
+// --- Geo NPS Stats Endpoint ---
+export const fetchGeoNpsStats = async () => {
+
+  const response = await fetch("http://localhost:8000/api/geo-nps-stats/"); // Ensure this URL is correct
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: "Failed to fetch Geo NPS stats and could not parse error" }));
+    throw new Error(errorData.message || `Failed to fetch Geo NPS stats: ${response.statusText}`);
+  }
+  const data = await response.json();
+  return data;
+};
