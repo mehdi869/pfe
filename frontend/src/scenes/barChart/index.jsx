@@ -2,7 +2,6 @@ import React from "react";
 import { useState,useEffect, useContext } from "react";
 import {fetchStatus} from "../../API/api.js"
 import { Bar } from 'react-chartjs-2';
-import groupe from '../chart/profil.png'
 import { Doughnut } from 'react-chartjs-2';
 import { XCircle, Lightbulb, CheckCircle} from 'lucide-react';
 

@@ -9,7 +9,6 @@ import PublicRoute from "./components/PublicRoute"
 import LoadingScreen from "./components/LoadingScreen"
 import NotFound from "./components/NotFound"
 import BarChart from "./scenes/barChart";
-import {StatusChart} from "../src/scenes/chart/StatusChart.jsx";
 import {NpsChart} from "../src/scenes/chart/NpsChart.jsx"
 import { AgeChart } from "./scenes/chart/AgeChart.jsx"
 
@@ -25,10 +24,9 @@ import Invoices from "./scenes/invoices"
 import Contacts from "./scenes/contacts"
 import Form from "./scenes/form"
 import Calendar from "./scenes/calendar"
- import {Map} from "./scenes/Map/map.jsx"
- import {StatusChart} from "./scenes/chart/StatusChart.jsx" 
- import {NpsChart} from "./scenes/chart/NpsChart.jsx"
- import './style.css'
+import {Map} from "./scenes/Map/map.jsx"
+import {StatusChart} from "./scenes/chart/StatusChart" 
+import './style.css'
 
 function App() {
   const [theme, colorMode] = useMode()
