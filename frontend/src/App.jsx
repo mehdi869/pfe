@@ -11,6 +11,7 @@ import LoadingScreen from "./components/LoadingScreen"
 import NotFound from "./components/NotFound"
 import {StatusChart} from "../src/scenes/chart/StatusChart.jsx";
 import {NpsChart} from "../src/scenes/chart/NpsChart.jsx"
+import { AgeChart } from "./scenes/chart/AgeChart.jsx"
 // Import your components and pages
 import Login from "./pages/login/LoginPages.jsx"
 import Register from "./pages/register/registerpages"
@@ -64,6 +65,7 @@ import Calendar from "./scenes/calendar"
                   <Route path="/map" element={<Map />} />
                   <Route path="/barChart" element={<StatusChart />} />
                   <Route path='/nps' element = {<NpsChart/>}></Route>
+                  <Route path='/age' element = {<AgeChart/>}></Route>
                 </Route>
               </Route>
 

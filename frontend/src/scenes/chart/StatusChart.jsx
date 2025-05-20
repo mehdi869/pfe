@@ -57,32 +57,16 @@ export const StatusChart = () => {
     datasets: [
       {
         label: "Status de 2021 à 2023",
-        data: data.list.map((item) => Number.parseInt(item.total)),
-        backgroundColor: colors_background,
-        borderColor: colors_border,
-        borderWidth: 2,
+        data: data.list.map((item) => Number(item.total)),
+        backgroundColor: ['#FF6666'],
+        borderColor: ['#E60000'],
+        borderWidth: 3,
+        borderRadius: 5
       },
     ],
   }
 
-  const chartOptions = {
-    responsive: true,
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          callback: (value) => value.toExponential(2),
-        },
-      },
-    },
-    plugins: {
-      tooltip: {
-        callbacks: {
-          label: (context) => context.parsed.y.toExponential(2),
-        },
-      },
-    },
-  }
+
 
   const chart_cercle = {
     labels: data.list_status.map((item) => item.status),
@@ -107,7 +91,7 @@ export const StatusChart = () => {
   }
 
   return (
-    <div className="grid grid-rows-[15%_1fr] gap-4 h[100%]">
+    <div className="grid grid-rows-[15%_1fr] gap-4 h[100%] mr-8 ml-8">
       {/* Stat Cards */}
       <div className="grid grid-cols-4 gap-4 w-[99%]">
         {[
@@ -143,11 +127,11 @@ export const StatusChart = () => {
       </div>
 
       {/* Charts and Table */}
-      <div className="grid grid-cols-[60%_40%] gap-4 h-[80%] w-[98%]">
+      <div className="grid grid-cols-[70%_30%] gap-4 h-[80%] w-[98%]">
         {/* Bar Chart */}
-        <div className="bg-white shadow-md rounded-xl p-6 h-full">
+        <div className="bg-white shadow-md rounded-xl p-6 ">
           <h2 className="text-xl font-semibold text-gray-600 mb-6">Histogramme des statuts</h2>
-          <Bar data={chart} options={chartOptions} />
+          <Bar data={chart}/>
           
         </div>
 
@@ -158,18 +142,18 @@ export const StatusChart = () => {
             <h2 className="text-xl font-semibold text-gray-600 mb-4">Tableau des statuts</h2>
            <table className="w-full ">
               <thead>
-                <tr className="text-left" style={{backgroundColor: "#E60000"}}>
-                  <th className="pl-[3%] text-white font-extrabold text-[18px]">#</th>
-                  <th className="text-white pl-[3%] font-extrabold text-[15px]">Status</th>
-                  <th className="text-white pl-[3%] font-extrabold text-[15px]">Total</th>
+                <tr className="text-left " style={{backgroundColor: "#E60000"}}>
+                  <th className="pl-[3%] text-white font-extrabold text-[18px] rounded-tl-md rounded-bl-md">#</th>
+                  <th className="text-white pl-[10%] font-extrabold text-[15px]">Status</th>
+                  <th className="text-white pl-[3%] font-extrabold text-[15px] rounded-tr-md rounded-br-md">Total</th>
                 </tr>
               </thead>
               <tbody>
                 {data.list_status.map((item, index) => (
-                  <tr key={index} className={index % 2 === 1 ? 'bg-red-100' : 'bg-white'}>
-                    <td className="text-black pl-[3%] font-semibold text-[15px]">0{index + 1}</td>
-                    <td className="text-black pl-[3%] font-semibold text-[15px]">{item.status}</td>
-                    <td className="text-black pl-[3%] font-semibold text-[15px]">{item.total}</td>
+                  <tr key={index}>
+                    <td className="text-black pl-[3%] font-medium text-[15px] border-b-1">0{index + 1}</td>
+                    <td className="text-black pl-[10%] font-medium text-[15px] border-b-1">{item.status}</td>
+                    <td className="text-black pl-[3%] font-medium text-[15px] border-b-1">{item.total}</td>
                   </tr>
                 ))}
               </tbody>

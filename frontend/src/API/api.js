@@ -50,7 +50,6 @@ export const fetchNpsScore = async (accessToken) => { // Added accessToken param
     method : 'GET',
     headers: { // Corrected: geaders to headers
       'Content-Type' : 'application/json', // Corrected: 'content-type', 'appliaction/json'
-      ...(accessToken && { "Authorization": `Bearer ${accessToken}` }),
     }
   })
 
@@ -115,3 +114,14 @@ export const Logout = async (logoutFromContext) => { // Changed parameter to ref
     return false;
   }
 };
+
+export const fetchAgeChart = async ()=> {
+  const response = await fetch("http://localhost:8000/age/",{ // Added trailing slash for consistency
+    method : 'GET',
+    headers: { // Corrected: geaders to headers
+      'Content-Type' : 'application/json', // Corrected: 'content-type', 'appliaction/json'
+    }
+  })
+
+  return response
+}

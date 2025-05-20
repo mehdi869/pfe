@@ -67,6 +67,8 @@ def nps_score(request):
 
 # API des groupe d'age
 @api_view(['GET'])
+@permission_classes([AllowAny]) 
+
 def age_groupe(request):
    count = age_group.objects.aggregate(
         total_sum = Sum('total'))['total_sum']
@@ -121,6 +123,7 @@ def city_views(request):
 
 # API qui return pur chaque survey le poursentage de client qui on reduit a ce survey
 @api_view(["GET"])
+@permission_classes([AllowAny]) 
 def survey_type(request):
    count = survey.objects.aggregate(total_sum = Sum('total'))['total_sum']
    count_null = survey.objects.filter(survey_type = -1).values('total').first()

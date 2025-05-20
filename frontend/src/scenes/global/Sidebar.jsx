@@ -307,6 +307,13 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
             <Item
+              title="Age Chart"
+              to="/age"
+              icon={<BarChartOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
               title="Pie Chart"
               to="/pie"
               icon={<PieChartOutlineOutlinedIcon />}
