@@ -1,4 +1,3 @@
-import React from "react";
 import { useState,useEffect, useContext } from "react";
 import {fetchStatus} from "../../API/api.js"
 import { Bar } from 'react-chartjs-2';
@@ -28,7 +27,7 @@ ChartJS.register(
   ArcElement
 ); 
  
-export const StatusChart =  () => {
+export const BarChart =  () => {
     const [data,setdata] = useState({ list: [],
        count: 0 ,
         null: 0,
