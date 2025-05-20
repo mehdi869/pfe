@@ -10,6 +10,7 @@ import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { fetchQuestionTypeStats } from '../../API/api';
 import { AuthContext } from "../../context/AuthContext";
+import { exportToExcel } from "../../utils/utility";
 
 // Register ChartJS components
 ChartJS.register(
@@ -72,21 +73,36 @@ const BarChart = () => {
     });
   };
 
-  // Handle download
-  const handleDownload = () => {
-    if (chartRef.current) {
-      const link = document.createElement('a');
-      link.download = 'question-type-stats.png';
-      link.href = chartRef.current.toBase64Image();
-      link.click();
-      
-      setSnackbar({
-        open: true,
-        message: "Chart downloaded successfully!",
-        severity: "success"
-      });
-    }
-  };
+  // Handle Export
+  const handleExport = () => {
+    const chart =
+      stats?.question_types?.labels && stats?.question_types?.counts
+        ? {
+            labels: stats.question_types.labels,
+            counts: stats.question_types.counts,
+          }
+        : {
+            labels: mockData.labels,
+            counts: mockData.datasets[0].data,
+          };
+
+    const rows = chart.labels.map((label, i) => ({
+      "Question Type": label,
+      "Number of Responses": chart.counts[i],
+    }));
+
+    exportToExcel({
+      rows,
+      sheetName: "BarChart",
+      fileName: "bar_chart_data.xlsx",
+    });
+
+    setSnackbar({
+      open: true,
+      message: "Chart data exported successfully!",
+      severity: "success",
+    });
+ };
 
   // Close snackbar
   const handleCloseSnackbar = (event, reason) => {
@@ -244,7 +260,7 @@ const BarChart = () => {
           action={true}
           actionText="Download Chart"
           actionIcon={<DownloadOutlinedIcon />}
-          onAction={handleDownload}
+          onAction={handleExport}
         />
       </Box>
 
