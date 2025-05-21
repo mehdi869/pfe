@@ -29,6 +29,7 @@ import Map from "./scenes/Map/map.jsx"
 import {StatusChart} from "./scenes/chart/StatusChart.jsx" 
 import {NpsChart} from "./scenes/chart/NpsChart.jsx"
 import Settings from "./scenes/setting"
+import Profile from "./scenes/profile"
 
 function App() {
   const [theme, colorMode] = useMode()
@@ -71,7 +72,8 @@ function App() {
                   <Route path='/chart' element={<StatusChart/>}></Route>
                   <Route path='/nps' element = {<NpsChart/>}></Route>
                   <Route path="/status" element={<StatusChart />} />
-                  <Route path="/profile" element={<Settings />} />
+                  <Route path="/setting" element={<Settings />} />
+                  <Route path="/profile" element={<Profile />} />
                   {/* Admin-only route */}
                 <Route element={<AdminRoute />}>
                   <Route path="/admin-panel" element={<Admin/>} />
