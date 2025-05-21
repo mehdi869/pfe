@@ -14,6 +14,7 @@ import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { ColorModeContext } from "../../styles/theme";
 import { useContext } from "react";
+import { exportToExcel } from "../../utils/utility";
 
 const Settings = () => {
   const theme = useTheme();
@@ -76,10 +77,25 @@ const Settings = () => {
   
   // Handle data export
   const handleDataExport = () => {
+    // Prepare data for export (flatten settings object)
+    const rows = Object.entries(settings).flatMap(([category, values]) =>
+      Object.entries(values).map(([key, value]) => ({
+        Category: category.charAt(0).toUpperCase() + category.slice(1),
+        Setting: key,
+        Value: typeof value === "boolean" ? (value ? "Yes" : "No") : value,
+      }))
+    );
+
+    exportToExcel({
+      rows,
+      sheetName: "UserSettings",
+      fileName: "user_settings.xlsx",
+    });
+
     setSnackbar({
       open: true,
-      message: "Your data export has been initiated. You will receive an email when it's ready.",
-      severity: "info"
+      message: "Your data has been exported as Excel.",
+      severity: "success",
     });
   };
   
