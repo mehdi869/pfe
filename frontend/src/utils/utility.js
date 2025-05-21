@@ -1,4 +1,8 @@
 import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
+
 /**
  * Store chart data in localStorage
  * @param {string} key
@@ -42,4 +46,31 @@ export function exportToExcel({
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, sheetName);
   XLSX.writeFile(wb, fileName);
+}
+
+
+/**
+ * Export chart data to PDF
+ * @param {Object[]} rows - Array of objects (ex: [{ "Question Type": "MCQ", "Number of Responses": 120 }, ...])
+ * @param {string} title - Title for the PDF
+ * @param {string} fileName - Name of the PDF file
+ */
+export function exportChartDataToPdf({ rows, title = "Chart Data", fileName = "chart_data.pdf" }) {
+  const doc = new jsPDF();
+  doc.setFontSize(16);
+  doc.text(title, 14, 18);
+
+  // Get columns from keys of first row
+  const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
+  const data = rows.map(row => columns.map(col => row[col]));
+
+  autoTable(doc, {
+    head: [columns],
+    body: data,
+    startY: 25,
+    styles: { fontSize: 12 },
+    headStyles: { fillColor: [237, 28, 36] }, // Example: Djezzy red
+  });
+
+  doc.save(fileName);
 }
