@@ -34,8 +34,8 @@ import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { fetchQuestionTypeStats } from "../../API/api";
 import { AuthContext } from "../../context/AuthContext";
-import { exportToExcel } from "../../utils/utility";
-import { exportChartDataToPdf } from "../../utils/utility";
+import { exportToExcel } from "../../utils";
+import { exportChartDataToPdf } from "../../utils";
 
 // Register ChartJS components
 ChartJS.register(
