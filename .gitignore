@@ -1,3 +1,5 @@
+#General
+.env
 # General Python ignores
 *.pyc
 __pycache__/
