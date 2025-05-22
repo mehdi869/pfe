@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import {
   Box,
@@ -15,29 +17,19 @@ import {
   MenuItem,
   CircularProgress,
   Tooltip,
-  Chip,
   Paper,
   Fade,
   Zoom,
 } from "@mui/material"
 import { tokens } from "../../styles/theme"
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined"
-import RefreshIcon from "@mui/icons-material/Refresh"
-import FilterListIcon from "@mui/icons-material/FilterList"
-import DateRangeIcon from "@mui/icons-material/DateRange"
 import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt"
 import ThumbDownAltIcon from "@mui/icons-material/ThumbDownAlt"
 import RemoveIcon from "@mui/icons-material/Remove"
 import TrendingUpIcon from "@mui/icons-material/TrendingUp"
-import TrendingDownIcon from "@mui/icons-material/TrendingDown"
-import CommentIcon from "@mui/icons-material/Comment"
 import PeopleIcon from "@mui/icons-material/People"
-import MoreVertIcon from "@mui/icons-material/MoreVert"
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined"
-import DownloadIcon from "@mui/icons-material/Download"
-import ShareIcon from "@mui/icons-material/Share"
-import NotificationsIcon from "@mui/icons-material/Notifications"
-import { Bar, Line, Doughnut } from "react-chartjs-2"
+import { Bar, Doughnut } from "react-chartjs-2"
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -51,7 +43,7 @@ import {
   LineElement,
   Filler,
 } from "chart.js"
-import { fetchQuickStats } from "../../API/api"; // Add this import
+import { fetchQuickStats } from "../../API/api" // Add this import
 
 // Register ChartJS components
 ChartJS.register(
@@ -87,7 +79,7 @@ const Dashboard = () => {
     response_rate: null,
     last_refresh_date: null,
     nps_score_trend: null,
-  });
+  })
   // real data integration
   // Utility to validate quick stats data
   const isValidQuickStats = (data) => {
@@ -99,24 +91,24 @@ const Dashboard = () => {
       typeof data.passives === "number" &&
       typeof data.detractors === "number" &&
       typeof data.total_responses === "number"
-    );
-  };
+    )
+  }
   // create some variables to hold the percentage of promoters, passives, and detractors\
-  const promotersPercentage = ((npsData.promoters / npsData.total_responses) * 100).toFixed(2);
-  const passivesPercentage = ((npsData.passives / npsData.total_responses) * 100).toFixed(2);
-  const detractorsPercentage = ((npsData.detractors / npsData.total_responses) * 100).toFixed(2);
+  const promotersPercentage = ((npsData.promoters / npsData.total_responses) * 100).toFixed(2)
+  const passivesPercentage = ((npsData.passives / npsData.total_responses) * 100).toFixed(2)
+  const detractorsPercentage = ((npsData.detractors / npsData.total_responses) * 100).toFixed(2)
 
   // Fetch and cache quick stats
   useEffect(() => {
     const loadQuickStats = async () => {
       // Try to get from localStorage
-      const cached = localStorage.getItem("quickStats");
+      const cached = localStorage.getItem("quickStats")
       if (cached) {
         try {
-          const parsed = JSON.parse(cached);
+          const parsed = JSON.parse(cached)
           if (isValidQuickStats(parsed)) {
-            setNpsData(parsed);
-            return;
+            setNpsData(parsed)
+            return
           }
         } catch (e) {
           // Ignore and fetch from server
@@ -124,29 +116,27 @@ const Dashboard = () => {
       }
       // Fetch from server if missing or invalid
       try {
-        const stats = await fetchQuickStats();
-        setNpsData(stats);
-        localStorage.setItem("quickStats", JSON.stringify(stats));
+        const stats = await fetchQuickStats()
+        setNpsData(stats)
+        localStorage.setItem("quickStats", JSON.stringify(stats))
       } catch (e) {
         // handle error (show message or fallback)
       }
-    };
-    loadQuickStats();
-  }, []);
+    }
+    loadQuickStats()
+  }, [])
 
   // Optionally, add a refresh button to clear cache and refetch
   const handleRefreshStats = async () => {
     try {
-      const stats = await fetchQuickStats();
-      setNpsData(stats);
-      localStorage.setItem("quickStats", JSON.stringify(stats));
+      const stats = await fetchQuickStats()
+      setNpsData(stats)
+      localStorage.setItem("quickStats", JSON.stringify(stats))
     } catch (e) {
       // handle error
     }
-  };
+  }
 
-
-    
   // Mock data for charts
   const [chartData, setChartData] = useState({
     npsOverTime: {
@@ -173,12 +163,12 @@ const Dashboard = () => {
         {
           data: [
             Math.round(Number(promotersPercentage) || 0),
-            Math.round(Number(passivesPercentage)  || 0),
-            Math.round(Number(detractorsPercentage) || 0)
+            Math.round(Number(passivesPercentage) || 0),
+            Math.round(Number(detractorsPercentage) || 0),
           ],
           backgroundColor: [
-            "#4caf50", // Green for promoters
-            "orange", // Orange for passives
+            colors.greenAccent[500], // Green for promoters
+            colors.purpleAccent[500], // Orange for passives
             colors.primary[500], // Red for detractors
           ],
           borderColor: theme.palette.background.paper,
@@ -207,7 +197,7 @@ const Dashboard = () => {
         {
           label: "Promoters",
           data: [42, 45, 40, 48, 50, 45, 48, 50, 52, 55, 52, 58],
-          borderColor: "#4caf50",
+          borderColor: colors.greenAccent[500],
           backgroundColor: "#4caf5020",
           tension: 0.4,
           fill: true,
@@ -215,7 +205,7 @@ const Dashboard = () => {
         {
           label: "Passives",
           data: [38, 35, 40, 32, 30, 35, 32, 30, 38, 35, 38, 32],
-          borderColor: "#ff9800",
+          borderColor: colors.purpleAccent[500],
           backgroundColor: "#ff980020",
           tension: 0.4,
           fill: true,
@@ -234,19 +224,21 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (npsData.total_responses > 0) {
-      setChartData(prev => ({
+      setChartData((prev) => ({
         ...prev,
         responseDistribution: {
           ...prev.responseDistribution,
-          datasets: [{
-            ...prev.responseDistribution.datasets[0],
-            data: [
-              Math.round(Number(promotersPercentage)),
-              Math.round(Number(passivesPercentage)),
-              Math.round(Number(detractorsPercentage))
-            ]
-          }]
-        }
+          datasets: [
+            {
+              ...prev.responseDistribution.datasets[0],
+              data: [
+                Math.round(Number(promotersPercentage)),
+                Math.round(Number(passivesPercentage)),
+                Math.round(Number(detractorsPercentage)),
+              ],
+            },
+          ],
+        },
       }))
     }
   }, [promotersPercentage, passivesPercentage, detractorsPercentage])
@@ -316,13 +308,13 @@ const Dashboard = () => {
 
   // NPS Score Card Component
   const NPSScoreCard = () => {
-    if (!npsData) return <CircularProgress />;
+    if (!npsData) return <CircularProgress />
     // Calculate the color based on NPS score
     const getScoreColor = (score) => {
       if (score < 0) return "#d32f2f" // Red for negative
       if (score < 30) return "#ff9800" // Orange for low
       if (score < 50) return "#2196f3" // Blue for medium
-      return "#4caf50" // Green for high
+      return colors.greenAccent[500] // Green for high
     }
 
     const scoreColor = getScoreColor(npsData.nps_score)
@@ -372,7 +364,7 @@ const Dashboard = () => {
                 fontWeight="bold"
                 sx={{
                   color: scoreColor,
-                  fontSize: { xs: "48px", sm: "64px" },
+                  fontSize: { xs: "36px", sm: "48px", md: "64px" },
                   transition: "color 0.3s ease",
                 }}
               >
@@ -407,13 +399,13 @@ const Dashboard = () => {
             <Grid item xs={4}>
               <Box textAlign="center">
                 <Box display="flex" alignItems="center" justifyContent="center">
-                  <ThumbUpAltIcon sx={{ color: "#4caf50", mr: 0.5 }} />
+                  <ThumbUpAltIcon sx={{ color: colors.greenAccent[500], mr: 0.5 }} />
                   <Typography variant="body2" color={colors.grey[100]}>
                     Promoters
                   </Typography>
                 </Box>
                 <Fade in={animateCharts} timeout={800}>
-                  <Typography variant="h5" fontWeight="bold" color="#4caf50">
+                  <Typography variant="h5" fontWeight="bold" color={colors.greenAccent[500]}>
                     {npsData.promoters}
                   </Typography>
                 </Fade>
@@ -422,13 +414,13 @@ const Dashboard = () => {
             <Grid item xs={4}>
               <Box textAlign="center">
                 <Box display="flex" alignItems="center" justifyContent="center">
-                  <RemoveIcon sx={{ color: "#ff9800", mr: 0.5 }} />
+                  <RemoveIcon sx={{ color: colors.purpleAccent[500], mr: 0.5 }} />
                   <Typography variant="body2" color={colors.grey[100]}>
                     Passives
                   </Typography>
                 </Box>
                 <Fade in={animateCharts} timeout={800}>
-                  <Typography variant="h5" fontWeight="bold" color="#ff9800">
+                  <Typography variant="h5" fontWeight="bold" color={colors.purpleAccent[500]}>
                     {npsData.passives}
                   </Typography>
                 </Fade>
@@ -588,10 +580,12 @@ const Dashboard = () => {
     plugins: {
       legend: {
         position: "right",
+        align: "center",
         labels: {
           boxWidth: 12,
           usePointStyle: true,
           pointStyle: "circle",
+          color: colors.grey[100],
         },
       },
       tooltip: {
@@ -605,11 +599,11 @@ const Dashboard = () => {
         usePointStyle: true,
         callbacks: {
           label: (context) => {
-            const label = context.label || "";
-            const value = context.parsed;
-            return `${label}: ${value}%`;
-          }
-        }
+            const label = context.label || ""
+            const value = context.parsed
+            return `${label}: ${value}%`
+          },
+        },
       },
     },
     cutout: "65%",
@@ -682,7 +676,7 @@ const Dashboard = () => {
           boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
         }}
       >
-        <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap">
+        <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2}>
           <Box display="flex" alignItems="center">
             <Typography
               variant="h2"
@@ -804,7 +798,7 @@ const Dashboard = () => {
             }}
           >
             <Tab label="Overview" icon={<TrendingUpIcon fontSize="small" />} iconPosition="start" />
-            </Tabs>
+          </Tabs>
         </Box>
       </Paper>
 
@@ -832,7 +826,7 @@ const Dashboard = () => {
                 </IconButton>
               </Tooltip> */}
             </Box>
-            <Grid container spacing={3} mb="10px">
+            <Grid container spacing={{ xs: 2, sm: 3 }} mb="10px">
               <Grid item xs={12} md={6} lg={4}>
                 <NPSScoreCard />
               </Grid>
@@ -852,19 +846,19 @@ const Dashboard = () => {
                   value={`${promotersPercentage}%`}
                   subtitle="9-10 ratings"
                   icon={<ThumbUpAltIcon sx={{ color: "#fff", fontSize: 24 }} />}
-                  color="#4caf50" // Green
+                  color={colors.greenAccent[500]} // Green
                 />
               </Grid>
 
-                  <Grid item xs={12} sm={6} md={3} lg={2}>
-                  <StatCard
-                    title="PASSIVES"
-                    value={`${passivesPercentage}%`}
-                    subtitle="7-8 ratings"
-                    icon={<RemoveIcon sx={{ color: "#fff", fontSize: 24 }} />}
-                    color="gray" // Orange
-                  />
-                  </Grid>
+              <Grid item xs={12} sm={6} md={3} lg={2}>
+                <StatCard
+                  title="PASSIVES"
+                  value={`${passivesPercentage}%`}
+                  subtitle="7-8 ratings"
+                  icon={<RemoveIcon sx={{ color: "#fff", fontSize: 24 }} />}
+                  color={colors.grey[400]} // Orange
+                />
+              </Grid>
 
               <Grid item xs={12} sm={6} md={3} lg={2}>
                 <StatCard
@@ -924,12 +918,18 @@ const Dashboard = () => {
                   },
                 }}
               >
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} minWidth={"270px"}>
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  mb={2}
+                  minWidth={{ xs: "100%", sm: "270px" }}
+                >
                   <Typography variant="h5" fontWeight="bold">
                     Response Distribution
                   </Typography>
                 </Box>
-                <Box height={300} display="flex" alignItems="center" justifyContent="center">
+                <Box height={{ xs: 250, sm: 300 }} display="flex" alignItems="center" justifyContent="center">
                   <Doughnut
                     data={chartData.responseDistribution}
                     options={pieOptions}
@@ -939,52 +939,58 @@ const Dashboard = () => {
               </Paper>
             </Grid>
             <Grid item xs={12} md={6} lg={6}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    backgroundColor: theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-                    borderRadius: "16px",
-                    p: 3,
-                    transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                    "&:hover": {
-                      boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
-                    },
-                  }}
-                > 
-                  <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} minWidth={"500px"}>
-                    <Typography variant="h5" fontWeight="bold">
-                      NPS by Segment
-                    </Typography>
-                  </Box>
-                  <Box height={300}>
-                    <Bar
-                      data={chartData.segmentComparison}
-                      options={{
-                        ...barOptions,
-                        scales: {
-                          y: {
-                            min: 0, // Hide negative part of the Y-axis
-                            max: 100,
-                            ticks: {
-                              stepSize: 20,
-                            },
-                            grid: {
-                              color: theme.palette.mode === "dark" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)",
-                            },
+              <Paper
+                elevation={0}
+                sx={{
+                  backgroundColor: theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+                  borderRadius: "16px",
+                  p: 3,
+                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                  "&:hover": {
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
+                  },
+                }}
+              >
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  mb={2}
+                  minWidth={{ xs: "100%", sm: "500px" }}
+                >
+                  <Typography variant="h5" fontWeight="bold">
+                    NPS by Segment
+                  </Typography>
+                </Box>
+                <Box height={300}>
+                  <Bar
+                    data={chartData.segmentComparison}
+                    options={{
+                      ...barOptions,
+                      scales: {
+                        y: {
+                          min: 0, // Hide negative part of the Y-axis
+                          max: 100,
+                          ticks: {
+                            stepSize: 20,
                           },
-                          x: {
-                            grid: {
-                              display: false,
-                            },
+                          grid: {
+                            color: theme.palette.mode === "dark" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)",
                           },
                         },
-                      }}
-                      key={animateCharts ? "animated" : "static"}
-                    />
-                  </Box>
-                </Paper>
-              </Grid>
+                        x: {
+                          grid: {
+                            display: false,
+                          },
+                        },
+                      },
+                    }}
+                    key={animateCharts ? "animated" : "static"}
+                  />
+                </Box>
+              </Paper>
+            </Grid>
             {/* <Grid item xs={12} md={6} lg={6}>
               <Paper
                 elevation={0}

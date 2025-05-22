@@ -526,7 +526,6 @@ def quick_stats(request):
     nps_by_segment = SurveyData2.objects.exclude(nps_score=-1).exclude(segment_type='-1') \
         .values('segment_type') \
         .annotate(
-    total_valid=Count('id'),
     promotors=Count(Case(When(nps_score__range=(9, 10), then=1), output_field=IntegerField())),
     passives=Count(Case(When(nps_score__range=(7, 8), then=1), output_field=IntegerField())),
     detractors=Count(Case(When(nps_score__range=(0, 6), then=1), output_field=IntegerField()))
@@ -569,16 +568,15 @@ def quick_stats(request):
 def geo_nps_stats(request):
     """
     Returns NPS statistics for regions and cities.
-    - For each region: name, avg NPS, total responses, promoters, passives, detractors.
-    - For each city: name, avg NPS, total responses, promoters, passives, detractors.
+    - For each region: name, NPS score, avg rating, total responses, promoters, passives, detractors.
+    - For each city: name, NPS score, avg rating, total responses, promoters, passives, detractors.
     Excludes entries where the category name itself is '-1'.
     """
 
-    # Region statistics:
-    # Fetches rows where city_name is '-1' (aggregated for the region)
-    # and retail_region_name is an actual region name (not '-1').
+    # Region statistics (aggregated per region, city_name == '-1')
     region_data_queryset = CityRegionNps.objects.filter(
-        city_name='-1').values(
+        city_name='-1'
+    ).values(
         'retail_region_name',
         'avg_nps',
         'total_valid',
@@ -589,18 +587,29 @@ def geo_nps_stats(request):
 
     regions = []
     for item in region_data_queryset:
+        total = item['total_valid'] or 0
+        promoters = item['promotors'] or 0
+        detractors = item['detractors'] or 0
+        passives = item['passives'] or 0
+
+        nps_score = (
+            ((promoters / total) * 100) - ((detractors / total) * 100)
+        ) if total > 0 else None
+
         regions.append({
             'name': item['retail_region_name'],
-            'avg_nps': float(item['avg_nps']) if item['avg_nps'] is not None else None,
-            'total_responses': item['total_valid'],
-            'promoters': item['promotors'],
-            'passives': item['passives'],
-            'detractors': item['detractors']
+            'average_rating': float(item['avg_nps']) if item['avg_nps'] is not None else None,
+            'nps_score': round(nps_score, 2) if nps_score is not None else None,
+            'total_responses': total,
+            'promoters': promoters,
+            'passives': passives,
+            'detractors': detractors
         })
 
-    # City statistics:
-    # Fetches rows where retail_region_name is '-1' (aggregated for the city)
-    city_data_queryset = CityRegionNps.objects.filter(retail_region_name='-1' ).values(
+    # City statistics (aggregated per city, retail_region_name == '-1')
+    city_data_queryset = CityRegionNps.objects.filter(
+        retail_region_name='-1'
+    ).values(
         'city_name',
         'avg_nps',
         'total_valid',
@@ -611,13 +620,23 @@ def geo_nps_stats(request):
 
     cities = []
     for item in city_data_queryset:
+        total = item['total_valid'] or 0
+        promoters = item['promotors'] or 0
+        detractors = item['detractors'] or 0
+        passives = item['passives'] or 0
+
+        nps_score = (
+            ((promoters / total) * 100) - ((detractors / total) * 100)
+        ) if total > 0 else None
+
         cities.append({
             'name': item['city_name'],
-            'avg_nps': float(item['avg_nps']) if item['avg_nps'] is not None else None,
-            'total_responses': item['total_valid'],
-            'promoters': item['promotors'],
-            'passives': item['passives'],
-            'detractors': item['detractors']
+            'average_rating': float(item['avg_nps']) if item['avg_nps'] is not None else None,
+            'nps_score': round(nps_score, 2) if nps_score is not None else None,
+            'total_responses': total,
+            'promoters': promoters,
+            'passives': passives,
+            'detractors': detractors
         })
 
     return JsonResponse({

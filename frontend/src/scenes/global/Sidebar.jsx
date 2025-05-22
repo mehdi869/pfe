@@ -1,57 +1,49 @@
-import { useState, useEffect, useContext } from "react"; // added useContext
-import { ProSidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
-import { Box, IconButton, Typography, useTheme, Avatar, Divider, Badge, Tooltip } from "@mui/material";
-import { Link, useLocation } from "react-router-dom";
-import 'react-pro-sidebar/dist/css/styles.css';
-import { tokens } from "../../styles/theme";
-import { AuthContext } from "../../context/AuthContext"; // import AuthContext
+"use client"
+
+import { useState, useEffect, useContext } from "react" // added useContext
+import { ProSidebar, Menu, MenuItem } from "react-pro-sidebar"
+import { Box, IconButton, Typography, useTheme, Avatar, Badge } from "@mui/material"
+import { Link, useLocation } from "react-router-dom"
+import "react-pro-sidebar/dist/css/styles.css"
+import { tokens } from "../../styles/theme"
+import { AuthContext } from "../../context/AuthContext" // import AuthContext
 
 // Icons
-import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
-import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
-import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
-import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
-import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
-import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
-import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutlined";
-import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
-import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
-import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
-import InsightsIcon from "@mui/icons-material/Insights";
-import CommentIcon from "@mui/icons-material/Comment";
-import CompareIcon from "@mui/icons-material/Compare";
-import TrendingUpIcon from "@mui/icons-material/TrendingUp";
-import GroupsIcon from "@mui/icons-material/Groups";
-import FeedbackIcon from "@mui/icons-material/Feedback";
-import AnalyticsIcon from "@mui/icons-material/Analytics";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined"
+import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined"
+import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined"
+import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutlined"
+import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined"
+import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined"
+import MapOutlinedIcon from "@mui/icons-material/MapOutlined"
+import InsightsIcon from "@mui/icons-material/Insights"
+import FeedbackIcon from "@mui/icons-material/Feedback"
+import AccountCircleIcon from "@mui/icons-material/AccountCircle"
 
 const Item = ({ title, to, icon, selected, setSelected, badge }) => {
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
-  const location = useLocation();
-  const isActive = location.pathname === to;
+  const theme = useTheme()
+  const colors = tokens(theme.palette.mode)
+  const location = useLocation()
+  const isActive = location.pathname === to
 
   useEffect(() => {
     if (isActive) {
-      setSelected(title);
+      setSelected(title)
     }
-  }, [isActive, setSelected, title]);
+  }, [isActive, setSelected, title])
 
   return (
     <MenuItem
       active={selected === title}
       style={{
-        color: colors.grey[100],
+        color: selected === title ? colors.primary[500] : colors.grey[100],
         margin: "5px 0",
       }}
       onClick={() => setSelected(title)}
       icon={
         badge ? (
-          <Badge 
-            badgeContent={badge} 
+          <Badge
+            badgeContent={badge}
             color="error"
             sx={{
               "& .MuiBadge-badge": {
@@ -59,12 +51,14 @@ const Item = ({ title, to, icon, selected, setSelected, badge }) => {
                 fontSize: "10px",
                 height: "16px",
                 minWidth: "16px",
-              }
+              },
             }}
           >
             {icon}
           </Badge>
-        ) : icon
+        ) : (
+          icon
+        )
       }
     >
       <Box display="flex" alignItems="center">
@@ -84,36 +78,36 @@ const Item = ({ title, to, icon, selected, setSelected, badge }) => {
       </Box>
       <Link to={to} />
     </MenuItem>
-  );
-};
+  )
+}
 
 const Sidebar = () => {
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [selected, setSelected] = useState("NPS Overview");
-  const location = useLocation();
+  const theme = useTheme()
+  const colors = tokens(theme.palette.mode)
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [selected, setSelected] = useState("NPS Overview")
+  const location = useLocation()
 
   // Get the user info from AuthContext (which should be stored in browser/localStorage)
-  const { user } = useContext(AuthContext);
+  const { user } = useContext(AuthContext)
 
   // Set selected based on current route
   useEffect(() => {
-    const path = location.pathname;
-    if (path === "/Dashboard") setSelected("NPS Overview");
-//  else if (path === "/nps-overview") setSelected("NPS Overview");
-//  else if (path === "/response-analysis") setSelected("Response Analysis");
-    else if (path === "/segmentation") setSelected("Segmentation");
-    else if (path === "/trends") setSelected("Trends & Forecasting");
-    else if (path === "/comments") setSelected("Comment Analysis");
-    else if (path === "/benchmarks") setSelected("Benchmarks");
-    else if (path === "/admin-panel") setSelected("Admin Panel");
-    else if (path === "/profile") setSelected("Profile");
-    else if (path === "/barChart") setSelected("Bar Chart");
-    else if (path === "/pie") setSelected("Pie Chart");
-    else if (path === "/status") setSelected("Status Chart");
-    else if (path === "/Map") setSelected("Geography Chart");
-  }, [location]);
+    const path = location.pathname
+    if (path === "/Dashboard") setSelected("NPS Overview")
+    //  else if (path === "/nps-overview") setSelected("NPS Overview");
+    //  else if (path === "/response-analysis") setSelected("Response Analysis");
+    else if (path === "/segmentation") setSelected("Segmentation")
+    else if (path === "/trends") setSelected("Trends & Forecasting")
+    else if (path === "/comments") setSelected("Comment Analysis")
+    else if (path === "/benchmarks") setSelected("Benchmarks")
+    else if (path === "/admin-panel") setSelected("Admin Panel")
+    else if (path === "/profile") setSelected("Profile")
+    else if (path === "/barChart") setSelected("Bar Chart")
+    else if (path === "/pie") setSelected("Pie Chart")
+    else if (path === "/status") setSelected("Status Chart")
+    else if (path === "/Map") setSelected("Geography Chart")
+  }, [location])
 
   return (
     <Box
@@ -145,12 +139,14 @@ const Sidebar = () => {
         },
       }}
     >
-      <ProSidebar 
-        collapsed={isCollapsed} 
-        width="250px" 
+      <ProSidebar
+        collapsed={isCollapsed}
+        width="250px"
         collapsedWidth="80px"
-        style={{ 
-          height: "100%",
+        style={{
+          height: "100vh",
+          position: "sticky",
+          top: 0,
           transition: "all 0.3s ease",
         }}
       >
@@ -165,25 +161,29 @@ const Sidebar = () => {
             }}
           >
             {!isCollapsed && (
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-                ml="15px"
-              >
-                <Box display="flex" alignItems="center">
-                  <img 
-                    src="/Djezzy_Logo_2015.svg.png" 
-                    alt="Djezzy Logo" 
-                    style={{ 
-                      height: "30px", 
-                      marginRight: "10px" 
-                    }} 
+              <Box display="flex" justifyContent="space-between" alignItems="center" ml="15px">
+                <Box display="flex" alignItems="center" sx={{ maxWidth: "100%", overflow: "hidden" }}>
+                  <img
+                    src="/Djezzy_Logo_2015.svg.png"
+                    alt="Djezzy Logo"
+                    style={{
+                      height: "30px",
+                      marginRight: "8px",
+                      flexShrink: 0,
+                    }}
                   />
-                  <Typography 
-                    variant="h3" 
+                  <Typography
+                    variant="h4"
                     color={colors.primary[500]}
                     fontWeight="bold"
+                    sx={{
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      fontSize: "1.2rem", // smaller font
+                      flexShrink: 1,
+                      minWidth: 0,
+                    }}
                   >
                     DJEZZY NPS
                   </Typography>
@@ -198,26 +198,15 @@ const Sidebar = () => {
           {!isCollapsed && (
             <Box mb="25px">
               <Box display="flex" justifyContent="center" alignItems="center">
-                <Avatar
-                sx={{ width: 56, height: 56, bgcolor: colors.primary[500] }}
-                >
+                <Avatar sx={{ width: 56, height: 56, bgcolor: colors.primary[500] }}>
                   <AccountCircleIcon sx={{ fontSize: 56, color: "#fff" }} />
                 </Avatar>
               </Box>
               <Box textAlign="center" mt="10px">
-                <Typography
-                  variant="h3"
-                  color={colors.grey[100]}
-                  fontWeight="bold"
-                  sx={{ m: "10px 0 0 0" }}
-                >
+                <Typography variant="h3" color={colors.grey[100]} fontWeight="bold" sx={{ m: "10px 0 0 0" }}>
                   {user?.username || "Guest"}
                 </Typography>
-                <Typography 
-                  variant="body2" 
-                  color={colors.primary[500]}
-                  fontWeight="500"
-                >
+                <Typography variant="body2" color={colors.primary[500]} fontWeight="500">
                   {user?.user_type || ""}
                 </Typography>
               </Box>
@@ -233,7 +222,7 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
-          {/*
+            {/*
           <Item
             title="NPS Overview"
             to="/nps-overview"
@@ -242,7 +231,7 @@ const Sidebar = () => {
             setSelected={setSelected}
           />
           */}
-          {/*
+            {/*
           <Item
             title="Response Analysis"
             to="/response-analysis"
@@ -279,12 +268,12 @@ const Sidebar = () => {
             selected={selected}
             setSelected={setSelected}
           />
-          */}     
+          */}
             {/* CHARTS */}
             <Typography
               variant="body2"
               color={colors.grey[300]}
-              sx={{ 
+              sx={{
                 m: "15px 0 5px 20px",
                 display: isCollapsed ? "none" : "block",
                 fontWeight: "bold",
@@ -342,7 +331,7 @@ const Sidebar = () => {
             <Typography
               variant="body2"
               color={colors.grey[300]}
-              sx={{ 
+              sx={{
                 m: "15px 0 5px 20px",
                 display: isCollapsed ? "none" : "block",
                 fontWeight: "bold",
@@ -352,29 +341,29 @@ const Sidebar = () => {
             >
               Management
             </Typography>
-            
+
             {(user?.user_type === "admin" || user?.user_type === "Admin") && (
               <Item
-              title="Admin Panel"
-              to="/admin-panel"
-              icon={<AdminPanelSettingsOutlinedIcon />}
+                title="Admin Panel"
+                to="/admin-panel"
+                icon={<AdminPanelSettingsOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+            )}
+            <Item
+              title="Feedback Collection"
+              to="/feedback"
+              icon={<FeedbackIcon />}
               selected={selected}
               setSelected={setSelected}
-                      />
-                      )}
-                    <Item
-                      title="Feedback Collection"
-                      to="/feedback"
-                      icon={<FeedbackIcon />}
-                      selected={selected}
-                      setSelected={setSelected}
-                    />
+            />
 
-                    {/* USER */}
+            {/* USER */}
             <Typography
               variant="body2"
               color={colors.grey[300]}
-              sx={{ 
+              sx={{
                 m: "15px 0 5px 20px",
                 display: isCollapsed ? "none" : "block",
                 fontWeight: "bold",
@@ -395,7 +384,7 @@ const Sidebar = () => {
         </Menu>
       </ProSidebar>
     </Box>
-  );
-};
+  )
+}
 
-export default Sidebar;
+export default Sidebar
