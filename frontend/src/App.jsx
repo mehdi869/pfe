@@ -70,6 +70,8 @@ function App() {
                   <Route path='/nps' element = {<NpsChart/>}></Route>
                   <Route path='/age' element = {<AgeChart/>}></Route>
                   <Route path="/status" element={<StatusChart />} />
+                  <Route path="/setting" element={<Settings />} />
+                  <Route path="/profile" element={<Profile />} />
                   {/* Admin-only route */}
                 <Route element={<AdminRoute />}>
                   <Route path="/admin-panel" element={<Admin/>} />
