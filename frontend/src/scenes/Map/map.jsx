@@ -1,0 +1,427 @@
+import React, { useEffect, useState, useMemo, useCallback } from "react";
+import { Box, CircularProgress, Alert, Paper, Typography, Chip, useTheme } from "@mui/material";
+import CityBubbleMap from "./CityBubbleMap";
+import RegionStatsList from "./RegionStatsList";
+import MapControlsPanel from "./MapControlsPanel";
+import MapLegendDisplay from "./MapLegendDisplay";
+import AnalysisInsights from "./AnalysisInsights";
+import { fetchGeoNpsStats } from "../../api/api";
+import cityLocationsRawData from "../../data/cityLocations.json";
+import { getNpsColor, npsCategories, scoreIsInNpsCategory } from "../../utils/mapUtils"; // Updated imports
+import { tokens } from "../../styles/theme";
+import { mapDefaultCenter, mapDefaultZoom } from "../../constants/mapConfig";
+import "../../styles/map.css";
+
+// Helper function to calculate NPS score (remains the same)
+const calculateNpsScore = (promoters, detractors, total_responses) => {
+  if (total_responses === 0 || typeof promoters !== 'number' || typeof detractors !== 'number' || typeof total_responses !== 'number') {
+    return null;
+  }
+  const nps = ((promoters / total_responses) * 100) - ((detractors / total_responses) * 100);
+  return parseFloat(nps.toFixed(2));
+};
+
+const Map = () => {
+  const theme = useTheme();
+  const themeColors = tokens(theme.palette.mode);
+  const [npsStats, setNpsStats] = useState({ cities: [], regions: [] });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [viewMode, setViewMode] = useState("cities");
+  // const [npsRange, setNpsRange] = useState([-100, 100]); // Removed
+  const [minResponses, setMinResponses] = useState(0);
+  const [maxResponses, setMaxResponses] = useState(Infinity); // New state for max responses
+  const [selectedNpsCategoryIds, setSelectedNpsCategoryIds] = useState(() => npsCategories.map(cat => cat.id)); // New state, all selected by default
+
+  const isValidRawGeoNpsApiData = useCallback((data) => {
+    // Validates the structure of raw data needed for processing
+    const isValidItem = (item) =>
+      item &&
+      typeof item.name === 'string' &&
+      item.hasOwnProperty('promoters') &&
+      item.hasOwnProperty('detractors') &&
+      item.hasOwnProperty('total_responses');
+
+    return data &&
+           typeof data === "object" &&
+           Array.isArray(data.cities) &&
+           Array.isArray(data.regions) &&
+           data.cities.every(isValidItem) &&
+           data.regions.every(isValidItem);
+  }, []);
+
+  const processApiData = useCallback((rawData) => {
+    if (!isValidRawGeoNpsApiData(rawData)) {
+      console.warn("Invalid raw data structure for processing.", rawData);
+      return { cities: [], regions: [] };
+    }
+    return {
+      cities: rawData.cities.map(city => ({
+        ...city,
+        avg_nps: calculateNpsScore(city.promoters, city.detractors, city.total_responses),
+      })),
+      regions: rawData.regions.map(region => ({
+        ...region,
+        avg_nps: calculateNpsScore(region.promoters, region.detractors, region.total_responses),
+      })),
+    };
+  }, [isValidRawGeoNpsApiData]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      setError(null);
+      const cacheKey = "geoNpsMapRawApiData_v1"; 
+
+      try {
+        let rawApiDataToProcess;
+        const cachedDataString = localStorage.getItem(cacheKey);
+
+        if (cachedDataString) {
+          try {
+            const parsedRawCachedData = JSON.parse(cachedDataString);
+            if (isValidRawGeoNpsApiData(parsedRawCachedData)) {
+              rawApiDataToProcess = parsedRawCachedData;
+            } else {
+              console.warn("Cached raw GeoNPS data is invalid, removing from cache.");
+              localStorage.removeItem(cacheKey);
+            }
+          } catch (e) {
+            console.warn("Failed to parse cached raw GeoNPS data, fetching new.", e);
+            localStorage.removeItem(cacheKey);
+          }
+        }
+
+        if (!rawApiDataToProcess) {
+          const fetchedRawData = await fetchGeoNpsStats();
+          if (isValidRawGeoNpsApiData(fetchedRawData)) {
+            rawApiDataToProcess = fetchedRawData;
+            localStorage.setItem(cacheKey, JSON.stringify(rawApiDataToProcess));
+          } else {
+            throw new Error("Fetched raw GeoNPS data structure is invalid.");
+          }
+        }
+        
+        const processedData = processApiData(rawApiDataToProcess);
+        setNpsStats(processedData);
+      } catch (err) {
+        console.error("Error loading NPS geo stats:", err);
+        setError(err.message || "An unknown error occurred while fetching map data.");
+        setNpsStats({ cities: [], regions: [] }); 
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, [isValidRawGeoNpsApiData, processApiData]);
+
+  const mergedCityData = useMemo(() => {
+    if (!npsStats.cities || !npsStats.cities.length || !cityLocationsRawData.length) return [];
+    return cityLocationsRawData
+      .map((location) => {
+        const lat = Number.parseFloat(location.Latitude);
+        const lon = Number.parseFloat(location.Longitude);
+
+        if (isNaN(lat) || isNaN(lon) || !location.ville) {
+          return null;
+        }
+        const cityStat = npsStats.cities.find((s) => s.name === location.ville);
+        return {
+          name: location.ville,
+          latitude: lat,
+          longitude: lon,
+          avg_nps: cityStat ? cityStat.avg_nps : null,
+          total_responses: cityStat ? cityStat.total_responses : 0,
+          promoters: cityStat ? cityStat.promoters : 0,
+          passives: cityStat ? cityStat.passives : 0,
+          detractors: cityStat ? cityStat.detractors : 0,
+        };
+      })
+      .filter((item) => item !== null);
+  }, [npsStats.cities]);
+
+  const filteredCityData = useMemo(() => {
+    return mergedCityData.filter((city) => {
+      const nps = city.avg_nps;
+      const responses = city.total_responses;
+
+      // NPS Category Filter
+      let npsCategoryMatch = false;
+      if (selectedNpsCategoryIds.length === 0) { // Show none if no categories selected
+        npsCategoryMatch = false;
+      } else if (selectedNpsCategoryIds.length === npsCategories.length) { // Show all if all categories selected
+        npsCategoryMatch = true;
+      } else {
+        npsCategoryMatch = selectedNpsCategoryIds.some(categoryId => {
+          const category = npsCategories.find(cat => cat.id === categoryId);
+          return category ? scoreIsInNpsCategory(nps, category) : false;
+        });
+      }
+      
+      // Response Range Filter
+      const responsesMeetCriteria = responses >= minResponses && responses <= maxResponses;
+      
+      return npsCategoryMatch && responsesMeetCriteria;
+    });
+  }, [mergedCityData, selectedNpsCategoryIds, minResponses, maxResponses]);
+
+  const filteredRegionData = useMemo(() => {
+    if (!npsStats.regions) return [];
+    return npsStats.regions.filter((region) => {
+      const nps = region.avg_nps;
+      const responses = region.total_responses;
+
+      // NPS Category Filter
+      let npsCategoryMatch = false;
+      if (selectedNpsCategoryIds.length === 0) {
+        npsCategoryMatch = false;
+      } else if (selectedNpsCategoryIds.length === npsCategories.length) {
+        npsCategoryMatch = true;
+      } else {
+        npsCategoryMatch = selectedNpsCategoryIds.some(categoryId => {
+          const category = npsCategories.find(cat => cat.id === categoryId);
+          return category ? scoreIsInNpsCategory(nps, category) : false;
+        });
+      }
+
+      // Response Range Filter
+      const responsesMeetCriteria = responses >= minResponses && responses <= maxResponses;
+
+      return npsCategoryMatch && responsesMeetCriteria;
+    });
+  }, [npsStats.regions, selectedNpsCategoryIds, minResponses, maxResponses]);
+
+  const filteredStats = useMemo(() => {
+    return {
+      cityCount: filteredCityData.length,
+      regionCount: filteredRegionData.length,
+      totalResponses: filteredCityData.reduce((sum, city) => sum + city.total_responses, 0),
+      avgNps:
+        filteredCityData.length > 0
+          ? filteredCityData.reduce((sum, city) => sum + (city.avg_nps || 0) * city.total_responses, 0) /
+            Math.max(1, filteredCityData.reduce((sum, city) => sum + city.total_responses, 0))
+          : null,
+    };
+  }, [filteredCityData, filteredRegionData]);
+
+  const handleViewModeChange = useCallback((event, newViewMode) => {
+    if (newViewMode !== null) {
+      setViewMode(newViewMode);
+    }
+  }, []);
+
+  // Removed handleNpsRangeChange
+
+  const handleMinResponsesChange = useCallback((event) => {
+    const value = Number.parseInt(event.target.value, 10);
+    setMinResponses(isNaN(value) || value < 0 ? 0 : value);
+  }, []);
+
+  const handleMaxResponsesChange = useCallback((event) => {
+    const valueString = event.target.value;
+    if (valueString === "") {
+      setMaxResponses(Infinity); // Set to Infinity if input is empty
+    } else {
+      const value = Number.parseInt(valueString, 10);
+      setMaxResponses(isNaN(value) || value < 0 ? 0 : value);
+    }
+  }, []);
+
+  const handleNpsCategoryChange = useCallback((categoryId) => {
+    setSelectedNpsCategoryIds(prevSelectedIds => {
+      const newSelectedIds = prevSelectedIds.includes(categoryId)
+        ? prevSelectedIds.filter(id => id !== categoryId)
+        : [...prevSelectedIds, categoryId];
+      return newSelectedIds;
+    });
+  }, []);
+
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "calc(100vh - 64px)",
+          backgroundColor: theme.palette.background.default,
+        }}
+      >
+        <CircularProgress sx={{ color: themeColors.primary[500] }} size={60} />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert
+        severity="error"
+        sx={{
+          m: 3,
+          fontSize: "1rem",
+          backgroundColor: theme.palette.background.paper,
+          color: theme.palette.text.primary,
+          "& .MuiAlert-icon": {
+            fontSize: "2rem",
+          },
+        }}
+      >
+        Failed to load map data: {error}
+      </Alert>
+    );
+  }
+
+  return (
+    <Box sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh",
+        p: 2,
+        backgroundColor: theme.palette.background.default,
+        gap: 2,
+        overflow: "hidden",
+      }}
+    >
+      <Paper
+        sx={{
+          p: 2.5,
+          backgroundColor: theme.palette.background.paper,
+          color: theme.palette.text.primary,
+          display: "flex",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+        }}
+      >
+        <Typography
+          variant="subtitle1"
+          sx={{
+            fontSize: "1.1rem",
+            display: "flex",
+            alignItems: "center",
+            minHeight: "44px",
+            color: theme.palette.text.primary,
+          }}
+        >
+          Showing:{" "}
+          <Chip
+            label={`${filteredStats.cityCount} Cities`}
+            size="medium"
+            sx={{
+              ml: 1.5,
+              backgroundColor: themeColors.primary[500],
+              color: "white",
+              fontSize: "0.95rem",
+              height: "32px",
+            }}
+          />
+        </Typography>
+
+        <Typography
+          variant="subtitle1"
+          sx={{
+            fontSize: "1.1rem",
+            display: "flex",
+            alignItems: "center",
+            minHeight: "44px",
+            color: theme.palette.text.primary,
+          }}
+        >
+          Total Responses:{" "}
+          <Chip
+            label={filteredStats.totalResponses.toLocaleString()}
+            size="medium"
+            sx={{
+              ml: 1.5,
+              backgroundColor: themeColors.blueAccent[500],
+              color: "white",
+              fontSize: "0.95rem",
+              height: "32px",
+            }}
+          />
+        </Typography>
+
+        <Typography
+          variant="subtitle1"
+          sx={{
+            fontSize: "1.1rem",
+            display: "flex",
+            alignItems: "center",
+            minHeight: "44px",
+            color: theme.palette.text.primary,
+          }}
+        >
+          Average NPS:{" "}
+          <Chip
+            label={filteredStats.avgNps !== null ? filteredStats.avgNps.toFixed(1) : "N/A"}
+            size="medium"
+            sx={{
+              ml: 1.5,
+              backgroundColor: getNpsColor(filteredStats.avgNps, themeColors),
+              color: "white",
+              fontSize: "0.95rem",
+              fontWeight: "bold",
+              height: "32px",
+            }}
+          />
+        </Typography>
+      </Paper>
+
+      <Box sx={{ display: "flex", flex: 1, gap: 2, overflow: "hidden" }}>
+        <Box
+          sx={{
+            flexGrow: 1,
+            height: "100%",
+            borderRadius: "4px",
+            overflow: "hidden",
+            border: `1px solid ${themeColors.grey[300]}`,
+            boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+            backgroundColor: "white",
+          }}
+        >
+          {viewMode === "cities" ? (
+            <CityBubbleMap
+              cityData={filteredCityData}
+              mapCenter={mapDefaultCenter}
+              mapZoom={mapDefaultZoom}
+              themeColors={themeColors}
+              theme={theme}
+            />
+          ) : (
+            <RegionStatsList
+              regionData={filteredRegionData}
+              themeColors={themeColors}
+              theme={theme}
+            />
+          )}
+        </Box>
+
+        <Box sx={{ width: "320px", display: "flex", flexDirection: "column", gap: 2, p: 0, overflowY: "auto" }}>
+          <MapControlsPanel
+            viewMode={viewMode}
+            onViewModeChange={handleViewModeChange}
+            // npsRange and onNpsRangeChange removed
+            minResponses={minResponses}
+            onMinResponsesChange={handleMinResponsesChange}
+            maxResponses={maxResponses} // Pass new state and handler
+            onMaxResponsesChange={handleMaxResponsesChange} // Pass new state and handler
+            themeColors={themeColors}
+          />
+          <MapLegendDisplay
+            themeColors={themeColors}
+            selectedNpsCategoryIds={selectedNpsCategoryIds} // Pass new state and handler
+            onNpsCategoryChange={handleNpsCategoryChange} // Pass new state and handler
+          />
+          <AnalysisInsights
+            cityData={filteredCityData} // Will use already filtered data
+            regionData={filteredRegionData} // Will use already filtered data
+            themeColors={themeColors}
+          />
+        </Box>
+      </Box>
+    </Box>
+  );
+};
+
+export default Map;

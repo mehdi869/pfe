@@ -1,0 +1,36 @@
+/* Custom styles for the NPS map visualization */
+
+/* Make tooltips more readable */
+.nps-tooltip {
+  font-size: 14px !important;
+  min-width: 200px;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  padding: 0 !important;
+  border: none !important;
+}
+
+/* Remove leaflet attribution from default position */
+.leaflet-control-attribution {
+  display: none;
+}
+
+/* Improve zoom control buttons for accessibility */
+.leaflet-control-zoom a {
+  width: 44px !important;
+  height: 44px !important;
+  line-height: 44px !important;
+  font-size: 18px !important;
+}
+
+/* Remove any grid lines that might be added by the map tiles */
+.leaflet-tile {
+  border: none !important;
+  outline: none !important;
+}
+
+/* Ensure map container has no grid lines */
+.leaflet-container {
+  background: white !important;
+  outline: none !important;
+}
