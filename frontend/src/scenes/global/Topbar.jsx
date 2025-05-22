@@ -1,26 +1,26 @@
-import { Box, IconButton, useTheme, Menu, MenuItem, Avatar, Typography } from "@mui/material"; // Added Menu, MenuItem, Avatar, Typography
-import { useContext, useState } from "react"; // Added useState
-import { ColorModeContext, tokens } from "../../styles/theme";
-// Removed InputBase and SearchIcon imports as they are no longer used
+import { Box, IconButton, useTheme, Menu, MenuItem, Avatar, Typography } from "@mui/material";
+import { useContext, useState } from "react";
+import { ThemeCustomizationContext,tokens } from "../../styles/theme";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
-import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-// Removed PersonOutlinedIcon import as Avatar is used
-import ExitToAppIcon from '@mui/icons-material/ExitToApp'; // Added for Logout
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline'; // Added for Help
-import { AuthContext } from "../../context/AuthContext"; // Added AuthContext
-import { useNavigate } from "react-router-dom"; // Added useNavigate
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import { AuthContext } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { useTopbar, TOPBAR_HEIGHT } from "../../context/TopbarContext"; // Import useTopbar and TOPBAR_HEIGHT
 
-const Topbar = ({ setIsSider }) => {
+const Topbar = ({ setIsSider, isSiderCollapsed }) => { // Removed unused isSider prop, kept isSiderCollapsed for consistency if used elsewhere
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const colorMode = useContext(ColorModeContext);
-  const { logout } = useContext(AuthContext); // Get logout function
-  const navigate = useNavigate(); // Hook for navigation
+  const colorMode = useContext(ThemeCustomizationContext); 
+   const { logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+
+  const { isTopbarExternallyControlled, isTopbarCollapsed } = useTopbar();
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -33,24 +33,39 @@ const Topbar = ({ setIsSider }) => {
   const handleLogout = () => {
     logout();
     handleClose();
-    // Optional: Redirect to login page after logout
-    // navigate('/'); 
+    // navigate('/'); // Optional: Redirect
   };
 
   const handleSettings = () => {
-    navigate('/setting'); // Navigate to settings page
+    navigate('/setting');
     handleClose();
   };
 
   const handleHelp = () => {
-    navigate('/faq'); // Navigate to help page
+    navigate('/faq');
     handleClose();
   };
 
-
   return (
-    <Box display="flex" justifyContent="space-between" p={2}>
-      {/* REMOVED SEARCH BAR */}
+    <Box
+      display="flex"
+      justifyContent="space-between"
+      alignItems="center"
+      p={2}
+      sx={{
+        backgroundColor: colors.primary[1000], // Or theme.palette.background.paper
+        position: isTopbarExternallyControlled ? "absolute" : "relative",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: theme.zIndex.appBar,
+        height: isTopbarExternallyControlled ? TOPBAR_HEIGHT : "auto",
+        transform: isTopbarExternallyControlled && isTopbarCollapsed ? "translateY(-100%)" : "translateY(0)",
+        transition: "transform 0.5s ease-in-out, background-color 0.3s ease",
+        boxSizing: 'border-box',
+        boxShadow: isTopbarExternallyControlled && !isTopbarCollapsed ? theme.shadows[2] : "none",
+      }}
+    >
       <Box flexGrow={1} /> {/* Add a flexible box to push icons to the right */}
 
       {/* ICONS */}
@@ -62,10 +77,6 @@ const Topbar = ({ setIsSider }) => {
             <LightModeOutlinedIcon />
           )}
         </IconButton>
-        {/* <IconButton>
-          <NotificationsOutlinedIcon />
-        </IconButton> */}
-        {/* Removed Settings and Person IconButtons */}
         
         {/* Profile Dropdown */}
         <IconButton
@@ -75,9 +86,8 @@ const Topbar = ({ setIsSider }) => {
           aria-haspopup="true"
           onClick={handleMenu}
           color="inherit"
-          sx={{ ml: 1 }} // Add some margin
+          sx={{ ml: 1 }}
         >
-          {/* Using Avatar, replace src with actual user image if available */}
           <Avatar sx={{ width: 32, height: 32, bgcolor: colors.primary[500] }} src="/pages/register/logo.png" /> 
         </IconButton>
         <Menu
@@ -96,28 +106,28 @@ const Topbar = ({ setIsSider }) => {
           onClose={handleClose}
           PaperProps={{
             sx: {
-              mt: 1.5, // Margin top for spacing
+              mt: 1.5,
               '& .MuiAvatar-root': {
                 width: 32,
                 height: 32,
                 ml: -0.5,
                 mr: 1,
               },
-              backgroundColor: theme.palette.background.paper, // Use theme background
-              boxShadow: theme.shadows[3], // Add some shadow
+              backgroundColor: theme.palette.background.paper,
+              boxShadow: theme.shadows[3],
             },
           }}
         >
           <MenuItem onClick={handleSettings}>
-            <SettingsOutlinedIcon sx={{ mr: 1.5 }} /> {/* Add icon */}
+            <SettingsOutlinedIcon sx={{ mr: 1.5 }} />
             <Typography>Settings</Typography>
           </MenuItem>
           <MenuItem onClick={handleHelp}>
-            <HelpOutlineIcon sx={{ mr: 1.5 }} /> {/* Add icon */}
+            <HelpOutlineIcon sx={{ mr: 1.5 }} />
             <Typography>Help & Feedback</Typography>
           </MenuItem>
           <MenuItem onClick={handleLogout}>
-            <ExitToAppIcon sx={{ mr: 1.5 }} /> {/* Add icon */}
+            <ExitToAppIcon sx={{ mr: 1.5 }} />
             <Typography>Sign Out</Typography>
           </MenuItem>
         </Menu>

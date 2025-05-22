@@ -1,29 +1,29 @@
 import { createContext, useState, useMemo } from "react";
 import { createTheme } from "@mui/material/styles";
 
-// color design tokens export
+// color design tokens export (existing tokens)
 export const tokens = (mode) => ({
   ...(mode === "dark"
     ? {
         grey: {
-          100: "#e0e0e0", // Lightest grey for text
+          100: "#e0e0e0",
           200: "#c2c2c2",
-          300: "#a3a3a3", // Secondary text, placeholder
+          300: "#a3a3a3",
           400: "#858585",
-          500: "#666666", // Borders
-          600: "#525252", // Darker borders, hover states
-          700: "#3d3d3d", // Input field background
-          800: "#292929", // Card/container backgrounds
-          900: "#141414", // Deepest background
+          500: "#666666",
+          600: "#525252",
+          700: "#3d3d3d",
+          800: "#292929",
+          900: "#141414",
         },
         primary: {
           100: "#d0d1d5",
           200: "#a1a4ab",
           300: "#727681",
-          400: "#1F2A40", // Main background for sections like dialogs, search bar container
-          500: "#ed1c24", // Main brand red
+          400: "#1F2A40",
+          500: "#ed1c24",
           600: "#d01920",
-          700: "#0c101b", // Can be used for input backgrounds if distinct from primary[400]
+          700: "#0c101b",
           800: "#080b12",
           900: "#040509",
         },
@@ -31,34 +31,34 @@ export const tokens = (mode) => ({
           100: "#dbf5ee",
           200: "#b7ebde",
           300: "#94e2cd",
-          400: "#70d8bd", // Focused label, hover borders
-          500: "#4cceac", // Main accent, focused borders
+          400: "#70d8bd",
+          500: "#4cceac",
           600: "#3da58a",
-          700: "#2e7c67", // Darker accent for backgrounds or selected items
+          700: "#2e7c67",
           800: "#1e5245",
-          900: "#0f2922", // Chip background for admin
+          900: "#0f2922",
         },
         redAccent: {
           100: "#f8dcdb",
           200: "#f1b9b7",
           300: "#e99592",
           400: "#e2726e",
-          500: "#ed1c24", // Main red accent
+          500: "#ed1c24",
           600: "#af3f3b",
-          700: "#832f2c", // Darker red for hovers/borders
+          700: "#832f2c",
           800: "#58201e",
           900: "#2c100f",
         },
-        purpleAccent: { // New color for Agent type
+        purpleAccent: {
           100: "#eadaf7",
           200: "#d5b5ef",
           300: "#c090e8",
           400: "#ab6be0",
-          500: "#9747d9", // Main purple for agent
+          500: "#9747d9",
           600: "#7939ad",
           700: "#5b2b82",
           800: "#3c1d56",
-          900: "#1e0e2b", // Chip background for agent
+          900: "#1e0e2b",
         },
         blueAccent: {
           100: "#e1e2fe",
@@ -76,7 +76,7 @@ export const tokens = (mode) => ({
           200: "#ffe0b2",
           300: "#ffcc80",
           400: "#ffb74d",
-          500: "#ffa726", // Main orange accent
+          500: "#ffa726",
           600: "#fb8c00",
           700: "#ef6c00",
           800: "#e65100",
@@ -99,9 +99,9 @@ export const tokens = (mode) => ({
           100: "#040509",
           200: "#080b12",
           300: "#0c101b",
-          400: "#f2f0f0", // manually changed
-          500: "#ed1c24", // Main brand red from login page
-          600: "#d01920", // Darker red (hover state)
+          400: "#f2f0f0",
+          500: "#ed1c24",
+          600: "#d01920",
           700: "#727681",
           800: "#a1a4ab",
           900: "#d0d1d5",
@@ -122,7 +122,7 @@ export const tokens = (mode) => ({
           200: "#e65100",
           300: "#ef6c00",
           400: "#fb8c00",
-          500: "#ffa726", // Main orange accent
+          500: "#ffa726",
           600: "#ffb74d",
           700: "#ffcc80",
           800: "#ffe0b2",
@@ -133,13 +133,13 @@ export const tokens = (mode) => ({
           200: "#58201e",
           300: "#832f2c",
           400: "#af3f3b",
-          500: "#ed1c24", // Match with primary.500
+          500: "#ed1c24",
           600: "#e2726e",
           700: "#e99592",
           800: "#f1b9b7",
           900: "#f8dcdb",
         },
-        purpleAccent: { // Added for Light Mode consistency
+        purpleAccent: {
           100: "#eadaf7",
           200: "#d5b5ef",
           300: "#c090e8",
@@ -164,82 +164,53 @@ export const tokens = (mode) => ({
       }),
 });
 
-// mui theme settings
-export const themeSettings = (mode) => {
+// MUI theme settings extended to include custom typography options
+export const themeSettings = (mode, customizations = {}) => {
   const colors = tokens(mode);
+  const { fontFamily, fontSize } = customizations;
   return {
     palette: {
       mode: mode,
       ...(mode === "dark"
         ? {
-            // palette values for dark mode
-            primary: {
-              main: colors.primary[500],
-            },
-            secondary: {
-              main: colors.greenAccent[500],
-            },
+            primary: { main: colors.primary[500] },
+            secondary: { main: colors.greenAccent[500] },
             neutral: {
               dark: colors.grey[700],
               main: colors.grey[500],
               light: colors.grey[100],
             },
             background: {
-              default: colors.primary[400], // Main app background
-              paper: colors.primary[700], // Background for elements like Dialogs, Cards if different
+              default: colors.primary[400],
+              paper: colors.primary[700],
             },
             text: {
               primary: colors.grey[100],
               secondary: colors.grey[300],
-            }
+            },
           }
         : {
-            // palette values for light mode
-            primary: {
-              main: colors.primary[500],
-            },
-            secondary: {
-              main: colors.greenAccent[500],
-            },
+            primary: { main: colors.primary[500] },
+            secondary: { main: colors.greenAccent[500] },
             neutral: {
               dark: colors.grey[700],
               main: colors.grey[500],
               light: colors.grey[100],
             },
-            background: {
-              default: "#fcfcfc",
-            },
+            background: { default: "#fcfcfc" },
           }),
     },
     typography: {
-      fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
-      fontSize: 12,
-      h1: {
-        fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
-        fontSize: 40,
-      },
-      h2: {
-        fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
-        fontSize: 32,
-      },
-      h3: {
-        fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
-        fontSize: 24,
-      },
-      h4: {
-        fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
-        fontSize: 20,
-      },
-      h5: {
-        fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
-        fontSize: 16,
-      },
-      h6: {
-        fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
-        fontSize: 14,
-      },
+      fontFamily: fontFamily || ["Source Sans Pro", "sans-serif"].join(","),
+      fontSize: fontSize || 12,
+      h1: { fontFamily: fontFamily, fontSize: 40 },
+      h2: { fontFamily: fontFamily, fontSize: 32 },
+      h3: { fontFamily: fontFamily, fontSize: 24 },
+      h4: { fontFamily: fontFamily, fontSize: 20 },
+      h5: { fontFamily: fontFamily, fontSize: 16 },
+      h6: { fontFamily: fontFamily, fontSize: 14 },
     },
-    components: { // Add this section for global component overrides
+    components: {
       MuiTextField: {
         styleOverrides: {
           root: {
@@ -339,22 +310,54 @@ export const themeSettings = (mode) => {
   };
 };
 
-// context for color mode
-export const ColorModeContext = createContext({
+// Create a context that is extensible to include more customization
+export const ThemeCustomizationContext = createContext({
   toggleColorMode: () => {},
+  updateCustomization: (customizations) => {},
 });
 
+// Custom hook to manage theme mode and additional customizations
 export const useMode = () => {
-  const [mode, setMode] = useState("dark");
+  // Retrieve persisted settings from localStorage or use defaults
+  const storedMode = localStorage.getItem("userMode") || "dark";
+  const storedFontFamily = localStorage.getItem("fontFamily") || "";
+  const storedFontSize = localStorage.getItem("fontSize") || "";
+  const initialCustomizations = {
+    fontFamily: storedFontFamily || undefined,
+    fontSize: storedFontSize ? Number(storedFontSize) : undefined,
+  };
+
+  const [mode, setMode] = useState(storedMode);
+  const [customizations, setCustomizations] = useState(initialCustomizations);
 
   const colorMode = useMemo(
     () => ({
-      toggleColorMode: () =>
-        setMode((prev) => (prev === "light" ? "dark" : "light")),
+      toggleColorMode: () => {
+        setMode((prev) => {
+          const newMode = prev === "light" ? "dark" : "light";
+          localStorage.setItem("userMode", newMode);
+          return newMode;
+        });
+      },
+      updateCustomization: (newCustomizations) => {
+        setCustomizations((prev) => {
+          const updated = { ...prev, ...newCustomizations };
+          if (updated.fontFamily) {
+            localStorage.setItem("fontFamily", updated.fontFamily);
+          }
+          if (updated.fontSize) {
+            localStorage.setItem("fontSize", updated.fontSize);
+          }
+          return updated;
+        });
+      },
     }),
     []
   );
 
-  const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);
+  const theme = useMemo(
+    () => createTheme(themeSettings(mode, customizations)),
+    [mode, customizations]
+  );
   return [theme, colorMode];
 };

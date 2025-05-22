@@ -32,14 +32,14 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
-import { ColorModeContext } from "../../styles/theme";
+import { ThemeCustomizationContext } from "../../styles/theme";
 import { useContext } from "react";
 import { exportToExcel } from "../../utils";
 
 const Settings = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const colorMode = useContext(ColorModeContext);
+  const colorMode = useContext(ThemeCustomizationContext);
 
   // State for settings
   const [settings, setSettings] = useState({

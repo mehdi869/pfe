@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import { fetchStatus } from "../../API/api.js"
+import { AuthContext } from "../../context/AuthContext.jsx"
 import { Bar, Doughnut } from "react-chartjs-2"
 import { XCircle, Lightbulb, CheckCircle, Users } from "lucide-react"
 import {
@@ -16,6 +17,7 @@ import {
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement)
 
 export const StatusChart = () => {
+  const authContext = useContext(AuthContext)
   const [data, setData] = useState({
     list: [],
     count: 0,
@@ -27,27 +29,20 @@ export const StatusChart = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetchStatus()
-        if (!response.ok) {
-          throw new Error("Erreur dans le serveur")
-        } else if (response.status !== 200) {
-          throw new Error("La requête a réussi mais le statut n'est pas 200")
-        } else {
-          const Dataresponse = await response.json()
-          setData({
-            list: Dataresponse.list || [],
-            count: Dataresponse.count || 0,
-            null: Dataresponse.null || 0,
-            somme: Dataresponse.somme || 0,
-            list_status: Dataresponse.list_status || [],
-          })
-        }
+        const response = await fetchStatus(authContext)
+        setData({
+          list: response.list || [],
+          count: response.count || 0,
+          null: response.null || 0,
+          somme: response.somme || 0,
+          list_status: response.list_status || [],
+        })
       } catch (error) {
         console.error("Erreur lors de la récupération des données :", error)
       }
     }
     fetchData()
-  }, [])
+  }, [authContext])
 
   const colors_background = (data.list || []).map((_, index) => (index % 2 === 0 ? "#FF6666" : "#E60000"))
   const colors_border = (data.list || []).map((_, index) => (index % 2 === 1 ? "#FF6666" : "#E60000"))

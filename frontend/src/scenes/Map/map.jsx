@@ -11,6 +11,11 @@ import { getNpsColor, npsCategories, scoreIsInNpsCategory } from "../../utils/ma
 import { tokens } from "../../styles/theme";
 import { mapDefaultCenter, mapDefaultZoom } from "../../constants/mapConfig";
 import "../../styles/map.css";
+import { useTopbar } from "../../context/TopbarContext"; // Import useTopbar
+
+const AUTO_COLLAPSE_DELAY = 3000; // 3 seconds
+const MOUSE_REVEAL_THRESHOLD_TOP = 50; // Pixels from top to reveal Topbar
+const MOUSE_HIDE_THRESHOLD_OFFSET = 30; // Extra pixels to move mouse down before hiding
 
 // Helper function to calculate NPS score (remains the same)
 const calculateNpsScore = (promoters, detractors, total_responses) => {
@@ -32,6 +37,8 @@ const Map = () => {
   const [minResponses, setMinResponses] = useState(0);
   const [maxResponses, setMaxResponses] = useState(Infinity); // New state for max responses
   const [selectedNpsCategoryIds, setSelectedNpsCategoryIds] = useState(() => npsCategories.map(cat => cat.id)); // New state, all selected by default
+
+  const { setTopbarConfig, toggleTopbar, isTopbarExternallyControlled, isTopbarCollapsed } = useTopbar();
 
   const isValidRawGeoNpsApiData = useCallback((data) => {
     // Validates the structure of raw data needed for processing
@@ -244,7 +251,7 @@ const Map = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          height: "calc(100vh - 64px)",
+          height: "100%", // Adjusted to fill the padded main area
           backgroundColor: theme.palette.background.default,
         }}
       >
@@ -258,7 +265,7 @@ const Map = () => {
       <Alert
         severity="error"
         sx={{
-          m: 3,
+          m: 3, // Ensure this margin doesn't conflict with Topbar area
           fontSize: "1rem",
           backgroundColor: theme.palette.background.paper,
           color: theme.palette.text.primary,
@@ -276,11 +283,12 @@ const Map = () => {
     <Box sx={{
         display: "flex",
         flexDirection: "column",
-        height: "100vh",
-        p: 1.5, // Reduced padding
+        height: "calc(100vh - 84px)", // Adjust based on your navbar/header height
+        p: 1.5,
         backgroundColor: theme.palette.background.default,
-        gap: 1.5, // Reduced gap
-        overflow: "hidden",
+        gap: 1.5,
+        overflow: "auto", // Changed from 'hidden' to 'auto'
+        boxSizing: "border-box", // Ensure padding doesn't add to total height
       }}
     >
       <Paper
