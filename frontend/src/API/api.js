@@ -48,6 +48,19 @@ export const fetchQuestionTypeStats = async (authContext) => {
   return await response.json();
 };
 
+// Age Chart
+
+export const fetchAgeChart = async ()=> {
+  const response = await fetch("http://localhost:8000/age/",{ // Added trailing slash for consistency
+    method : 'GET',
+    headers: { // Corrected: geaders to headers
+      'Content-Type' : 'application/json', // Corrected: 'content-type', 'appliaction/json'
+    }
+  })
+
+  return response
+}
+
 // --- Admin User Management Endpoints ---
 
 // List/search users

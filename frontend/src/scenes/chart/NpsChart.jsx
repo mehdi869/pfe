@@ -1,8 +1,8 @@
-import React from "react";
-import {fetchNpsScore} from "../../API/api.js"
-import { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { fetchNpsScore } from "../../API/api.js";
 import { Bar } from 'react-chartjs-2';
-import { 
+import { Boxes, Frown, Meh, Smile, HelpCircle } from 'lucide-react';
+import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
@@ -12,7 +12,6 @@ import {
   Legend
 } from 'chart.js';
 
-// Enregistrez les composants nécessaires
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -22,55 +21,118 @@ ChartJS.register(
   Legend
 );
 
-
 export const NpsChart = () => {
+  const [data, setData] = useState(() => {
+    const cached = localStorage.getItem("npsData");
+    return cached ? JSON.parse(cached) : null;
+  });
 
-    let [data,setdata] = useState([])
-    useEffect(() => {
-        const fetchdata = async () => {
-            try{
-                const response = await fetchNpsScore()
-                if(!response.ok){
-                    throw new Error('erreur dans le démarage du serveur')
-                }else if (response.status !== 200){
-                    throw new Error('envoie est fait mais probleme dans le serveur')
-                }else{
-                    const dataresponse = await response.json()
-                    setdata(dataresponse)
-                }
-            }catch(error){
-              console.log('probléme de connextion front-back')   
-            }
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetchNpsScore();
+        if (!response.ok || response.status !== 200) {
+          throw new Error('Erreur dans la réponse du serveur');
         }
-        fetchdata()
-    },[])
+        const dataResponse = await response.json();
+        setData(dataResponse);
+        localStorage.setItem("npsData", JSON.stringify(dataResponse));
+      } catch (error) {
+        console.error('Erreur de connexion front-back:', error.message);
+      }
+    };
 
-    data = Object.entries(data)
-    const barchart = {
-        labels: data.map(([key]) => key),
-        datasets: [
-          {
-            label: 'Ventes 2023',
-            data: data.map(([key, valeur]) => Number(valeur)),
-            backgroundColor: 'rgba(75, 192, 192, 0.6)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            borderWidth: 1,
-          },
-        ],
-      };
+    fetchData();
+  }, []);
 
-    return (
+  if (!data) {
+    return <div className="p-4 text-center">Chargement en cours...</div>;
+  }
 
-        <div style={{width:'100%',height:'100vh',display: 'grid',gridTemplateRows:'1fr 1fr',gridTemplateColumns:'1fr 1fr 1fr 1fr'}}>
-            <div><Bar data={barchart}></Bar></div>
-            <div style={{backgroundColor:"red"}}>zidan</div>
-            <div>wwww</div>
-            <div>efvd</div>
-            <div>dv</div>
-            <div>dv</div>
-            
-        </div>
+  const entries = Object.entries(data);
 
-    )
+  const barchart = {
+    labels: entries.slice(1, 5).map(([key]) => key),
+    datasets: [
+      {
+        label: 'NPS Score',
+        data: entries.slice(1, 5).map(([_, value]) => value),
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1,
+        barPercentage: 1.0,
+        categoryPercentage: 1.0,
+      },
+    ],
+  };
 
-}
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: { enabled: true },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: (value) => `${value}`,
+        },
+      },
+      x: {
+        grid: { display: false },
+      },
+    },
+  };
+
+  // Fonction pour récupérer une valeur d'entrée en toute sécurité
+  const safeGet = (index) => entries[index]?.[1] ?? "N/A";
+
+  const cards = [
+    {
+      icon: <Boxes className="w-10 h-10 text-blue-600" />,
+      value: safeGet(0),
+      label: "Nombre total des réponses avec un score NPS",
+    },
+    {
+      icon: <HelpCircle className="w-10 h-10 text-blue-600" />,
+      value: safeGet(5),
+      label: "Total réponses avec score 0",
+    },
+    {
+      icon: <Frown className="w-10 h-10 text-red-600" />,
+      value: safeGet(6),
+      label: "Total réponses entre 1 et 6",
+    },
+    {
+      icon: <Meh className="w-10 h-10 text-yellow-500" />,
+      value: safeGet(7),
+      label: "Total réponses entre 7 et 8",
+    },
+    {
+      icon: <Smile className="w-10 h-10 text-green-600" />,
+      value: safeGet(8),
+      label: "Total réponses entre 9 et 10",
+    },
+  ];
+
+  return (
+    <div className="grid grid-rows-[15%_1fr] h-screen p-4">
+      <div className="grid grid-cols-5 gap-4 w-full mb-6">
+        {cards.map((item, i) => (
+          <div key={i} className="bg-white shadow-md rounded-xl p-4 flex items-center">
+            {item.icon && <div>{item.icon}</div>}
+            <div className="ml-4">
+              <p className="text-xl font-semibold text-gray-900">{item.value}</p>
+              <p className="text-sm text-gray-500">{item.label}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-white w-full h-[80%] p-4 rounded shadow flex justify-center">
+        <Bar data={barchart} options={options} />
+      </div>
+    </div>
+  );
+};

@@ -37,8 +37,9 @@ import { AuthContext } from "../../context/AuthContext";
 import { exportToExcel } from "../../utils";
 import { exportChartDataToPdf } from "../../utils";
 
-// Register ChartJS components
-ChartJS.register(
+
+import { 
+  Chart as ChartJS,
   CategoryScale,
   LinearScale,
   BarElement,
@@ -192,10 +193,7 @@ const BarChart = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
-  // Handle chart type change
-  const handleChartTypeChange = (event) => {
-    setChartType(event.target.value);
-  };
+};
 
   // Chart options
   const options = {

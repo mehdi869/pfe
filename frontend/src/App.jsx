@@ -6,12 +6,12 @@ import { Outlet } from "react-router-dom"
 import { AuthProvider } from "./context/AuthContext"
 import ProtectedRoute from "./components/ProtectedRoute"
 import PublicRoute from "./components/PublicRoute"
+import AdminRoute from "./components/AdminRoute"
 import LoadingScreen from "./components/LoadingScreen"
 import NotFound from "./components/NotFound"
-import BarChart from "./scenes/barChart";
-import AdminRoute from "./components/AdminRoute";
-// import AdminPanel from "./pages/admin/AdminPanel"; // Create this component
-
+import { BarChart } from "./scenes/barChart";
+import {NpsChart} from "../src/scenes/chart/NpsChart.jsx"
+import { AgeChart } from "./scenes/chart/AgeChart.jsx"
 
 // Import your components and pages
 import LandingPage from "./pages/lading/lading.jsx"
@@ -26,10 +26,8 @@ import Contacts from "./scenes/contacts"
 import Form from "./scenes/form"
 import Calendar from "./scenes/calendar"
 import Map from "./scenes/Map/map.jsx"
-import {StatusChart} from "./scenes/chart/StatusChart.jsx" 
-import {NpsChart} from "./scenes/chart/NpsChart.jsx"
-import Settings from "./scenes/setting"
-import Profile from "./scenes/profile"
+import {StatusChart} from "./scenes/chart/StatusChart" 
+import './style.css'
 
 function App() {
   const [theme, colorMode] = useMode()
@@ -68,9 +66,9 @@ function App() {
                   <Route path="/form" element={<Form />} />
                   <Route path="/calendar" element={<Calendar />} />
                   <Route path="/map" element={<Map />} />
-                  <Route path="/barChart" element={<BarChart />} />
-                  <Route path='/chart' element={<StatusChart/>}></Route>
+                  <Route path="/barChart" element={<StatusChart />} />
                   <Route path='/nps' element = {<NpsChart/>}></Route>
+                  <Route path='/age' element = {<AgeChart/>}></Route>
                   <Route path="/status" element={<StatusChart />} />
                   <Route path="/setting" element={<Settings />} />
                   <Route path="/profile" element={<Profile />} />
