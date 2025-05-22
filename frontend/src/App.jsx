@@ -9,7 +9,7 @@ import PublicRoute from "./components/PublicRoute"
 import AdminRoute from "./components/AdminRoute"
 import LoadingScreen from "./components/LoadingScreen"
 import NotFound from "./components/NotFound"
-import { BarChart } from "./scenes/barChart";
+import  BarChart  from "./scenes/barChart";
 import {NpsChart} from "../src/scenes/chart/NpsChart.jsx"
 import { AgeChart } from "./scenes/chart/AgeChart.jsx"
 
@@ -70,8 +70,6 @@ function App() {
                   <Route path='/nps' element = {<NpsChart/>}></Route>
                   <Route path='/age' element = {<AgeChart/>}></Route>
                   <Route path="/status" element={<StatusChart />} />
-                  <Route path="/setting" element={<Settings />} />
-                  <Route path="/profile" element={<Profile />} />
                   {/* Admin-only route */}
                 <Route element={<AdminRoute />}>
                   <Route path="/admin-panel" element={<Admin/>} />
