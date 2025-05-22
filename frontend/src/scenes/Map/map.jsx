@@ -5,7 +5,7 @@ import RegionStatsList from "./RegionStatsList";
 import MapControlsPanel from "./MapControlsPanel";
 import MapLegendDisplay from "./MapLegendDisplay";
 import AnalysisInsights from "./AnalysisInsights";
-import { fetchGeoNpsStats } from "../../api/api";
+import { fetchGeoNpsStats } from "../../API/api";
 import cityLocationsRawData from "../../data/cityLocations.json";
 import { getNpsColor, npsCategories, scoreIsInNpsCategory } from "../../utils/mapUtils"; // Updated imports
 import { tokens } from "../../styles/theme";
@@ -277,43 +277,43 @@ const Map = () => {
         display: "flex",
         flexDirection: "column",
         height: "100vh",
-        p: 2,
+        p: 1.5, // Reduced padding
         backgroundColor: theme.palette.background.default,
-        gap: 2,
+        gap: 1.5, // Reduced gap
         overflow: "hidden",
       }}
     >
       <Paper
         sx={{
-          p: 2.5,
+          p: 1.5, // Reduced padding
           backgroundColor: theme.palette.background.paper,
           color: theme.palette.text.primary,
           display: "flex",
           justifyContent: "space-between",
           flexWrap: "wrap",
-          boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+          boxShadow: "0 1px 5px rgba(0,0,0,0.07)", // Softer shadow
         }}
       >
         <Typography
           variant="subtitle1"
           sx={{
-            fontSize: "1.1rem",
+            fontSize: "1rem", // Reduced font size
             display: "flex",
             alignItems: "center",
-            minHeight: "44px",
+            minHeight: "36px", // Reduced min height
             color: theme.palette.text.primary,
           }}
         >
           Showing:{" "}
           <Chip
             label={`${filteredStats.cityCount} Cities`}
-            size="medium"
+            size="small" // Changed to small
             sx={{
-              ml: 1.5,
+              ml: 1, // Reduced margin
               backgroundColor: themeColors.primary[500],
               color: "white",
-              fontSize: "0.95rem",
-              height: "32px",
+              fontSize: "0.85rem", // Reduced font size
+              height: "28px", // Reduced height
             }}
           />
         </Typography>
@@ -321,23 +321,23 @@ const Map = () => {
         <Typography
           variant="subtitle1"
           sx={{
-            fontSize: "1.1rem",
+            fontSize: "1rem", // Reduced font size
             display: "flex",
             alignItems: "center",
-            minHeight: "44px",
+            minHeight: "36px", // Reduced min height
             color: theme.palette.text.primary,
           }}
         >
           Total Responses:{" "}
           <Chip
             label={filteredStats.totalResponses.toLocaleString()}
-            size="medium"
+            size="small" // Changed to small
             sx={{
-              ml: 1.5,
+              ml: 1, // Reduced margin
               backgroundColor: themeColors.blueAccent[500],
               color: "white",
-              fontSize: "0.95rem",
-              height: "32px",
+              fontSize: "0.85rem", // Reduced font size
+              height: "28px", // Reduced height
             }}
           />
         </Typography>
@@ -345,38 +345,46 @@ const Map = () => {
         <Typography
           variant="subtitle1"
           sx={{
-            fontSize: "1.1rem",
+            fontSize: "1rem", // Reduced font size
             display: "flex",
             alignItems: "center",
-            minHeight: "44px",
+            minHeight: "36px", // Reduced min height
             color: theme.palette.text.primary,
           }}
         >
           Average NPS:{" "}
           <Chip
             label={filteredStats.avgNps !== null ? filteredStats.avgNps.toFixed(1) : "N/A"}
-            size="medium"
+            size="small" // Changed to small
             sx={{
-              ml: 1.5,
+              ml: 1, // Reduced margin
               backgroundColor: getNpsColor(filteredStats.avgNps, themeColors),
               color: "white",
-              fontSize: "0.95rem",
+              fontSize: "0.85rem", // Reduced font size
               fontWeight: "bold",
-              height: "32px",
+              height: "28px", // Reduced height
             }}
           />
         </Typography>
       </Paper>
 
-      <Box sx={{ display: "flex", flex: 1, gap: 2, overflow: "hidden" }}>
+      <Box sx={{ 
+          display: "flex", 
+          flex: 1, 
+          gap: 1.5, // Reduced gap 
+          overflow: "hidden",
+          flexDirection: { xs: 'column', lg: 'row' } // Responsive direction
+        }}
+      >
         <Box
           sx={{
             flexGrow: 1,
-            height: "100%",
+            height: { xs: 'calc(55vh - 32px - 12px)', lg: '100%' }, // Adjusted for responsiveness
+            width: { xs: '100%', lg: 'auto' },
             borderRadius: "4px",
             overflow: "hidden",
             border: `1px solid ${themeColors.grey[300]}`,
-            boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+            boxShadow: "0 1px 5px rgba(0,0,0,0.07)",
             backgroundColor: "white",
           }}
         >
@@ -397,7 +405,17 @@ const Map = () => {
           )}
         </Box>
 
-        <Box sx={{ width: "320px", display: "flex", flexDirection: "column", gap: 2, p: 0, overflowY: "auto" }}>
+        <Box sx={{ 
+            width: { xs: '100%', lg: '290px' }, // Reduced width and responsive
+            display: "flex", 
+            flexDirection: "column", 
+            gap: 1.5, // Reduced gap
+            p: 0, 
+            overflowY: "auto",
+            height: { xs: 'auto', lg: '100%' }, // Adjusted for responsiveness
+            maxHeight: { xs: 'calc(45vh - 32px - 12px)', lg: 'none'} // Max height on small screens
+          }}
+        >
           <MapControlsPanel
             viewMode={viewMode}
             onViewModeChange={handleViewModeChange}

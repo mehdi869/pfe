@@ -32,14 +32,12 @@ const MapControlsPanel = React.memo(
       setExpanded(!expanded);
     };
 
-    // Removed handleNpsMinChange and handleNpsMaxChange
-
     return (
       <Paper
         sx={{
           backgroundColor: theme.palette.background.paper,
           color: theme.palette.text.primary,
-          boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+          boxShadow: "0 1px 5px rgba(0,0,0,0.07)", // Softer shadow
         }}
       >
         <Box
@@ -47,7 +45,7 @@ const MapControlsPanel = React.memo(
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            p: 2,
+            p: 1.5, // Reduced padding
             borderBottom: expanded ? `1px solid ${theme.palette.divider}` : "none",
           }}
         >
@@ -56,7 +54,7 @@ const MapControlsPanel = React.memo(
             sx={{
               color: theme.palette.text.primary,
               fontWeight: "bold",
-              fontSize: "1.1rem",
+              fontSize: "1rem", // Reduced font size
             }}
           >
             Map Controls
@@ -65,25 +63,25 @@ const MapControlsPanel = React.memo(
             onClick={toggleExpanded}
             aria-label={expanded ? "Collapse controls" : "Expand controls"}
             sx={{
-              minWidth: "44px",
-              minHeight: "44px",
+              minWidth: "36px", // Reduced size
+              minHeight: "36px", // Reduced size
               color: theme.palette.text.secondary,
             }}
           >
-            {expanded ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
+            {expanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </IconButton>
         </Box>
 
         <Collapse in={expanded}>
-          <Box sx={{ p: 2 }}>
-            <Box sx={{ mb: 3 }}>
+          <Box sx={{ p: 1.5 }}> {/* Reduced padding */}
+            <Box sx={{ mb: 2 }}> {/* Reduced margin */}
               <Typography
                 gutterBottom
                 variant="subtitle1"
                 sx={{
                   color: theme.palette.text.secondary,
-                  fontSize: "1rem",
-                  mb: 1.5,
+                  fontSize: "0.9rem", // Reduced font size
+                  mb: 1, // Reduced margin
                 }}
               >
                 View Mode
@@ -94,7 +92,7 @@ const MapControlsPanel = React.memo(
                 onChange={onViewModeChange}
                 aria-label="View mode"
                 fullWidth
-                sx={{ height: "48px" }}
+                sx={{ height: "40px" }} // Reduced height
               >
                 <ToggleButton
                   value="cities"
@@ -108,8 +106,9 @@ const MapControlsPanel = React.memo(
                     "&.Mui-selected:hover": {
                       backgroundColor: themeColors.primary[600],
                     },
-                    minHeight: "44px",
-                    fontSize: "1rem",
+                    minHeight: "36px", // Reduced height
+                    fontSize: "0.9rem", // Reduced font size
+                    p: '0 12px'
                   }}
                 >
                   CITIES
@@ -126,8 +125,9 @@ const MapControlsPanel = React.memo(
                     "&.Mui-selected:hover": {
                       backgroundColor: themeColors.primary[600],
                     },
-                    minHeight: "44px",
-                    fontSize: "1rem",
+                    minHeight: "36px", // Reduced height
+                    fontSize: "0.9rem", // Reduced font size
+                    p: '0 12px'
                   }}
                 >
                   REGIONS
@@ -135,34 +135,32 @@ const MapControlsPanel = React.memo(
               </ToggleButtonGroup>
             </Box>
 
-            <Divider sx={{ my: 3, borderColor: theme.palette.divider }} />
+            <Divider sx={{ my: 2, borderColor: theme.palette.divider }} /> {/* Reduced margin */}
 
             <Typography
               variant="subtitle1"
               gutterBottom
               sx={{
                 color: theme.palette.text.secondary,
-                fontSize: "1rem",
-                mb: 1.5,
+                fontSize: "0.9rem", // Reduced font size
+                mb: 1, // Reduced margin
               }}
             >
               Filters
             </Typography>
 
-            {/* NPS Score Range Removed */}
-
-            <Box sx={{ mb: 2 }}>
+            <Box sx={{ mb: 1.5 }}> {/* Reduced margin */}
               <Typography
                 gutterBottom
                 sx={{
                   color: theme.palette.text.secondary,
-                  mb: 1.5,
-                  fontSize: "0.95rem",
+                  mb: 1, // Reduced margin
+                  fontSize: "0.85rem", // Reduced font size
                 }}
               >
                 Response Count Range
               </Typography>
-              <Grid container spacing={2}>
+              <Grid container spacing={1.5}> {/* Reduced spacing */}
                 <Grid item xs={6}>
                   <TextField
                     label="Min Responses"
@@ -171,9 +169,10 @@ const MapControlsPanel = React.memo(
                     onChange={onMinResponsesChange}
                     fullWidth
                     placeholder="e.g., 0"
+                    size="small"
                     InputProps={{
                       inputProps: { min: 0 },
-                      sx: { height: "48px" },
+                      sx: { height: "40px" }, // Reduced height
                     }}
                     sx={{
                       "& .MuiOutlinedInput-root": {
@@ -182,8 +181,8 @@ const MapControlsPanel = React.memo(
                         "&.Mui-focused fieldset": { borderColor: themeColors.primary[500] },
                         backgroundColor: theme.palette.background.paper,
                       },
-                      "& .MuiInputLabel-root": { fontSize: "1rem", color: theme.palette.text.secondary },
-                      "& .MuiInputBase-input": { color: theme.palette.text.primary }
+                      "& .MuiInputLabel-root": { fontSize: "0.9rem", color: theme.palette.text.secondary }, // Reduced font size
+                      "& .MuiInputBase-input": { color: theme.palette.text.primary, fontSize: "0.9rem" }
                     }}
                   />
                 </Grid>
@@ -195,9 +194,10 @@ const MapControlsPanel = React.memo(
                     onChange={onMaxResponsesChange}
                     fullWidth
                     placeholder="e.g., 1000"
+                    size="small"
                     InputProps={{
                       inputProps: { min: 0 },
-                      sx: { height: "48px" },
+                      sx: { height: "40px" }, // Reduced height
                     }}
                     sx={{
                       "& .MuiOutlinedInput-root": {
@@ -206,8 +206,8 @@ const MapControlsPanel = React.memo(
                         "&.Mui-focused fieldset": { borderColor: themeColors.primary[500] },
                         backgroundColor: theme.palette.background.paper,
                       },
-                      "& .MuiInputLabel-root": { fontSize: "1rem", color: theme.palette.text.secondary },
-                      "& .MuiInputBase-input": { color: theme.palette.text.primary }
+                      "& .MuiInputLabel-root": { fontSize: "0.9rem", color: theme.palette.text.secondary }, // Reduced font size
+                      "& .MuiInputBase-input": { color: theme.palette.text.primary, fontSize: "0.9rem" }
                     }}
                   />
                 </Grid>

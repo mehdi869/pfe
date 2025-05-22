@@ -87,13 +87,13 @@ const AnalysisInsights = React.memo(({ cityData, regionData, themeColors }) => {
   const getIconForType = (type) => {
     switch (type) {
       case "warning":
-        return <AlertTriangle size={24} color={themeColors.redAccent[500]} />;
+        return <AlertTriangle size={20} color={themeColors.redAccent[500]} />; // Reduced size
       case "success":
-        return <TrendingUp size={24} color={themeColors.greenAccent[500]} />;
+        return <TrendingUp size={20} color={themeColors.greenAccent[500]} />; // Reduced size
       case "info":
-        return <Info size={24} color={themeColors.blueAccent[500]} />;
+        return <Info size={20} color={themeColors.blueAccent[500]} />; // Reduced size
       default:
-        return <Info size={24} color={themeColors.blueAccent[500]} />;
+        return <Info size={20} color={themeColors.blueAccent[500]} />; // Reduced size
     }
   };
 
@@ -102,7 +102,7 @@ const AnalysisInsights = React.memo(({ cityData, regionData, themeColors }) => {
       sx={{
         backgroundColor: theme.palette.background.paper,
         color: theme.palette.text.primary,
-        boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+        boxShadow: "0 1px 5px rgba(0,0,0,0.07)", // Softer shadow
       }}
     >
       <Box
@@ -110,7 +110,7 @@ const AnalysisInsights = React.memo(({ cityData, regionData, themeColors }) => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          p: 2,
+          p: 1.5, // Reduced padding
           borderBottom: expanded ? `1px solid ${theme.palette.divider}` : "none",
         }}
       >
@@ -119,7 +119,7 @@ const AnalysisInsights = React.memo(({ cityData, regionData, themeColors }) => {
           sx={{
             color: theme.palette.text.primary,
             fontWeight: "bold",
-            fontSize: "1.1rem",
+            fontSize: "1rem", // Reduced font size
           }}
         >
           Analysis Insights
@@ -128,22 +128,22 @@ const AnalysisInsights = React.memo(({ cityData, regionData, themeColors }) => {
           onClick={toggleExpanded}
           aria-label={expanded ? "Collapse insights" : "Expand insights"}
           sx={{
-            minWidth: "44px",
-            minHeight: "44px",
+            minWidth: "36px", // Reduced size
+            minHeight: "36px", // Reduced size
             color: theme.palette.text.secondary,
           }}
         >
-          {expanded ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
+          {expanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </IconButton>
       </Box>
 
       <Collapse in={expanded}>
-        <Box sx={{ p: 2 }}>
+        <Box sx={{ p: 1.5, pt: 1 }}> {/* Reduced padding, slightly less top padding */}
           {insights.map((insight, index) => (
             <Card
               key={index}
               sx={{
-                mb: 2,
+                mb: 1.5, // Reduced margin
                 border: `1px solid ${
                   insight.type === "warning"
                     ? themeColors.redAccent[300]
@@ -155,15 +155,15 @@ const AnalysisInsights = React.memo(({ cityData, regionData, themeColors }) => {
                 backgroundColor: theme.palette.background.default,
               }}
             >
-              <CardContent sx={{ p: 2.5 }}>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 1.5 }}>
+              <CardContent sx={{ p: 2 }}> {/* Reduced padding */}
+                <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}> {/* Reduced margin */}
                   {getIconForType(insight.type)}
                   <Typography
                     variant="subtitle1"
                     sx={{
-                      ml: 1.5,
+                      ml: 1, // Reduced margin
                       fontWeight: "bold",
-                      fontSize: "1.05rem",
+                      fontSize: "0.95rem", // Reduced font size
                       color: theme.palette.text.primary,
                     }}
                   >
@@ -173,8 +173,8 @@ const AnalysisInsights = React.memo(({ cityData, regionData, themeColors }) => {
                 <Typography
                   variant="body2"
                   sx={{
-                    mb: 1.5,
-                    fontSize: "0.95rem",
+                    mb: 1, // Reduced margin
+                    fontSize: "0.85rem", // Reduced font size
                     color: theme.palette.text.secondary,
                   }}
                 >
@@ -186,12 +186,12 @@ const AnalysisInsights = React.memo(({ cityData, regionData, themeColors }) => {
                       key={itemIndex}
                       disablePadding
                       sx={{
-                        py: 0.75,
-                        minHeight: "44px",
+                        py: 0.5, // Reduced padding
+                        minHeight: "36px", // Reduced height
                       }}
                     >
-                      <ListItemIcon sx={{ minWidth: 36 }}>
-                        <MapPin size={20} color={themeColors.primary[500]} />
+                      <ListItemIcon sx={{ minWidth: 30, mr: 0.5 }}> {/* Reduced width and margin */}
+                        <MapPin size={18} color={themeColors.primary[500]} /> {/* Reduced size */}
                       </ListItemIcon>
                       <ListItemText
                         primary={item.name}
@@ -199,12 +199,12 @@ const AnalysisInsights = React.memo(({ cityData, regionData, themeColors }) => {
                         primaryTypographyProps={{
                           variant: "body2",
                           fontWeight: "medium",
-                          fontSize: "0.95rem",
+                          fontSize: "0.85rem", // Reduced font size
                           color: theme.palette.text.primary,
                         }}
                         secondaryTypographyProps={{
                           variant: "caption",
-                          fontSize: "0.85rem",
+                          fontSize: "0.75rem", // Reduced font size
                           color: theme.palette.text.secondary,
                         }}
                       />

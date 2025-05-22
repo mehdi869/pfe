@@ -534,7 +534,9 @@ def quick_stats(request):
     
     nps_score = 0
     if total_responses > 0:
-        nps_score = ((promoters - detractors) * 100) / total_responses
+        percent_promoters = promoters / total_responses * 100
+        percent_detractors = detractors / total_responses * 100
+        nps_score = percent_promoters - percent_detractors
 
     # --- Response Rate ---
     # You need to define what is the total population (all possible respondents)
@@ -543,7 +545,6 @@ def quick_stats(request):
    
     # --- Last Refresh Date ---
     # the dates are flatted in the DB i.e they've used one date for all records 
-    # 
     last_refresh_date = None  # <-- You need to provide this from your DB or ETL process
 
     # --- NPS Score Trend ---

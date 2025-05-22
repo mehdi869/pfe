@@ -88,9 +88,9 @@ Potential root cause:
 ### 1. NPS Overview Page
 - [x] Create the frontend components
 - [x] Create the frontend data visualization (needs customization)
-- [ ] Create the DB view for the NPS overview page
-- [ ] Create the backend endpoints (views, urls, serializers)
-- [ ] Create the frontend endpoints
+- [x] Create the DB view for the NPS overview page
+- [x] Create the backend endpoints (views, urls, serializers)
+- [x] Create the frontend endpoints
 
 ### 2. NPS Map Page
 - [ ] Create the DB view for the NPS Map page
@@ -100,16 +100,16 @@ Potential root cause:
 - [ ] Create the frontend data visualization
 
 ### Map Features
-- [ ] Interactive choropleth
-- [ ] Filtering and search functionality
-- [ ] Toggle controls between city and region
-- [ ] Hover functionality to show:
+- [ ] Interactive choropleth -need geojson data for both city and region boundaries-
+- [x] Filtering and search functionality -search still needs to be implemented-
+- [x] Toggle controls between city and region
+- [x] Hover functionality to show:
   - Region name
   - Average NPS
   - Response count
-- [ ] Legend with color scale for NPS
+- [x] Legend with color scale for NPS
 
-### 3. NPS Trends (Bar Chart Page)
+### 3. NPS Trends (Bar Chart Page) - Dates are flattend in the DB-
 - [ ] Title: "NPS Score Over Time"
 - [ ] Controls:
   - Date range selector
@@ -119,9 +119,9 @@ Potential root cause:
 ### 4. Demographics Section
 
 #### 4.1 By Age Group
-- [ ] Title: "NPS by Age Group"
-- [ ] Chart: Bar chart (age groups on X, avg NPS on Y)
-- [ ] Table: Counts and NPS per group
+- [x] Title: "NPS by Age Group"
+- [x] Chart: Bar chart (age groups on X, avg NPS on Y)
+- [x] Table: Counts and NPS per group
 
 #### 4.2 By Survey Type
 - [ ] Title: "Survey Type Performance"

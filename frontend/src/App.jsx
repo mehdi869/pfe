@@ -32,6 +32,7 @@ import './style.css'
 function App() {
   const [theme, colorMode] = useMode()
   const [isSider, setIsSider] = useState(true)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   return (
     <AuthProvider>
@@ -52,9 +53,9 @@ function App() {
                 <Route
                   element={
                     <div className="app" style={{ display: "flex", height: "100vh" }}>
-                      <Sidebar isSider={isSider} />
+                      <Sidebar isSider={isSider} isCollapsed={isSidebarCollapsed} setIsCollapsed={setIsSidebarCollapsed} />
                       <main className="content" style={{ flexGrow: 1, overflow: "auto" }}>
-                        <Topbar setIsSider={setIsSider} />
+                        <Topbar setIsSider={setIsSidebarCollapsed} isSiderCollapsed={isSidebarCollapsed} />
                         <Outlet />
                       </main>
                     </div>

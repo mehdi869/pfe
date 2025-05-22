@@ -28,7 +28,7 @@ const MapLegendDisplay = React.memo(({ themeColors, selectedNpsCategoryIds, onNp
       sx={{
         backgroundColor: theme.palette.background.paper,
         color: theme.palette.text.primary,
-        boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+        boxShadow: "0 1px 5px rgba(0,0,0,0.07)", // Softer shadow
       }}
     >
       <Box
@@ -36,7 +36,7 @@ const MapLegendDisplay = React.memo(({ themeColors, selectedNpsCategoryIds, onNp
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          p: 2,
+          p: 1.5, // Reduced padding
           borderBottom: expanded ? `1px solid ${theme.palette.divider}` : "none",
         }}
       >
@@ -45,7 +45,7 @@ const MapLegendDisplay = React.memo(({ themeColors, selectedNpsCategoryIds, onNp
           sx={{
             color: theme.palette.text.primary,
             fontWeight: "bold",
-            fontSize: "1.1rem",
+            fontSize: "1rem", // Reduced font size
           }}
         >
           Legend
@@ -54,29 +54,29 @@ const MapLegendDisplay = React.memo(({ themeColors, selectedNpsCategoryIds, onNp
           onClick={toggleExpanded}
           aria-label={expanded ? "Collapse legend" : "Expand legend"}
           sx={{
-            minWidth: "44px",
-            minHeight: "44px",
+            minWidth: "36px", // Reduced size
+            minHeight: "36px", // Reduced size
             color: theme.palette.text.secondary,
           }}
         >
-          {expanded ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
+          {expanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </IconButton>
       </Box>
 
       <Collapse in={expanded}>
-        <Box sx={{ p: 2 }}>
+        <Box sx={{ p: 1.5 }}> {/* Reduced padding */}
           <Typography
             variant="subtitle2"
             sx={{
               color: theme.palette.text.secondary,
-              mb: 1.5,
-              fontSize: "1rem",
+              mb: 1, // Reduced margin
+              fontSize: "0.9rem", // Reduced font size
             }}
           >
             NPS Score Category (Click to filter)
           </Typography>
 
-          <Grid container spacing={1}>
+          <Grid container spacing={0.5}> {/* Reduced spacing */}
             {allNpsCategories.map((category) => {
               const isSelected = selectedNpsCategoryIds.includes(category.id);
               return (
@@ -86,10 +86,10 @@ const MapLegendDisplay = React.memo(({ themeColors, selectedNpsCategoryIds, onNp
                     sx={{
                       display: "flex",
                       alignItems: "center",
-                      mb: 1,
-                      minHeight: "32px",
+                      mb: 0.5, // Reduced margin
+                      minHeight: "28px", // Reduced height
                       cursor: "pointer",
-                      p: 0.5,
+                      p: 0.5, // Reduced padding
                       borderRadius: "4px",
                       backgroundColor: isSelected ? theme.palette.action.hover : "transparent",
                       "&:hover": {
@@ -99,11 +99,11 @@ const MapLegendDisplay = React.memo(({ themeColors, selectedNpsCategoryIds, onNp
                   >
                     <Box
                       sx={{
-                        width: 20,
-                        height: 20,
+                        width: 16, // Reduced size
+                        height: 16, // Reduced size
                         backgroundColor: getNpsColor(category.scoreForColor, themeColors),
-                        mr: 1.5,
-                        borderRadius: "4px",
+                        mr: 1, // Reduced margin
+                        borderRadius: "3px", // Adjusted border radius
                         border: `1px solid ${theme.palette.divider}`,
                       }}
                     />
@@ -111,16 +111,16 @@ const MapLegendDisplay = React.memo(({ themeColors, selectedNpsCategoryIds, onNp
                       variant="body2"
                       sx={{
                         color: theme.palette.text.secondary,
-                        fontSize: "0.90rem", // Adjusted size
+                        fontSize: "0.85rem", // Reduced font size
                         flexGrow: 1,
                       }}
                     >
                       {category.label}
                     </Typography>
                     {isSelected ? (
-                      <CheckCircle size={18} color={themeColors.greenAccent[500]} />
+                      <CheckCircle size={16} color={themeColors.greenAccent[500]} /> // Reduced size
                     ) : (
-                      <Circle size={18} color={theme.palette.action.disabled} />
+                      <Circle size={16} color={theme.palette.action.disabled} /> // Reduced size
                     )}
                   </Box>
                 </Grid>
@@ -128,14 +128,14 @@ const MapLegendDisplay = React.memo(({ themeColors, selectedNpsCategoryIds, onNp
             })}
           </Grid>
 
-          <Divider sx={{ my: 2.5, borderColor: theme.palette.divider }} />
+          <Divider sx={{ my: 2, borderColor: theme.palette.divider }} /> {/* Reduced margin */}
 
           <Typography
             variant="subtitle2"
             sx={{
               color: theme.palette.text.secondary,
-              mb: 1.5,
-              fontSize: "1rem",
+              mb: 1, // Reduced margin
+              fontSize: "0.9rem", // Reduced font size
             }}
           >
             Response Count (Bubble Size)
@@ -147,17 +147,17 @@ const MapLegendDisplay = React.memo(({ themeColors, selectedNpsCategoryIds, onNp
               sx={{
                 display: "flex",
                 alignItems: "center",
-                mb: 1.5,
-                minHeight: "44px",
+                mb: 1, // Reduced margin
+                minHeight: "36px", // Reduced height
               }}
             >
               <Box
                 sx={{
-                  width: getBubbleRadius(ex.count) * 2,
-                  height: getBubbleRadius(ex.count) * 2,
+                  width: getBubbleRadius(ex.count) * 1.8, // Slightly smaller bubbles for legend
+                  height: getBubbleRadius(ex.count) * 1.8, // Slightly smaller bubbles for legend
                   backgroundColor: themeColors.primary[500],
                   borderRadius: "50%",
-                  mr: 2,
+                  mr: 1.5, // Reduced margin
                   border: `1px solid ${theme.palette.divider}`,
                 }}
               />
@@ -165,7 +165,7 @@ const MapLegendDisplay = React.memo(({ themeColors, selectedNpsCategoryIds, onNp
                 variant="body2"
                 sx={{
                   color: theme.palette.text.secondary,
-                  fontSize: "0.95rem",
+                  fontSize: "0.85rem", // Reduced font size
                 }}
               >
                 {ex.label}
