@@ -34,19 +34,9 @@ import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { fetchQuestionTypeStats } from "../../API/api";
 import { AuthContext } from "../../context/AuthContext";
-import { exportToExcel } from "../../utils";
-import { exportChartDataToPdf } from "../../utils";
+import { exportToExcel } from "../../utils/utils";
+import { exportChartDataToPdf } from "../../utils/utils";
 
-
-import { 
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
 
 const BarChart = () => {
   const theme = useTheme();
@@ -186,16 +176,19 @@ const BarChart = () => {
   };
 
   // Close snackbar
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setSnackbar({ ...snackbar, open: false });
-  };
-
+const handleCloseSnackbar = (event, reason) => {
+  if (reason === "clickaway") {
+    return;
+  }
+  setSnackbar({ ...snackbar, open: false });
 };
 
-  // Chart options
+// Handle chart type change
+const handleChartTypeChange = (event) => {
+  setChartType(event.target.value);
+};
+
+// Chart options
   const options = {
     responsive: true,
     maintainAspectRatio: false,
