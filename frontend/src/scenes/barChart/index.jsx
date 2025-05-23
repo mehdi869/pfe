@@ -38,17 +38,7 @@ import { exportToExcel } from "../../utils";
 import { exportChartDataToPdf } from "../../utils";
 
 
-import { 
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
-
-const BarChart = () => {
+export const BarChart = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const chartRef = useRef(null);
@@ -192,8 +182,6 @@ const BarChart = () => {
     }
     setSnackbar({ ...snackbar, open: false });
   };
-
-};
 
   // Chart options
   const options = {
