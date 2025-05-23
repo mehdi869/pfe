@@ -1,37 +1,39 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
-import { CssBaseline, ThemeProvider } from "@mui/material"
-import { ColorModeContext, useMode } from "./styles/theme"
-import { useState } from "react"
-import { Outlet } from "react-router-dom"
-import { AuthProvider } from "./context/AuthContext"
-import ProtectedRoute from "./components/ProtectedRoute"
-import PublicRoute from "./components/PublicRoute"
-import AdminRoute from "./components/AdminRoute"
-import LoadingScreen from "./components/LoadingScreen"
-import NotFound from "./components/NotFound"
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { CssBaseline, ThemeProvider } from "@mui/material";
+import { ColorModeContext, useMode } from "./styles/theme";
+import { useState } from "react";
+import { Outlet } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicRoute";
+import AdminRoute from "./components/AdminRoute";
+import LoadingScreen from "./components/LoadingScreen";
+import NotFound from "./components/NotFound";
 import { BarChart } from "./scenes/barChart";
-import {NpsChart} from "../src/scenes/chart/NpsChart.jsx"
-import { AgeChart } from "./scenes/chart/AgeChart.jsx"
+import { NpsChart } from "../src/scenes/chart/NpsChart.jsx";
+import { AgeChart } from "./scenes/chart/AgeChart.jsx";
 
 // Import your components and pages
-import LandingPage from "./pages/lading/lading.jsx"
-import Login from "./pages/login/LoginPages.jsx"
-import Register from "./pages/register/registerpages"
-import Dashboard from "./scenes/dashboard"
-import Topbar from "./scenes/global/Topbar"
-import Sidebar from "./scenes/global/Sidebar"
-import Admin from "./scenes/admin-panel"
-import Invoices from "./scenes/invoices"
-import Contacts from "./scenes/contacts"
-import Form from "./scenes/form"
-import Calendar from "./scenes/calendar"
-import Map from "./scenes/Map/map.jsx"
-import {StatusChart} from "./scenes/chart/StatusChart" 
-import './style.css'
+import LandingPage from "./pages/lading/lading.jsx";
+import Login from "./pages/login/LoginPages.jsx";
+import Register from "./pages/register/registerpages";
+import Dashboard from "./scenes/dashboard";
+import Topbar from "./scenes/global/Topbar";
+import Sidebar from "./scenes/global/Sidebar";
+import Admin from "./scenes/admin-panel";
+import Invoices from "./scenes/invoices";
+import Contacts from "./scenes/contacts";
+import Form from "./scenes/form";
+import Calendar from "./scenes/calendar";
+import Settings from "./scenes/setting";
+import Map from "./scenes/Map/map.jsx";
+import { StatusChart } from "./scenes/chart/StatusChart";
+import "./style.css";
+import Profile from "./scenes/profile";
 
 function App() {
-  const [theme, colorMode] = useMode()
-  const [isSider, setIsSider] = useState(true)
+  const [theme, colorMode] = useMode();
+  const [isSider, setIsSider] = useState(true);
 
   return (
     <AuthProvider>
@@ -51,9 +53,15 @@ function App() {
               <Route element={<ProtectedRoute />}>
                 <Route
                   element={
-                    <div className="app" style={{ display: "flex", height: "100vh" }}>
+                    <div
+                      className="app"
+                      style={{ display: "flex", height: "100vh" }}
+                    >
                       <Sidebar isSider={isSider} />
-                      <main className="content" style={{ flexGrow: 1, overflow: "auto" }}>
+                      <main
+                        className="content"
+                        style={{ flexGrow: 1, overflow: "auto" }}
+                      >
                         <Topbar setIsSider={setIsSider} />
                         <Outlet />
                       </main>
@@ -67,15 +75,15 @@ function App() {
                   <Route path="/calendar" element={<Calendar />} />
                   <Route path="/map" element={<Map />} />
                   <Route path="/barChart" element={<StatusChart />} />
-                  <Route path='/nps' element = {<NpsChart/>}></Route>
-                  <Route path='/age' element = {<AgeChart/>}></Route>
+                  <Route path="/nps" element={<NpsChart />}></Route>
+                  <Route path="/age" element={<AgeChart />}></Route>
                   <Route path="/status" element={<StatusChart />} />
                   <Route path="/setting" element={<Settings />} />
                   <Route path="/profile" element={<Profile />} />
                   {/* Admin-only route */}
-                <Route element={<AdminRoute />}>
-                  <Route path="/admin-panel" element={<Admin/>} />
-                </Route>
+                  <Route element={<AdminRoute />}>
+                    <Route path="/admin-panel" element={<Admin />} />
+                  </Route>
                 </Route>
               </Route>
 
@@ -86,7 +94,7 @@ function App() {
         </ThemeProvider>
       </ColorModeContext.Provider>
     </AuthProvider>
-  )
+  );
 }
 
-export default App
+export default App;
