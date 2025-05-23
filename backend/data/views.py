@@ -92,12 +92,18 @@ def age_groupe(request):
         age_group = '56-65').values("total").first()
 
    return JsonResponse({'count' : count,
-                        'NUll' : count_Null["total"]*100/count,
+                        'Null' : count_Null["total"]*100/count,
                         '18-25' : count_18_25["total"]*100/count,
                         '26-35' : count_26_35["total"]*100/count,
                         '36-45' : count_36_45["total"]*100/count,
                         '46-55' : count_46_55["total"]*100/count,
-                        '56-65' : count_56_65["total"]*100/count
+                        '56-65' : count_56_65["total"]*100/count,
+                        'valeur null' : count_Null["total"],
+                        'age entre 18 et 25' : count_18_25["total"],
+                        'age entre 26 et 35' : count_26_35["total"],
+                        'age entre 36 et 45' : count_36_45["total"],
+                        'age entre 46 et 55' : count_46_55["total"],
+                        'age entre 56 et 65' : count_56_65["total"],
                         })
 
 # API qui return le pourcentage de client qui ce trouve dans chaque city
@@ -136,18 +142,20 @@ def survey_type(request):
    count_8 = survey.objects.filter(survey_type = 8).values('total').first()
 
    return JsonResponse({'count':count,
-                        '-1': count_null['total']*100/count,
-                        '1':count_1['total']*100/count,
-                        '2':count_2['total']*100/count,
-                        '3':count_3['total']*100/count,
-                        '4':count_4['total']*100/count,
-                        '5':count_5['total']*100/count,
-                        '6':count_6['total']*100/count,
-                        '8':count_8['total']*100/count
+                        'null': count_null['total']*100/count,
+                        'I Join':count_1['total']*100/count,
+                        'Contact Center':count_2['total']*100/count,
+                        'I use: Product':count_3['total']*100/count,
+                        'Djezzy App':count_4['total']*100/count,
+                        'Retail':count_5['total']*100/count,
+                        'Network':count_6['total']*100/count,
+                        'B2B':count_8['total']*100/count,
+                        'count_null' : count_null['total']
                         })
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny]) 
 def survey_1_nps(request):
       count = survey_nps_score.objects.filter(survey_type = 1).aggregate(total_sum = Sum('total'))['total_sum'] 
       count_null = survey_nps_score.objects.filter(survey_type = 1,nps_score = -1).values('total').first()
@@ -168,15 +176,16 @@ def survey_1_nps(request):
       return JsonResponse({'count' :count,
                            'null' : count_null['total'],
                            'not null' : count_not_null,
-                           '0' : survey_nps_0['total']*100/count_not_null,
+                           '_0' : survey_nps_0['total']*100/count_not_null,
                            '1-6' : survey_nps_1_6*100/count_not_null,
                            '7-8' : survey_nps_7_8*100/count_not_null,
-                           '9-10' : survey_nps_9_10*100/count_not_null
+                           '9-10' : survey_nps_9_10*100/count_not_null,
                            })
 
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny]) 
 def survey_2_nps(request):
       count = survey_nps_score.objects.filter(survey_type = 2
                 ).aggregate(total_sum = Sum('total'))['total_sum']
@@ -220,7 +229,7 @@ def survey_2_nps(request):
       return JsonResponse({'count' : count,
                            'null' : count_null['total'],
                            'not null' : count_not_null,
-                           '0' : survey_nps_0['total']*100/count_not_null,
+                           '_0' : survey_nps_0['total']*100/count_not_null,
                            '1-6' : survey_nps_1_6*100/count_not_null,
                            '7-8' : survey_nps_7_8*100/count_not_null,
                            '9-10' : survey_nps_9_10*100/count_not_null
@@ -228,6 +237,7 @@ def survey_2_nps(request):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny]) 
 def survey_3_nps(request):
       count = survey_nps_score.objects.filter(
            survey_type = 3
@@ -271,7 +281,7 @@ def survey_3_nps(request):
       return JsonResponse({'count' : count,
                            'null' : count_null['total'],
                            'not null' : count_not_null,
-                           '0' : survey_nps_0['total']*100/count_not_null,
+                           '_0' : survey_nps_0['total']*100/count_not_null,
                            '1-6' : survey_nps_1_6*100/count_not_null,
                            '7-8' : survey_nps_7_8*100/count_not_null,
                            '9-10' : survey_nps_9_10*100/count_not_null
@@ -280,6 +290,7 @@ def survey_3_nps(request):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny]) 
 def survey_4_nps(request):
       count = survey_nps_score.objects.filter(
            survey_type = 4
@@ -325,7 +336,7 @@ def survey_4_nps(request):
       return JsonResponse({'count' : count,
                            'null' : count_null['total'],
                            "not null" : count_not_null,
-                           '0' : survey_nps_0['total']*100/count_not_null,
+                           '_0' : survey_nps_0['total']*100/count_not_null,
                            '1-6' : survey_nps_1_6*100/count_not_null,
                            '7-8' : survey_nps_7_8*100/count_not_null,
                            '9-10' : survey_nps_9_10*100/count_not_null
@@ -333,6 +344,7 @@ def survey_4_nps(request):
 
                            
 @api_view(['GET'])
+@permission_classes([AllowAny]) 
 def survey_5_nps(request):
       count = survey_nps_score.objects.filter(
            survey_type = 5
@@ -376,13 +388,14 @@ def survey_5_nps(request):
       return JsonResponse({'count' : count,
                            'null' : count_null['total'],
                            "not null" : count_not_null,
-                           '0' : survey_nps_0['total']*100/count_not_null,
+                           '_0' : survey_nps_0['total']*100/count_not_null,
                            '1-6' : survey_nps_1_6*100/count_not_null,
                            '7-8' : survey_nps_7_8*100/count_not_null,
                            '9-10' : survey_nps_9_10*100/count_not_null})
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny]) 
 def survey_6_nps(request):
       
       count = survey_nps_score.objects.filter(
@@ -426,13 +439,14 @@ def survey_6_nps(request):
       return JsonResponse({'count' : count,
                            'null' : count_null['total'],
                            'not null' : count_not_null,
-                           '0' : survey_nps_0['total']*100/count_not_null,
+                           '_0' : survey_nps_0['total']*100/count_not_null,
                            '1-6' : survey_nps_1_6*100/count_not_null,
                            '7-8' : survey_nps_7_8*100/count_not_null,
                            '9-10' : survey_nps_9_10*100/count_not_null})
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny]) 
 def survey_8_nps(request):
       
       count = survey_nps_score.objects.filter(
@@ -474,7 +488,7 @@ def survey_8_nps(request):
       return JsonResponse({'count' : count,
                            'null' : count_null['total'],
                            'not_null' : count_not_null,
-                           '0' : survey_nps_0['total']*100/count_not_null,
+                           '_0' : survey_nps_0['total']*100/count_not_null,
                            '1-6' : survey_nps_1_6*100/count_not_null,
                            '7-8' : survey_nps_7_8*100/count_not_null,
                            '9-10' : survey_nps_9_10*100/count_not_null})

@@ -116,7 +116,8 @@ export const StatusChart = () => {
             label: "Nombre de statuts possibles",
           },
         ].map((item, i) => (
-          <div key={i} className="bg-white shadow-md rounded-xl p-4 flex items-center">
+          <div key={i} className="bg-white shadow-md rounded-xl p-4 flex items-center transform transition duration-300 
+            hover:-translate-y-2">
             {item.icon}
             <div className="ml-4">
               <p className="text-xl font-semibold text-gray-900">{item.value}</p>

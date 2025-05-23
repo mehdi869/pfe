@@ -292,7 +292,7 @@ const Sidebar = () => {
               Charts
             </Typography>
             <Item
-              title="Status Chart"
+              title="Status Charts"
               to="/barChart"
               icon={<BarChartOutlinedIcon />}
               selected={selected}
@@ -300,15 +300,23 @@ const Sidebar = () => {
             />
 
             <Item
-              title="nps Chart"
+              title="nps Charts"
               to="/nps"
               icon={<BarChartOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
             />
             <Item
-              title="Age Chart"
+              title="Age Charts"
               to="/age"
+              icon={<BarChartOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+
+            <Item
+              title="Survey Charts"
+              to="/survey"
               icon={<BarChartOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
