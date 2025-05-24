@@ -110,12 +110,13 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
     else if (path === "/benchmarks") setSelected("Benchmarks")
     else if (path === "/admin-panel") setSelected("Admin Panel")
     else if (path === "/profile") setSelected("Profile")
-    else if (path === "/barChart") setSelected("Status Chart")
+    else if (path === "/status") setSelected("Status Chart")
     else if (path === "/nps") setSelected("NPS Chart")
     else if (path === "/age") setSelected("Age Chart")
     else if (path === "/pie") setSelected("Pie Chart")
     else if (path === "/status") setSelected("Line Chart") // Changed name to avoid duplication
     else if (path === "/Map") setSelected("Geography Chart")
+    else if (path === "/barchart") setSelected("Bar Chart")
   }, [location])
 
   const handleLogout = () => {
@@ -244,80 +245,117 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
               </Box>
             )}
 
-            <Box 
-              paddingLeft={isCollapsed ? undefined : "10%"}
-              display="flex" 
-              flexDirection="column" 
-              justifyContent="space-between"
-              height={!isCollapsed && "calc(100% - 180px)"}
+          <Box paddingLeft={isCollapsed ? undefined : "10%"}>
+            {/* DASHBOARD */}
+            <Item
+              title="Dashboard"
+              to="/Dashboard"
+              icon={<HomeOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+          <Item
+            title="NPS Overview"
+            to="/nps-overview"
+            icon={<InsightsIcon />}
+            selected={selected}
+            setSelected={setSelected}
+          />
+          {/*
+          <Item
+            title="Response Analysis"
+            to="/response-analysis"
+            icon={<AnalyticsIcon />}
+            selected={selected}
+            setSelected={setSelected}
+          />
+          <Item
+            title="Segmentation"
+            to="/segmentation"
+            icon={<GroupsIcon />}
+            selected={selected}
+            setSelected={setSelected}
+          />
+          <Item
+            title="Trends & Forecasting"
+            to="/trends"
+            icon={<TrendingUpIcon />}
+            selected={selected}
+            setSelected={setSelected}
+          />
+          <Item
+            title="Comment Analysis"
+            to="/comments"
+            icon={<CommentIcon />}
+            selected={selected}
+            setSelected={setSelected}
+            badge={5}
+          />
+          <Item
+            title="Benchmarks"
+            to="/benchmarks"
+            icon={<CompareIcon />}
+            selected={selected}
+            setSelected={setSelected}
+          />
+          */}     
+            {/* CHARTS */}
+            <Typography
+              variant="body2"
+              color={colors.grey[300]}
+              sx={{ 
+                m: "15px 0 5px 20px",
+                display: isCollapsed ? "none" : "block",
+                fontWeight: "bold",
+                textTransform: "uppercase",
+                fontSize: "12px",
+              }}
             >
-              <Box>
-                {/* NPS Overview */}
-                <Item
-                  title="NPS Overview"
-                  to="/Dashboard"
-                  icon={<InsightsIcon />}
-                  selected={selected}
-                  setSelected={setSelected}
-                />
+              Charts
+            </Typography>
+            <Item
+              title="Status Chart"
+              to="/status"
+              icon={<BarChartOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
 
-                {/* CHARTS */}
-                <Typography
-                  variant="body2"
-                  color={colors.grey[300]}
-                  sx={{
-                    m: "15px 0 5px 20px",
-                    display: isCollapsed ? "none" : "block",
-                    fontWeight: "bold",
-                    textTransform: "uppercase",
-                    fontSize: "12px",
-                  }}
-                >
-                  Charts
-                </Typography>
-                <Item
-                  title="Status Chart"
-                  to="/barChart"
-                  icon={<BarChartOutlinedIcon />}
-                  selected={selected}
-                  setSelected={setSelected}
-                />
-
-                <Item
-                  title="NPS Chart"
-                  to="/nps"
-                  icon={<BarChartOutlinedIcon />}
-                  selected={selected}
-                  setSelected={setSelected}
-                />
-                <Item
-                  title="Age Chart"
-                  to="/age"
-                  icon={<BarChartOutlinedIcon />}
-                  selected={selected}
-                  setSelected={setSelected}
-                />
-                <Item
-                  title="Pie Chart"
-                  to="/pie"
-                  icon={<PieChartOutlineOutlinedIcon />}
-                  selected={selected}
-                  setSelected={setSelected}
-                />
-                <Item
-                  title="Line Chart"
-                  to="/status"
-                  icon={<TimelineOutlinedIcon />}
-                  selected={selected}
-                  setSelected={setSelected}
-                />
-                <Item
-                  title="Geography Chart"
-                  to="/Map"
-                  icon={<MapOutlinedIcon />}
-                  selected={selected}
-                  setSelected={setSelected}
-                />
+            <Item
+              title="nps Chart"
+              to="/nps"
+              icon={<BarChartOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Age Chart"
+              to="/age"
+              icon={<BarChartOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Pie Chart"
+              to="/pie"
+              icon={<PieChartOutlineOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Line Chart"
+              to="/line"
+              icon={<TimelineOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Geography Chart"
+              to="/Map"
+              icon={<MapOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
 
                 {/* MANAGEMENT */}
                 <Typography

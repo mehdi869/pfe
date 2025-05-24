@@ -132,3 +132,92 @@ export const fetchGeoNpsStats = async () => {
   const data = await response.json();
   return data;
 };
+
+export const fetchSurveyType = async () => {
+  const response = await fetch("http://localhost:8000/survey/",{ // Added trailing slash for consistency
+    method : 'GET',
+    headers: { // Corrected: geaders to headers
+      'Content-Type' : 'application/json', // Corrected: 'content-type', 'appliaction/json'
+    }
+  })
+  return response
+} 
+
+export const fetchSurvey1Type = async () => {
+  const response = await fetch("http://localhost:8000/survey_1/",{ // Added trailing slash for consistency
+    method : 'GET',
+    headers: { // Corrected: geaders to headers
+      'Content-Type' : 'application/json', // Corrected: 'content-type', 'appliaction/json'
+    }
+  })
+
+  return response
+} 
+
+export const fetchSurvey2Type = async () => {
+  const response = await fetch("http://localhost:8000/survey_2/",{ // Added trailing slash for consistency
+    method : 'GET',
+    headers: { // Corrected: geaders to headers
+      'Content-Type' : 'application/json', // Corrected: 'content-type', 'appliaction/json'
+    }
+  })
+
+  return response
+}
+
+
+export const fetchSurvey3Type = async () => {
+  const response = await fetch("http://localhost:8000/survey_3/",{ // Added trailing slash for consistency
+    method : 'GET',
+    headers: { // Corrected: geaders to headers
+      'Content-Type' : 'application/json', // Corrected: 'content-type', 'appliaction/json'
+    }
+  })
+
+  return response
+}
+
+
+export const fetchSurvey4Type = async () => {
+  const response = await fetch("http://localhost:8000/survey_4/",{ // Added trailing slash for consistency
+    method : 'GET',
+    headers: { // Corrected: geaders to headers
+      'Content-Type' : 'application/json', // Corrected: 'content-type', 'appliaction/json'
+    }
+  })
+
+  return response
+}
+
+export const fetchSurvey5Type = async () => {
+  const response = await fetch("http://localhost:8000/survey_5/",{ // Added trailing slash for consistency
+    method : 'GET',
+    headers: { // Corrected: geaders to headers
+      'Content-Type' : 'application/json', // Corrected: 'content-type', 'appliaction/json'
+    }
+  })
+
+  return response
+}
+
+export const fetchSurvey6Type = async () => {
+  const response = await fetch("http://localhost:8000/survey_6/",{ // Added trailing slash for consistency
+    method : 'GET',
+    headers: { // Corrected: geaders to headers
+      'Content-Type' : 'application/json', // Corrected: 'content-type', 'appliaction/json'
+    }
+  })
+
+  return response
+}
+
+export const fetchSurvey8Type = async () => {
+  const response = await fetch("http://localhost:8000/survey_8/",{ // Added trailing slash for consistency
+    method : 'GET',
+    headers: { // Corrected: geaders to headers
+      'Content-Type' : 'application/json', // Corrected: 'content-type', 'appliaction/json'
+    }
+  })
+
+  return response
+}
