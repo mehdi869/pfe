@@ -17,7 +17,6 @@ import { AgeChart } from "./scenes/chart/AgeChart.jsx"
 import {SurveyChart} from "./scenes/chart/SurveyChart.jsx"
 import LandingPage from "./pages/lading/lading.jsx";
 // Import your components and pages
-import LandingPage from "./pages/lading/lading.jsx"
 import Login from "./pages/login/LoginPages.jsx"
 import Register from "./pages/register/registerpages"
 import Dashboard from "./scenes/dashboard"
@@ -30,7 +29,6 @@ import Form from "./scenes/form"
 import Calendar from "./scenes/calendar"
 import Profile from "./scenes/profile";
 import Map from "./scenes/Map/map.jsx"
-import {StatusChart} from "./scenes/chart/StatusChart" 
 import './style.css'
 import QuestionChart from "./scenes/chart/QuestionChart.jsx"; // Import QuestionChart
 import { TopbarProvider, useTopbar, TOPBAR_HEIGHT } from "./context/TopbarContext"; // Import TopbarProvider and useTopbar

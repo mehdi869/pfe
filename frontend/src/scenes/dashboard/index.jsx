@@ -22,10 +22,7 @@ import {
   Zoom,
 } from "@mui/material";
 import { tokens } from "../../styles/theme";
-<<<<<<< HEAD
 import { exportToExcel } from "../../utils/utils";
-=======
->>>>>>> origin/reset-clean-version2
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt";
 import ThumbDownAltIcon from "@mui/icons-material/ThumbDownAlt";
@@ -73,10 +70,9 @@ const Dashboard = () => {
   const [tabValue, setTabValue] = useState(0);
   const [animateCharts, setAnimateCharts] = useState(false);
   const [showExportOptions, setShowExportOptions] = useState(false); // New state for export options
-<<<<<<< HEAD
+
   const [exportAnchorEl, setExportAnchorEl] = useState(null);
-=======
->>>>>>> origin/reset-clean-version2
+
 
   const [npsData, setNpsData] = useState({
     nps_score: null,
@@ -763,8 +759,6 @@ const Dashboard = () => {
     categoryPercentage: 0.7,
   };
 
-  // Dummy export handlers
-<<<<<<< HEAD
   const handleExportClick = (event) => {
     setExportAnchorEl(event.currentTarget);
   };
@@ -794,16 +788,6 @@ const Dashboard = () => {
   const handlePdfExport = () => {
     alert("PDF export not implemented yet.");
     handleExportClose();
-=======
-  const handleExcelExport = () => {
-    console.log("Exporting to Excel...");
-    // Implement Excel export logic here
-  };
-
-  const handlePdfExport = () => {
-    console.log("Exporting to PDF...");
-    // Implement PDF export logic here
->>>>>>> origin/reset-clean-version2
   };
 
   return (
@@ -887,7 +871,6 @@ const Dashboard = () => {
             <Button
               aria-controls="export-menu"
               aria-haspopup="true"
-              onClick={handleExportClick}
               variant="contained"
               sx={{
                 backgroundColor: colors.primary[500],
@@ -904,21 +887,6 @@ const Dashboard = () => {
             >
               Export Data
             </Button>
-<<<<<<< HEAD
-            <Menu
-              id="export-menu"
-              anchorEl={exportAnchorEl}
-              keepMounted
-              open={Boolean(exportAnchorEl)}
-              onClose={handleExportClose}
-              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-              transformOrigin={{ vertical: "top", horizontal: "right" }}
-            >
-              <MenuItem onClick={handleExcelExport}>Excel</MenuItem>
-              <MenuItem onClick={handlePdfExport}>PDF</MenuItem>
-            </Menu>
-=======
-
             {/* Export Options (conditionally rendered) */}
             {showExportOptions && (
               <ClickAwayListener onClickAway={() => setShowExportOptions(false)}>
@@ -977,7 +945,6 @@ const Dashboard = () => {
               </Box>
               </ClickAwayListener>
             )}
->>>>>>> origin/reset-clean-version2
           </Box>
         </Box>
 
