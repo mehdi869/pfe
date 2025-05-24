@@ -298,6 +298,13 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                   setSelected={setSelected}
                 />
                 <Item
+                  title="Question Chart"
+                  to="/question"
+                  icon={<BarChartOutlinedIcon />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+                <Item
                   title="Pie Chart"
                   to="/pie"
                   icon={<PieChartOutlineOutlinedIcon />}

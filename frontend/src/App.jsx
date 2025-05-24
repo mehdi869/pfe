@@ -26,6 +26,7 @@ import Map from "./scenes/Map/map.jsx";
 import { StatusChart } from "./scenes/chart/StatusChart";
 import './style.css';
 import { TopbarProvider, useTopbar, TOPBAR_HEIGHT } from "./context/TopbarContext"; // Import TopbarProvider and useTopbar
+import QuestionChart from "./scenes/chart/QuestionChart.jsx"; // Import QuestionChart
 
 // Layout component that includes Sidebar and Topbar
 function AppLayout() {
@@ -81,6 +82,7 @@ function App() {
                     <Route path="/nps" element={<NpsChart />} />
                     <Route path="/age" element={<AgeChart />} />
                     <Route path="/status" element={<StatusChart />} />
+                    <Route path="/question" element={<QuestionChart />} />
                     <Route element={<AdminRoute />}>
                       <Route path="/admin-panel" element={<Admin />} />
                     </Route>
