@@ -115,6 +115,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
     else if (path === "/age") setSelected("Age Chart")
     else if (path === "/pie") setSelected("Pie Chart")
     else if (path === "/status") setSelected("Line Chart") // Changed name to avoid duplication
+    else if (path === "/question_chart") setSelected("Question Chart")
     else if (path === "/Map") setSelected("Geography Chart")
     else if (path === "/barchart") setSelected("Bar Chart")
   }, [location])
@@ -306,24 +307,14 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
             />
             <Item
               title="Question Chart"
-<<<<<<< HEAD
-              to="/question"
-              icon={<BarChartOutlinedIcon />}
-=======
               to="/question_chart"
               icon={<InsightsIcon />}
->>>>>>> origin/reset-clean-version2
               selected={selected}
               setSelected={setSelected}
             />
             <Item
-<<<<<<< HEAD
-              title="Line Chart"
-              to="/line"
-=======
               title="Status Chart"
               to="/status"
->>>>>>> origin/reset-clean-version2
               icon={<TimelineOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
