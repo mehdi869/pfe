@@ -1,5 +1,4 @@
- 
-import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
+ import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ThemeCustomizationContext, useMode } from "./styles/theme";
 import { useState } from "react"
@@ -18,17 +17,20 @@ import { AgeChart } from "./scenes/chart/AgeChart.jsx"
 import {SurveyChart} from "./scenes/chart/SurveyChart.jsx"
 import LandingPage from "./pages/lading/lading.jsx";
 // Import your components and pages
+import LandingPage from "./pages/lading/lading.jsx"
 import Login from "./pages/login/LoginPages.jsx"
 import Register from "./pages/register/registerpages"
 import Dashboard from "./scenes/dashboard"
 import Topbar from "./scenes/global/Topbar"
 import Sidebar from "./scenes/global/Sidebar"
+import Admin from "./scenes/admin-panel"
 import Invoices from "./scenes/invoices"
 import Contacts from "./scenes/contacts"
 import Form from "./scenes/form"
 import Calendar from "./scenes/calendar"
+import Profile from "./scenes/profile";
 import Map from "./scenes/Map/map.jsx"
-import Admin from "./scenes/admin-panel/index.jsx"; // Import Admin component
+import {StatusChart} from "./scenes/chart/StatusChart" 
 import './style.css'
 import QuestionChart from "./scenes/chart/QuestionChart.jsx"; // Import QuestionChart
 import { TopbarProvider, useTopbar, TOPBAR_HEIGHT } from "./context/TopbarContext"; // Import TopbarProvider and useTopbar

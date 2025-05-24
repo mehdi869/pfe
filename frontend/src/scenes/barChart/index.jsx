@@ -38,7 +38,11 @@ import { exportToExcel } from "../../utils/utils";
 import { exportChartDataToPdf } from "../../utils/utils";
 
 
+<<<<<<< HEAD
 const BarChart = () => {
+=======
+export const BarChart = () => {
+>>>>>>> origin/reset-clean-version2
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const chartRef = useRef(null);
@@ -176,6 +180,7 @@ const BarChart = () => {
   };
 
   // Close snackbar
+<<<<<<< HEAD
 const handleCloseSnackbar = (event, reason) => {
   if (reason === "clickaway") {
     return;
@@ -189,6 +194,16 @@ const handleChartTypeChange = (event) => {
 };
 
 // Chart options
+=======
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbar({ ...snackbar, open: false });
+  };
+
+  // Chart options
+>>>>>>> origin/reset-clean-version2
   const options = {
     responsive: true,
     maintainAspectRatio: false,

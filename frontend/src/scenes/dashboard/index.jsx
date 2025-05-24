@@ -22,7 +22,10 @@ import {
   Zoom,
 } from "@mui/material";
 import { tokens } from "../../styles/theme";
+<<<<<<< HEAD
 import { exportToExcel } from "../../utils/utils";
+=======
+>>>>>>> origin/reset-clean-version2
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt";
 import ThumbDownAltIcon from "@mui/icons-material/ThumbDownAlt";
@@ -70,7 +73,10 @@ const Dashboard = () => {
   const [tabValue, setTabValue] = useState(0);
   const [animateCharts, setAnimateCharts] = useState(false);
   const [showExportOptions, setShowExportOptions] = useState(false); // New state for export options
+<<<<<<< HEAD
   const [exportAnchorEl, setExportAnchorEl] = useState(null);
+=======
+>>>>>>> origin/reset-clean-version2
 
   const [npsData, setNpsData] = useState({
     nps_score: null,
@@ -758,6 +764,7 @@ const Dashboard = () => {
   };
 
   // Dummy export handlers
+<<<<<<< HEAD
   const handleExportClick = (event) => {
     setExportAnchorEl(event.currentTarget);
   };
@@ -787,6 +794,16 @@ const Dashboard = () => {
   const handlePdfExport = () => {
     alert("PDF export not implemented yet.");
     handleExportClose();
+=======
+  const handleExcelExport = () => {
+    console.log("Exporting to Excel...");
+    // Implement Excel export logic here
+  };
+
+  const handlePdfExport = () => {
+    console.log("Exporting to PDF...");
+    // Implement PDF export logic here
+>>>>>>> origin/reset-clean-version2
   };
 
   return (
@@ -883,9 +900,11 @@ const Dashboard = () => {
                 },
               }}
               startIcon={<DownloadOutlinedIcon />}
+              onClick={() => setShowExportOptions(!showExportOptions)} // Toggle options
             >
               Export Data
             </Button>
+<<<<<<< HEAD
             <Menu
               id="export-menu"
               anchorEl={exportAnchorEl}
@@ -898,6 +917,67 @@ const Dashboard = () => {
               <MenuItem onClick={handleExcelExport}>Excel</MenuItem>
               <MenuItem onClick={handlePdfExport}>PDF</MenuItem>
             </Menu>
+=======
+
+            {/* Export Options (conditionally rendered) */}
+            {showExportOptions && (
+              <ClickAwayListener onClickAway={() => setShowExportOptions(false)}>
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "100%",
+                  right: 0,
+                  zIndex: 10,
+                  backgroundColor:
+                    theme.palette.mode === "dark"
+                      ? colors.primary[500]
+                      : "#fff",
+                  boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+                  borderRadius: "5px",
+                  mt: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <Button
+                  sx={{
+                    color:
+                      theme.palette.mode === "dark" ? "#fff" : colors.grey[900],
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    padding: "8px 15px",
+                    borderRadius: 0,
+                    borderBottom: `1px solid ${colors.grey[300]}`,
+                    "&:hover": {
+                      backgroundColor: colors.primary[600],
+                      color: "#fff",
+                    },
+                  }}
+                  onClick={handleExcelExport}
+                >
+                  Excel
+                </Button>
+                <Button
+                  sx={{
+                    color:
+                      theme.palette.mode === "dark" ? "#fff" : colors.grey[900],
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    padding: "8px 15px",
+                    borderRadius: 0,
+                    "&:hover": {
+                      backgroundColor: colors.primary[600],
+                      color: "#fff",
+                    },
+                  }}
+                  onClick={handlePdfExport}
+                >
+                  PDF
+                </Button>
+              </Box>
+              </ClickAwayListener>
+            )}
+>>>>>>> origin/reset-clean-version2
           </Box>
         </Box>
 
