@@ -22,6 +22,7 @@ import {
   Zoom,
 } from "@mui/material";
 import { tokens } from "../../styles/theme";
+import { exportToExcel } from "../../utils/utils";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt";
 import ThumbDownAltIcon from "@mui/icons-material/ThumbDownAlt";
@@ -69,6 +70,7 @@ const Dashboard = () => {
   const [tabValue, setTabValue] = useState(0);
   const [animateCharts, setAnimateCharts] = useState(false);
   const [showExportOptions, setShowExportOptions] = useState(false); // New state for export options
+  const [exportAnchorEl, setExportAnchorEl] = useState(null);
 
   const [npsData, setNpsData] = useState({
     nps_score: null,
@@ -756,14 +758,35 @@ const Dashboard = () => {
   };
 
   // Dummy export handlers
+  const handleExportClick = (event) => {
+    setExportAnchorEl(event.currentTarget);
+  };
+
+  const handleExportClose = () => {
+    setExportAnchorEl(null);
+  };
+
   const handleExcelExport = () => {
-    console.log("Exporting to Excel...");
-    // Implement Excel export logic here
+    // Example: export npsData as Excel (adapt to your real data structure)
+    exportToExcel({
+      rows: [
+        {
+          "NPS Score": npsData.nps_score,
+          Promoters: npsData.promoters,
+          Passives: npsData.passives,
+          Detractors: npsData.detractors,
+          "Total Responses": npsData.total_responses,
+        },
+      ],
+      sheetName: "Dashboard",
+      fileName: "dashboard_data.xlsx",
+    });
+    handleExportClose();
   };
 
   const handlePdfExport = () => {
-    console.log("Exporting to PDF...");
-    // Implement PDF export logic here
+    alert("PDF export not implemented yet.");
+    handleExportClose();
   };
 
   return (
@@ -845,84 +868,36 @@ const Dashboard = () => {
 
             {/* Export Button */}
             <Button
+              aria-controls="export-menu"
+              aria-haspopup="true"
+              onClick={handleExportClick}
+              variant="contained"
               sx={{
                 backgroundColor: colors.primary[500],
                 color: "#fff",
-                fontSize: "14px",
                 fontWeight: "bold",
-                padding: { xs: "8px 15px", md: "10px 20px" },
                 borderRadius: "10px",
                 boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
-                transition: "all 0.3s ease",
                 "&:hover": {
                   backgroundColor: colors.primary[600],
-                  boxShadow: "0 6px 15px rgba(0,0,0,0.2)",
                 },
               }}
               startIcon={<DownloadOutlinedIcon />}
-              onClick={() => setShowExportOptions(!showExportOptions)} // Toggle options
             >
               Export Data
             </Button>
-
-            {/* Export Options (conditionally rendered) */}
-            {showExportOptions && (
-              <ClickAwayListener onClickAway={() => setShowExportOptions(false)}>
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: "100%",
-                  right: 0,
-                  zIndex: 10,
-                  backgroundColor:
-                    theme.palette.mode === "dark"
-                      ? colors.primary[500]
-                      : "#fff",
-                  boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
-                  borderRadius: "5px",
-                  mt: 1,
-                  display: "flex",
-                  flexDirection: "column",
-                }}
-              >
-                <Button
-                  sx={{
-                    color:
-                      theme.palette.mode === "dark" ? "#fff" : colors.grey[900],
-                    fontSize: "14px",
-                    fontWeight: "bold",
-                    padding: "8px 15px",
-                    borderRadius: 0,
-                    borderBottom: `1px solid ${colors.grey[300]}`,
-                    "&:hover": {
-                      backgroundColor: colors.primary[600],
-                      color: "#fff",
-                    },
-                  }}
-                  onClick={handleExcelExport}
-                >
-                  Excel
-                </Button>
-                <Button
-                  sx={{
-                    color:
-                      theme.palette.mode === "dark" ? "#fff" : colors.grey[900],
-                    fontSize: "14px",
-                    fontWeight: "bold",
-                    padding: "8px 15px",
-                    borderRadius: 0,
-                    "&:hover": {
-                      backgroundColor: colors.primary[600],
-                      color: "#fff",
-                    },
-                  }}
-                  onClick={handlePdfExport}
-                >
-                  PDF
-                </Button>
-              </Box>
-              </ClickAwayListener>
-            )}
+            <Menu
+              id="export-menu"
+              anchorEl={exportAnchorEl}
+              keepMounted
+              open={Boolean(exportAnchorEl)}
+              onClose={handleExportClose}
+              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+              transformOrigin={{ vertical: "top", horizontal: "right" }}
+            >
+              <MenuItem onClick={handleExcelExport}>Excel</MenuItem>
+              <MenuItem onClick={handlePdfExport}>PDF</MenuItem>
+            </Menu>
           </Box>
         </Box>
 
