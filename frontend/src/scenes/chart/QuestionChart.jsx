@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { fetchQuestionTypeStats } from "../../API/api.js";
-import { AuthContext } from "../../context/AuthContext"; // <-- add this import
+import { AuthContext } from "../../context/AuthContext";
 import { Bar } from "react-chartjs-2";
 import {
   FileText,
@@ -20,6 +20,11 @@ import {
 } from "chart.js";
 import { exportToExcel } from "../../utils/utils";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
+import Button from "@mui/material/Button";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import { useTheme } from "@mui/material";
+import { tokens } from "../../styles/theme";
 
 ChartJS.register(
   CategoryScale,
@@ -31,7 +36,10 @@ ChartJS.register(
 );
 
 const QuestionChart = () => {
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
   const authContext = useContext(AuthContext); // <-- add this line
+  const [showExportOptions, setShowExportOptions] = useState(false);
 
   const [data, setData] = useState(() => {
     const cached = localStorage.getItem("questionTypeData");
@@ -123,20 +131,18 @@ const QuestionChart = () => {
     }
   };
 
-  // Remove "EXPIRATION Responses" from the cards array
+  // Include ALL cards, including "EXPIRATION Responses"
   const cards = [
     {
       icon: <FileText className="w-10 h-10 text-blue-600" />,
       value: total_responses,
       label: "Total Responses",
     },
-    ...question_types.labels
-      .map((label, index) => ({
-        icon: getIcon(label),
-        value: question_types.counts[index],
-        label: `${label} Responses`,
-      }))
-      .filter((card) => !card.label.toLowerCase().includes("expiration")),
+    ...question_types.labels.map((label, index) => ({
+      icon: getIcon(label),
+      value: question_types.counts[index],
+      label: `${label} Responses`,
+    })),
   ];
 
   const handleExport = () => {
@@ -152,10 +158,79 @@ const QuestionChart = () => {
     });
   };
 
+  const handleExcelExport = () => {
+    handleExport();
+  };
+
+  const handlePdfExport = () => {
+    // You need to implement this if you want PDF export, for now just show an alert or leave empty
+    alert("PDF export not implemented yet.");
+  };
+
+  const ExportButton = ({ handleExcelExport, handlePdfExport }) => {
+    const [anchorEl, setAnchorEl] = useState(null);
+
+    const handleClick = (event) => {
+      setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+      setAnchorEl(null);
+    };
+
+    return (
+      <div>
+        <Button
+          aria-controls="export-menu"
+          aria-haspopup="true"
+          onClick={handleClick}
+          variant="contained"
+          sx={{
+            backgroundColor: "#e53935",
+            color: "#fff",
+            fontWeight: "bold",
+            borderRadius: "10px",
+            boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
+            "&:hover": {
+              backgroundColor: "#b71c1c",
+            },
+          }}
+          startIcon={<DownloadOutlinedIcon />}
+        >
+          Export Data
+        </Button>
+        <Menu
+          id="export-menu"
+          anchorEl={anchorEl}
+          keepMounted
+          open={Boolean(anchorEl)}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          <MenuItem
+            onClick={() => {
+              handleExcelExport();
+              handleClose();
+            }}
+          >
+            Excel
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              handlePdfExport();
+              handleClose();
+            }}
+          >
+            PDF
+          </MenuItem>
+        </Menu>
+      </div>
+    );
+  };
+
   return (
     <div className="grid grid-rows-[15%_1fr] h-screen p-4">
-      
-
       {/* Ligne du haut : 4 premières cards */}
       <div className="grid grid-cols-5 gap-4 w-full mb-6">
         {cards.slice(0, 4).map((item, i) => (
@@ -173,15 +248,12 @@ const QuestionChart = () => {
           </div>
         ))}
         {/* Ligne du haut : Export Data à droite */}
-            <div className="flex justify-end items-center w-full mb-6">
-                <button
-                onClick={handleExport}
-                className="flex items-center bg-red-600 text-white font-bold py-2 px-4 rounded-lg shadow hover:bg-blue-700 transition"
-                >
-                <DownloadOutlinedIcon className="mr-2" fontSize="small" />
-                Export Data
-                </button>
-            </div>
+        <div className="flex justify-end mb-6">
+          <ExportButton
+            handleExcelExport={handleExcelExport}
+            handlePdfExport={handlePdfExport}
+          />
+        </div>
         <div />
       </div>
 
@@ -191,7 +263,7 @@ const QuestionChart = () => {
           <Bar data={barchart} options={options} />
         </div>
         <div className="flex flex-col justify-start gap-4 ml-4">
-          {cards.slice(3).map((item, i) => (
+          {cards.slice(4).map((item, i) => (
             <div
               key={i}
               className="bg-white shadow-md rounded-xl p-4 flex items-center"
