@@ -313,6 +313,13 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
             <Item
+              title="Question Chart"
+              to="/question_chart"
+              icon={<InsightsIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
               title="Status Chart"
               to="/status"
               icon={<TimelineOutlinedIcon />}

@@ -1,6 +1,6 @@
-"use client"
-
-import { useState, useEffect } from "react"
+"use client";
+import { ClickAwayListener } from "@mui/material";
+import { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -20,16 +20,16 @@ import {
   Paper,
   Fade,
   Zoom,
-} from "@mui/material"
-import { tokens } from "../../styles/theme"
-import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined"
-import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt"
-import ThumbDownAltIcon from "@mui/icons-material/ThumbDownAlt"
-import RemoveIcon from "@mui/icons-material/Remove"
-import TrendingUpIcon from "@mui/icons-material/TrendingUp"
-import PeopleIcon from "@mui/icons-material/People"
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined"
-import { Bar, Doughnut } from "react-chartjs-2"
+} from "@mui/material";
+import { tokens } from "../../styles/theme";
+import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
+import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt";
+import ThumbDownAltIcon from "@mui/icons-material/ThumbDownAlt";
+import RemoveIcon from "@mui/icons-material/Remove";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import PeopleIcon from "@mui/icons-material/People";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import { Bar, Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -42,8 +42,8 @@ import {
   PointElement,
   LineElement,
   Filler,
-} from "chart.js"
-import { fetchQuickStats } from "../../API/api" // Add this import
+} from "chart.js";
+import { fetchQuickStats } from "../../API/api"; // Add this import
 
 // Register ChartJS components
 ChartJS.register(
@@ -56,18 +56,19 @@ ChartJS.register(
   ArcElement,
   PointElement,
   LineElement,
-  Filler,
-)
+  Filler
+);
 
 const Dashboard = () => {
-  const theme = useTheme()
-  const colors = tokens(theme.palette.mode)
-  const [isLoading, setIsLoading] = useState(false)
-  const [timeRange, setTimeRange] = useState("month")
-  const [anchorEl, setAnchorEl] = useState(null)
-  const [menuAnchorEl, setMenuAnchorEl] = useState(null)
-  const [tabValue, setTabValue] = useState(0)
-  const [animateCharts, setAnimateCharts] = useState(false)
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  const [isLoading, setIsLoading] = useState(false);
+  const [timeRange, setTimeRange] = useState("month");
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
+  const [tabValue, setTabValue] = useState(0);
+  const [animateCharts, setAnimateCharts] = useState(false);
+  const [showExportOptions, setShowExportOptions] = useState(false); // New state for export options
 
   const [npsData, setNpsData] = useState({
     nps_score: null,
@@ -79,7 +80,7 @@ const Dashboard = () => {
     response_rate: null,
     last_refresh_date: null,
     nps_score_trend: null,
-  })
+  });
   // real data integration
   // Utility to validate quick stats data
   const isValidQuickStats = (data) => {
@@ -91,24 +92,33 @@ const Dashboard = () => {
       typeof data.passives === "number" &&
       typeof data.detractors === "number" &&
       typeof data.total_responses === "number"
-    )
-  }
+    );
+  };
   // create some variables to hold the percentage of promoters, passives, and detractors\
-  const promotersPercentage = ((npsData.promoters / npsData.total_responses) * 100).toFixed(2)
-  const passivesPercentage = ((npsData.passives / npsData.total_responses) * 100).toFixed(2)
-  const detractorsPercentage = ((npsData.detractors / npsData.total_responses) * 100).toFixed(2)
+  const promotersPercentage = (
+    (npsData.promoters / npsData.total_responses) *
+    100
+  ).toFixed(2);
+  const passivesPercentage = (
+    (npsData.passives / npsData.total_responses) *
+    100
+  ).toFixed(2);
+  const detractorsPercentage = (
+    (npsData.detractors / npsData.total_responses) *
+    100
+  ).toFixed(2);
 
   // Fetch and cache quick stats
   useEffect(() => {
     const loadQuickStats = async () => {
       // Try to get from localStorage
-      const cached = localStorage.getItem("quickStats")
+      const cached = localStorage.getItem("quickStats");
       if (cached) {
         try {
-          const parsed = JSON.parse(cached)
+          const parsed = JSON.parse(cached);
           if (isValidQuickStats(parsed)) {
-            setNpsData(parsed)
-            return
+            setNpsData(parsed);
+            return;
           }
         } catch (e) {
           // Ignore and fetch from server
@@ -116,31 +126,44 @@ const Dashboard = () => {
       }
       // Fetch from server if missing or invalid
       try {
-        const stats = await fetchQuickStats()
-        setNpsData(stats)
-        localStorage.setItem("quickStats", JSON.stringify(stats))
+        const stats = await fetchQuickStats();
+        setNpsData(stats);
+        localStorage.setItem("quickStats", JSON.stringify(stats));
       } catch (e) {
         // handle error (show message or fallback)
       }
-    }
-    loadQuickStats()
-  }, [])
+    };
+    loadQuickStats();
+  }, []);
 
   // Optionally, add a refresh button to clear cache and refetch
   const handleRefreshStats = async () => {
     try {
-      const stats = await fetchQuickStats()
-      setNpsData(stats)
-      localStorage.setItem("quickStats", JSON.stringify(stats))
+      const stats = await fetchQuickStats();
+      setNpsData(stats);
+      localStorage.setItem("quickStats", JSON.stringify(stats));
     } catch (e) {
       // handle error
     }
-  }
+  };
 
   // Mock data for charts
   const [chartData, setChartData] = useState({
     npsOverTime: {
-      labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      labels: [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ],
       datasets: [
         {
           label: "NPS Score",
@@ -192,7 +215,20 @@ const Dashboard = () => {
       ],
     },
     responseOverTime: {
-      labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      labels: [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ],
       datasets: [
         {
           label: "Promoters",
@@ -220,7 +256,7 @@ const Dashboard = () => {
         },
       ],
     },
-  })
+  });
 
   useEffect(() => {
     if (npsData.total_responses > 0) {
@@ -239,14 +275,14 @@ const Dashboard = () => {
             },
           ],
         },
-      }))
+      }));
     }
-  }, [promotersPercentage, passivesPercentage, detractorsPercentage])
+  }, [promotersPercentage, passivesPercentage, detractorsPercentage]);
 
   // Function to handle refresh
   const handleRefresh = () => {
-    setIsLoading(true)
-    setAnimateCharts(false)
+    setIsLoading(true);
+    setAnimateCharts(false);
 
     // Simulate loading
     setTimeout(() => {
@@ -254,75 +290,79 @@ const Dashboard = () => {
       const updatedNpsData = {
         ...npsData,
         currentScore: Math.floor(Math.random() * 20) + 30, // Random score between 30-50
-        lastUpdated: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      }
+        lastUpdated: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      };
 
       // Calculate new trend
       /* updatedNpsData.trend = (updatedNpsData.currentScore - npsData.previousScore).toString()
       if (updatedNpsData.trend > 0) updatedNpsData.trend = "+" + updatedNpsData.trend */
 
-      setNpsData(updatedNpsData)
-      setIsLoading(false)
+      setNpsData(updatedNpsData);
+      setIsLoading(false);
 
       // Trigger chart animations after data update
       setTimeout(() => {
-        setAnimateCharts(true)
-      }, 300)
-    }, 1500)
-  }
+        setAnimateCharts(true);
+      }, 300);
+    }, 1500);
+  };
 
   // Handle time range menu
   const handleTimeRangeClick = (event) => {
-    setAnchorEl(event.currentTarget)
-  }
+    setAnchorEl(event.currentTarget);
+  };
 
   const handleTimeRangeClose = (range) => {
     if (range) {
-      setTimeRange(range)
+      setTimeRange(range);
       // Here you would fetch data for the selected time range
-      handleRefresh()
+      handleRefresh();
     }
-    setAnchorEl(null)
-  }
+    setAnchorEl(null);
+  };
 
   // Handle more menu
   const handleMenuClick = (event) => {
-    setMenuAnchorEl(event.currentTarget)
-  }
+    setMenuAnchorEl(event.currentTarget);
+  };
 
   const handleMenuClose = () => {
-    setMenuAnchorEl(null)
-  }
+    setMenuAnchorEl(null);
+  };
 
   // Handle tab change
   const handleTabChange = (event, newValue) => {
-    setTabValue(newValue)
-  }
+    setTabValue(newValue);
+  };
 
   // Trigger initial animation on mount
   useEffect(() => {
     setTimeout(() => {
-      setAnimateCharts(true)
-    }, 500)
-  }, [])
+      setAnimateCharts(true);
+    }, 500);
+  }, []);
 
   // NPS Score Card Component
   const NPSScoreCard = () => {
-    if (!npsData) return <CircularProgress />
+    if (!npsData) return <CircularProgress />;
     // Calculate the color based on NPS score
     const getScoreColor = (score) => {
-      if (score < 0) return "#d32f2f" // Red for negative
-      if (score < 30) return "#ff9800" // Orange for low
-      if (score < 50) return "#2196f3" // Blue for medium
-      return colors.greenAccent[500] // Green for high
-    }
+      if (score < 0) return "#d32f2f"; // Red for negative
+      if (score < 30) return "#ff9800"; // Orange for low
+      if (score < 50) return "#2196f3"; // Blue for medium
+      return colors.greenAccent[500]; // Green for high
+    };
 
-    const scoreColor = getScoreColor(npsData.nps_score)
+    const scoreColor = getScoreColor(npsData.nps_score);
 
     return (
       <Card
         sx={{
-          backgroundColor: theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
+          backgroundColor:
+            theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
           boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
           borderRadius: "16px",
           height: "100%",
@@ -346,7 +386,11 @@ const Dashboard = () => {
           }}
         />
         <CardContent sx={{ p: 3 }}>
-          <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
             <Typography variant="h6" color={colors.grey[100]} fontWeight="bold">
               Overall NPS Score
             </Typography>
@@ -399,13 +443,19 @@ const Dashboard = () => {
             <Grid item xs={4}>
               <Box textAlign="center">
                 <Box display="flex" alignItems="center" justifyContent="center">
-                  <ThumbUpAltIcon sx={{ color: colors.greenAccent[500], mr: 0.5 }} />
+                  <ThumbUpAltIcon
+                    sx={{ color: colors.greenAccent[500], mr: 0.5 }}
+                  />
                   <Typography variant="body2" color={colors.grey[100]}>
                     Promoters
                   </Typography>
                 </Box>
                 <Fade in={animateCharts} timeout={800}>
-                  <Typography variant="h5" fontWeight="bold" color={colors.greenAccent[500]}>
+                  <Typography
+                    variant="h5"
+                    fontWeight="bold"
+                    color={colors.greenAccent[500]}
+                  >
                     {npsData.promoters}
                   </Typography>
                 </Fade>
@@ -414,13 +464,19 @@ const Dashboard = () => {
             <Grid item xs={4}>
               <Box textAlign="center">
                 <Box display="flex" alignItems="center" justifyContent="center">
-                  <RemoveIcon sx={{ color: colors.purpleAccent[500], mr: 0.5 }} />
+                  <RemoveIcon
+                    sx={{ color: colors.purpleAccent[500], mr: 0.5 }}
+                  />
                   <Typography variant="body2" color={colors.grey[100]}>
                     Passives
                   </Typography>
                 </Box>
                 <Fade in={animateCharts} timeout={800}>
-                  <Typography variant="h5" fontWeight="bold" color={colors.purpleAccent[500]}>
+                  <Typography
+                    variant="h5"
+                    fontWeight="bold"
+                    color={colors.purpleAccent[500]}
+                  >
                     {npsData.passives}
                   </Typography>
                 </Fade>
@@ -429,13 +485,19 @@ const Dashboard = () => {
             <Grid item xs={4}>
               <Box textAlign="center">
                 <Box display="flex" alignItems="center" justifyContent="center">
-                  <ThumbDownAltIcon sx={{ color: colors.primary[500], mr: 0.5 }} />
+                  <ThumbDownAltIcon
+                    sx={{ color: colors.primary[500], mr: 0.5 }}
+                  />
                   <Typography variant="body2" color={colors.grey[100]}>
                     Detractors
                   </Typography>
                 </Box>
                 <Fade in={animateCharts} timeout={800}>
-                  <Typography variant="h5" fontWeight="bold" color={colors.primary[500]}>
+                  <Typography
+                    variant="h5"
+                    fontWeight="bold"
+                    color={colors.primary[500]}
+                  >
                     {npsData.detractors}
                   </Typography>
                 </Fade>
@@ -450,15 +512,16 @@ const Dashboard = () => {
           </Box>
         </CardContent>
       </Card>
-    )
-  }
+    );
+  };
 
   // Stat Card Component
   const StatCard = ({ title, value, icon, subtitle, color }) => {
     return (
       <Card
         sx={{
-          backgroundColor: theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
+          backgroundColor:
+            theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
           boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
           borderRadius: "16px",
           height: "100%",
@@ -470,9 +533,17 @@ const Dashboard = () => {
         }}
       >
         <CardContent sx={{ p: 3 }}>
-          <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
             <Box>
-              <Typography variant="h6" color={colors.grey[100]} fontWeight="bold">
+              <Typography
+                variant="h6"
+                color={colors.grey[100]}
+                fontWeight="bold"
+              >
                 {title}
               </Typography>
               <Fade in={animateCharts} timeout={800}>
@@ -512,8 +583,8 @@ const Dashboard = () => {
           </Box>
         </CardContent>
       </Card>
-    )
-  }
+    );
+  };
 
   // Chart options
   const lineOptions = {
@@ -529,10 +600,14 @@ const Dashboard = () => {
         },
       },
       tooltip: {
-        backgroundColor: theme.palette.mode === "dark" ? colors.primary[400] : "rgba(255, 255, 255, 0.9)",
+        backgroundColor:
+          theme.palette.mode === "dark"
+            ? colors.primary[400]
+            : "rgba(255, 255, 255, 0.9)",
         titleColor: theme.palette.mode === "dark" ? "#fff" : "#000",
         bodyColor: theme.palette.mode === "dark" ? "#fff" : "#000",
-        borderColor: theme.palette.mode === "dark" ? colors.primary[300] : "#e0e0e0",
+        borderColor:
+          theme.palette.mode === "dark" ? colors.primary[300] : "#e0e0e0",
         borderWidth: 1,
         padding: 12,
         boxPadding: 6,
@@ -550,12 +625,18 @@ const Dashboard = () => {
           stepSize: 20,
         },
         grid: {
-          color: theme.palette.mode === "dark" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)",
+          color:
+            theme.palette.mode === "dark"
+              ? "rgba(255, 255, 255, 0.1)"
+              : "rgba(0, 0, 0, 0.05)",
         },
       },
       x: {
         grid: {
-          color: theme.palette.mode === "dark" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)",
+          color:
+            theme.palette.mode === "dark"
+              ? "rgba(255, 255, 255, 0.1)"
+              : "rgba(0, 0, 0, 0.05)",
         },
       },
     },
@@ -572,7 +653,7 @@ const Dashboard = () => {
         hoverRadius: 6,
       },
     },
-  }
+  };
 
   const pieOptions = {
     responsive: true,
@@ -589,19 +670,23 @@ const Dashboard = () => {
         },
       },
       tooltip: {
-        backgroundColor: theme.palette.mode === "dark" ? colors.primary[400] : "rgba(255, 255, 255, 0.9)",
+        backgroundColor:
+          theme.palette.mode === "dark"
+            ? colors.primary[400]
+            : "rgba(255, 255, 255, 0.9)",
         titleColor: theme.palette.mode === "dark" ? "#fff" : "#000",
         bodyColor: theme.palette.mode === "dark" ? "#fff" : "#000",
-        borderColor: theme.palette.mode === "dark" ? colors.primary[300] : "#e0e0e0",
+        borderColor:
+          theme.palette.mode === "dark" ? colors.primary[300] : "#e0e0e0",
         borderWidth: 1,
         padding: 12,
         boxPadding: 6,
         usePointStyle: true,
         callbacks: {
           label: (context) => {
-            const label = context.label || ""
-            const value = context.parsed
-            return `${label}: ${value}%`
+            const label = context.label || "";
+            const value = context.parsed;
+            return `${label}: ${value}%`;
           },
         },
       },
@@ -613,7 +698,7 @@ const Dashboard = () => {
       duration: 2000,
       easing: "easeOutQuart",
     },
-  }
+  };
 
   const barOptions = {
     responsive: true,
@@ -628,10 +713,14 @@ const Dashboard = () => {
         },
       },
       tooltip: {
-        backgroundColor: theme.palette.mode === "dark" ? colors.primary[400] : "rgba(255, 255, 255, 0.9)",
+        backgroundColor:
+          theme.palette.mode === "dark"
+            ? colors.primary[400]
+            : "rgba(255, 255, 255, 0.9)",
         titleColor: theme.palette.mode === "dark" ? "#fff" : "#000",
         bodyColor: theme.palette.mode === "dark" ? "#fff" : "#000",
-        borderColor: theme.palette.mode === "dark" ? colors.primary[300] : "#e0e0e0",
+        borderColor:
+          theme.palette.mode === "dark" ? colors.primary[300] : "#e0e0e0",
         borderWidth: 1,
         padding: 12,
         boxPadding: 6,
@@ -646,7 +735,10 @@ const Dashboard = () => {
           stepSize: 20,
         },
         grid: {
-          color: theme.palette.mode === "dark" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)",
+          color:
+            theme.palette.mode === "dark"
+              ? "rgba(255, 255, 255, 0.1)"
+              : "rgba(0, 0, 0, 0.05)",
         },
       },
       x: {
@@ -661,7 +753,18 @@ const Dashboard = () => {
     },
     barPercentage: 0.7,
     categoryPercentage: 0.7,
-  }
+  };
+
+  // Dummy export handlers
+  const handleExcelExport = () => {
+    console.log("Exporting to Excel...");
+    // Implement Excel export logic here
+  };
+
+  const handlePdfExport = () => {
+    console.log("Exporting to PDF...");
+    // Implement PDF export logic here
+  };
 
   return (
     <Box m="20px">
@@ -672,11 +775,18 @@ const Dashboard = () => {
           p: 2,
           mb: 3,
           borderRadius: "16px",
-          backgroundColor: theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
+          backgroundColor:
+            theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
           boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
         }}
       >
-        <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2}>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          flexWrap="wrap"
+          gap={2}
+        >
           <Box display="flex" alignItems="center">
             <Typography
               variant="h2"
@@ -702,32 +812,10 @@ const Dashboard = () => {
               mt: { xs: 2, sm: 0 },
               width: { xs: "100%", sm: "auto" },
               justifyContent: { xs: "space-between", sm: "flex-end" },
+              position: "relative", // Add this
             }}
           >
-            {/* <Button
-              sx={{
-                backgroundColor: theme.palette.mode === "dark" ? colors.primary[400] : "#f5f5f5",
-                color: colors.grey[100],
-                fontSize: "14px",
-                fontWeight: "bold",
-                padding: { xs: "8px 15px", md: "10px 20px" },
-                borderRadius: "10px",
-                ml: { sm: 2 },
-                "&:hover": {
-                  backgroundColor: theme.palette.mode === "dark" ? colors.primary[300] : "#e0e0e0",
-                },
-              }}
-              onClick={handleTimeRangeClick}
-              startIcon={<DateRangeIcon />}
-            >
-              {timeRange === "week"
-                ? "This Week"
-                : timeRange === "month"
-                  ? "This Month"
-                  : timeRange === "quarter"
-                    ? "This Quarter"
-                    : "This Year"}
-            </Button> */}
+            {/* Time Range Menu (existing code) */}
             <Menu
               anchorEl={anchorEl}
               open={Boolean(anchorEl)}
@@ -741,12 +829,21 @@ const Dashboard = () => {
                 },
               }}
             >
-              <MenuItem onClick={() => handleTimeRangeClose("week")}>This Week</MenuItem>
-              <MenuItem onClick={() => handleTimeRangeClose("month")}>This Month</MenuItem>
-              <MenuItem onClick={() => handleTimeRangeClose("quarter")}>This Quarter</MenuItem>
-              <MenuItem onClick={() => handleTimeRangeClose("year")}>This Year</MenuItem>
+              <MenuItem onClick={() => handleTimeRangeClose("week")}>
+                This Week
+              </MenuItem>
+              <MenuItem onClick={() => handleTimeRangeClose("month")}>
+                This Month
+              </MenuItem>
+              <MenuItem onClick={() => handleTimeRangeClose("quarter")}>
+                This Quarter
+              </MenuItem>
+              <MenuItem onClick={() => handleTimeRangeClose("year")}>
+                This Year
+              </MenuItem>
             </Menu>
 
+            {/* Export Button */}
             <Button
               sx={{
                 backgroundColor: colors.primary[500],
@@ -763,13 +860,81 @@ const Dashboard = () => {
                 },
               }}
               startIcon={<DownloadOutlinedIcon />}
+              onClick={() => setShowExportOptions(!showExportOptions)} // Toggle options
             >
               Export Data
             </Button>
+
+            {/* Export Options (conditionally rendered) */}
+            {showExportOptions && (
+              <ClickAwayListener onClickAway={() => setShowExportOptions(false)}>
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "100%",
+                  right: 0,
+                  zIndex: 10,
+                  backgroundColor:
+                    theme.palette.mode === "dark"
+                      ? colors.primary[500]
+                      : "#fff",
+                  boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+                  borderRadius: "5px",
+                  mt: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <Button
+                  sx={{
+                    color:
+                      theme.palette.mode === "dark" ? "#fff" : colors.grey[900],
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    padding: "8px 15px",
+                    borderRadius: 0,
+                    borderBottom: `1px solid ${colors.grey[300]}`,
+                    "&:hover": {
+                      backgroundColor: colors.primary[600],
+                      color: "#fff",
+                    },
+                  }}
+                  onClick={handleExcelExport}
+                >
+                  Excel
+                </Button>
+                <Button
+                  sx={{
+                    color:
+                      theme.palette.mode === "dark" ? "#fff" : colors.grey[900],
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    padding: "8px 15px",
+                    borderRadius: 0,
+                    "&:hover": {
+                      backgroundColor: colors.primary[600],
+                      color: "#fff",
+                    },
+                  }}
+                  onClick={handlePdfExport}
+                >
+                  PDF
+                </Button>
+              </Box>
+              </ClickAwayListener>
+            )}
           </Box>
         </Box>
 
-        <Box sx={{ borderBottom: 1, borderColor: "divider", mt: 3, width: "100%", overflowX: "auto" }}>
+        <Box
+          sx={{
+            borderBottom: 1,
+            borderColor: "divider",
+            mt: 3,
+            width: "100%",
+            overflowX: "auto",
+          }}
+        >
           <Tabs
             value={tabValue}
             onChange={handleTabChange}
@@ -788,7 +953,10 @@ const Dashboard = () => {
               },
               "& .Mui-selected": {
                 color: colors.primary[500],
-                backgroundColor: theme.palette.mode === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)",
+                backgroundColor:
+                  theme.palette.mode === "dark"
+                    ? "rgba(255, 255, 255, 0.05)"
+                    : "rgba(0, 0, 0, 0.03)",
               },
               "& .MuiTabs-indicator": {
                 backgroundColor: colors.primary[500],
@@ -797,7 +965,11 @@ const Dashboard = () => {
               },
             }}
           >
-            <Tab label="Overview" icon={<TrendingUpIcon fontSize="small" />} iconPosition="start" />
+            <Tab
+              label="Overview"
+              icon={<TrendingUpIcon fontSize="small" />}
+              iconPosition="start"
+            />
           </Tabs>
         </Box>
       </Paper>
@@ -812,11 +984,17 @@ const Dashboard = () => {
               p: 3,
               borderRadius: "16px",
               mb: 3,
-              background: theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
+              background:
+                theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
               boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
             }}
           >
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              mb={2}
+            >
               <Typography variant="h5" fontWeight="bold">
                 Performance Summary
               </Typography>
@@ -865,7 +1043,9 @@ const Dashboard = () => {
                   title="DETRACTORS"
                   value={`${detractorsPercentage}%`}
                   subtitle="0-6 ratings"
-                  icon={<ThumbDownAltIcon sx={{ color: "#fff", fontSize: 24 }} />}
+                  icon={
+                    <ThumbDownAltIcon sx={{ color: "#fff", fontSize: 24 }} />
+                  }
                   color={colors.primary[500]} // Red
                 />
               </Grid>
@@ -907,7 +1087,10 @@ const Dashboard = () => {
               <Paper
                 elevation={0}
                 sx={{
-                  backgroundColor: theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
+                  backgroundColor:
+                    theme.palette.mode === "dark"
+                      ? colors.primary[400]
+                      : "#fff",
                   boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
                   borderRadius: "16px",
                   p: 3,
@@ -929,7 +1112,12 @@ const Dashboard = () => {
                     Response Distribution
                   </Typography>
                 </Box>
-                <Box height={{ xs: 250, sm: 300 }} display="flex" alignItems="center" justifyContent="center">
+                <Box
+                  height={{ xs: 250, sm: 300 }}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
                   <Doughnut
                     data={chartData.responseDistribution}
                     options={pieOptions}
@@ -942,7 +1130,10 @@ const Dashboard = () => {
               <Paper
                 elevation={0}
                 sx={{
-                  backgroundColor: theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
+                  backgroundColor:
+                    theme.palette.mode === "dark"
+                      ? colors.primary[400]
+                      : "#fff",
                   boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
                   borderRadius: "16px",
                   p: 3,
@@ -976,7 +1167,10 @@ const Dashboard = () => {
                             stepSize: 20,
                           },
                           grid: {
-                            color: theme.palette.mode === "dark" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)",
+                            color:
+                              theme.palette.mode === "dark"
+                                ? "rgba(255, 255, 255, 0.1)"
+                                : "rgba(0, 0, 0, 0.05)",
                           },
                         },
                         x: {
@@ -1028,7 +1222,8 @@ const Dashboard = () => {
         <Paper
           elevation={0}
           sx={{
-            backgroundColor: theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
+            backgroundColor:
+              theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
             boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
             borderRadius: "16px",
             p: 3,
@@ -1037,7 +1232,12 @@ const Dashboard = () => {
           <Typography variant="h5" fontWeight="bold" mb={3}>
             Response Analysis
           </Typography>
-          <Box display="flex" alignItems="center" justifyContent="center" height="300px">
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            height="300px"
+          >
             <Typography variant="body1" color={colors.grey[500]}>
               Response data and analysis will be displayed here.
             </Typography>
@@ -1050,7 +1250,8 @@ const Dashboard = () => {
         <Paper
           elevation={0}
           sx={{
-            backgroundColor: theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
+            backgroundColor:
+              theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
             boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
             borderRadius: "16px",
             p: 3,
@@ -1059,7 +1260,12 @@ const Dashboard = () => {
           <Typography variant="h5" fontWeight="bold" mb={3}>
             Segment Analysis
           </Typography>
-          <Box display="flex" alignItems="center" justifyContent="center" height="300px">
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            height="300px"
+          >
             <Typography variant="body1" color={colors.grey[500]}>
               Segment comparison data will be displayed here.
             </Typography>
@@ -1072,7 +1278,8 @@ const Dashboard = () => {
         <Paper
           elevation={0}
           sx={{
-            backgroundColor: theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
+            backgroundColor:
+              theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
             boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
             borderRadius: "16px",
             p: 3,
@@ -1081,7 +1288,12 @@ const Dashboard = () => {
           <Typography variant="h5" fontWeight="bold" mb={3}>
             Comment Analysis
           </Typography>
-          <Box display="flex" alignItems="center" justifyContent="center" height="300px">
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            height="300px"
+          >
             <Typography variant="body1" color={colors.grey[500]}>
               Customer comments and sentiment analysis will be displayed here.
             </Typography>
@@ -1089,7 +1301,7 @@ const Dashboard = () => {
         </Paper>
       )}
     </Box>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;

@@ -30,6 +30,7 @@ import Map from "./scenes/Map/map.jsx";
 import { StatusChart } from "./scenes/chart/StatusChart";
 import "./style.css";
 import Profile from "./scenes/profile";
+import Question_Chart from "./scenes/question_chart";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -80,6 +81,7 @@ function App() {
                   <Route path="/status" element={<StatusChart />} />
                   <Route path="/setting" element={<Settings />} />
                   <Route path="/profile" element={<Profile />} />
+                  <Route path="/question_chart" element={<Question_Chart />} />
                   {/* Admin-only route */}
                   <Route element={<AdminRoute />}>
                     <Route path="/admin-panel" element={<Admin />} />
