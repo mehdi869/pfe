@@ -1,10 +1,8 @@
  
 import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
 import { CssBaseline, ThemeProvider } from "@mui/material";
-import { ColorModeContext, useMode } from "./styles/theme"
 import { ThemeCustomizationContext, useMode } from "./styles/theme";
 import { useState } from "react"
-import { Outlet } from "react-router-dom"
 import { AuthProvider } from "./context/AuthContext"
 import ProtectedRoute from "./components/ProtectedRoute"
 import PublicRoute from "./components/PublicRoute"
@@ -25,15 +23,15 @@ import Register from "./pages/register/registerpages"
 import Dashboard from "./scenes/dashboard"
 import Topbar from "./scenes/global/Topbar"
 import Sidebar from "./scenes/global/Sidebar"
-import Team from "./scenes/team"
 import Invoices from "./scenes/invoices"
 import Contacts from "./scenes/contacts"
 import Form from "./scenes/form"
 import Calendar from "./scenes/calendar"
-import {Map} from "./scenes/Map/map.jsx"
+import Map from "./scenes/Map/map.jsx"
+import Admin from "./scenes/admin-panel/index.jsx"; // Import Admin component
 import './style.css'
-import { TopbarProvider, useTopbar, TOPBAR_HEIGHT } from "./context/TopbarContext"; // Import TopbarProvider and useTopbar
 import QuestionChart from "./scenes/chart/QuestionChart.jsx"; // Import QuestionChart
+import { TopbarProvider, useTopbar, TOPBAR_HEIGHT } from "./context/TopbarContext"; // Import TopbarProvider and useTopbar
 
 // Layout component that includes Sidebar and Topbar
 function AppLayout() {
@@ -83,6 +81,7 @@ function AppLayout() {
                     <Route path="/map" element={<Map />} />
                     <Route path="/invoices" element={<Invoices />} />
                     <Route path="/contacts" element={<Contacts />} />
+                    {/* <Route path="/question_chart" element={<Question_Chart />} /> */}
                     <Route path="/form" element={<Form />} />
                     <Route path="/calendar" element={<Calendar />} />
                     <Route path="/barChart" element={<StatusChart />} />
