@@ -33,6 +33,7 @@ import Calendar from "./scenes/calendar"
 import {Map} from "./scenes/Map/map.jsx"
 import './style.css'
 import { TopbarProvider, useTopbar, TOPBAR_HEIGHT } from "./context/TopbarContext"; // Import TopbarProvider and useTopbar
+import QuestionChart from "./scenes/chart/QuestionChart.jsx"; // Import QuestionChart
 
 // Layout component that includes Sidebar and Topbar
 function AppLayout() {
@@ -78,17 +79,17 @@ function AppLayout() {
                 </Route>
                 <Route element={<ProtectedRoute />}>
                   <Route element={<AppLayout />}> {/* Use the AppLayout */}
-                  <Route path="/Dashboard" element={<Dashboard />} />
-                  <Route path="/team" element={<Team />} />
-                  <Route path="/invoices" element={<Invoices />} />
-                  <Route path="/contacts" element={<Contacts />} />
-                  <Route path="/form" element={<Form />} />
-                  <Route path="/calendar" element={<Calendar />} />
-                  <Route path="/map" element={<Map />} />
-                  <Route path="/status" element={<StatusChart />} />
-                  <Route path='/nps' element = {<NpsChart/>}></Route>
-                  <Route path='/age' element = {<AgeChart/>}></Route>
-                <Route element={<AdminRoute />}>
+                    <Route path="/Dashboard" element={<Dashboard />} />
+                    <Route path="/map" element={<Map />} />
+                    <Route path="/invoices" element={<Invoices />} />
+                    <Route path="/contacts" element={<Contacts />} />
+                    <Route path="/form" element={<Form />} />
+                    <Route path="/calendar" element={<Calendar />} />
+                    <Route path="/barChart" element={<StatusChart />} />
+                    <Route path="/nps" element={<NpsChart />} />
+                    <Route path="/age" element={<AgeChart />} />
+                    <Route path="/status" element={<StatusChart />} />
+                    <Route element={<AdminRoute />}>
                       <Route path="/admin-panel" element={<Admin />} />
                     </Route>
                 </Route>

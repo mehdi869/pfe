@@ -1,25 +1,25 @@
 import { useState, useEffect, useContext } from "react"
-import { ProSidebar, Menu, MenuItem } from "react-pro-sidebar"
-import { Box, IconButton, Typography, useTheme, Avatar, Badge, useMediaQuery } from "@mui/material"
-import { Link, useLocation } from "react-router-dom"
-import "react-pro-sidebar/dist/css/styles.css"
-import { tokens } from "../../styles/theme"
-import { AuthContext } from "../../context/AuthContext"
+  import { ProSidebar, Menu, MenuItem } from "react-pro-sidebar"
+  import { Box, IconButton, Typography, useTheme, Avatar, Badge, useMediaQuery } from "@mui/material"
+  import { Link, useLocation } from "react-router-dom"
+  import "react-pro-sidebar/dist/css/styles.css"
+  import { tokens } from "../../styles/theme"
+  import { AuthContext } from "../../context/AuthContext"
 
-// Icons
-import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined"
-import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined"
-import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined"
-import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutlined"
-import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined"
-import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined"
-import MapOutlinedIcon from "@mui/icons-material/MapOutlined"
-import InsightsIcon from "@mui/icons-material/Insights"
-import FeedbackIcon from "@mui/icons-material/Feedback"
-import AccountCircleIcon from "@mui/icons-material/AccountCircle"
-import LogoutIcon from "@mui/icons-material/Logout"
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
-import ChevronRightIcon from "@mui/icons-material/ChevronRight"
+  // Icons
+  import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined"
+  import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined"
+  import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined"
+  import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutlined"
+  import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined"
+  import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined"
+  import MapOutlinedIcon from "@mui/icons-material/MapOutlined"
+  import InsightsIcon from "@mui/icons-material/Insights"
+  import FeedbackIcon from "@mui/icons-material/Feedback"
+  import AccountCircleIcon from "@mui/icons-material/AccountCircle"
+  import LogoutIcon from "@mui/icons-material/Logout"
+  import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
+  import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 
 const Item = ({ title, to, icon, selected, setSelected, badge }) => {
   const theme = useTheme()
@@ -260,45 +260,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
             icon={<InsightsIcon />}
             selected={selected}
             setSelected={setSelected}
-          />
-          {/*
-          <Item
-            title="Response Analysis"
-            to="/response-analysis"
-            icon={<AnalyticsIcon />}
-            selected={selected}
-            setSelected={setSelected}
-          />
-          <Item
-            title="Segmentation"
-            to="/segmentation"
-            icon={<GroupsIcon />}
-            selected={selected}
-            setSelected={setSelected}
-          />
-          <Item
-            title="Trends & Forecasting"
-            to="/trends"
-            icon={<TrendingUpIcon />}
-            selected={selected}
-            setSelected={setSelected}
-          />
-          <Item
-            title="Comment Analysis"
-            to="/comments"
-            icon={<CommentIcon />}
-            selected={selected}
-            setSelected={setSelected}
-            badge={5}
-          />
-          <Item
-            title="Benchmarks"
-            to="/benchmarks"
-            icon={<CompareIcon />}
-            selected={selected}
-            setSelected={setSelected}
-          />
-          */}     
+          />    
             {/* CHARTS */}
             <Typography
               variant="body2"
@@ -339,6 +301,13 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
               title="Pie Chart"
               to="/pie"
               icon={<PieChartOutlineOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Question Chart"
+              to="/question"
+              icon={<BarChartOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
             />
@@ -427,12 +396,13 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                   )}
                 </MenuItem>
               </Box>
-            </Box>
+            
           </Menu>
         </ProSidebar>
       </Box>
     </>
   )
 }
+
 
 export default Sidebar
