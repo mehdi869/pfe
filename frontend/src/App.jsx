@@ -84,6 +84,7 @@ function AppLayout() {
                     {/* <Route path="/question_chart" element={<Question_Chart />} /> */}
                     <Route path="/form" element={<Form />} />
                     <Route path="/calendar" element={<Calendar />} />
+                    <Route path="/survey" element={<SurveyChart/>}></Route>
                     <Route path="/barChart" element={<StatusChart />} />
                     <Route path="/nps" element={<NpsChart />} />
                     <Route path="/age" element={<AgeChart />} />

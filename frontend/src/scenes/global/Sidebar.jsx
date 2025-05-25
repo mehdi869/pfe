@@ -20,6 +20,7 @@ import { useState, useEffect, useContext } from "react"
   import LogoutIcon from "@mui/icons-material/Logout"
   import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
   import ChevronRightIcon from "@mui/icons-material/ChevronRight"
+import { Bar } from "react-chartjs-2"
 
 const Item = ({ title, to, icon, selected, setSelected, badge }) => {
   const theme = useTheme()
@@ -113,7 +114,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
     else if (path === "/status") setSelected("Status Chart")
     else if (path === "/nps") setSelected("NPS Chart")
     else if (path === "/age") setSelected("Age Chart")
-    else if (path === "/pie") setSelected("Pie Chart")
+    else if (path === "/survey") setSelected("Survey Chart")
     else if (path === "/status") setSelected("Line Chart") // Changed name to avoid duplication
     else if (path === "/question_chart") setSelected("Question Chart")
     else if (path === "/Map") setSelected("Geography Chart")
@@ -292,8 +293,8 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
               setSelected={setSelected}
             />
             <Item
-              title="Pie Chart"
-              to="/pie"
+              title="Survey Chart"
+              to="/survey"
               icon={<PieChartOutlineOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}

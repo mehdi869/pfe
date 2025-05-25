@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns = [
     path('nps/quick-stats', views.quick_stats),
-    path('data/', views.status),
+    path('status/', views.status),
     path('nps/', views.nps_score),
     path('age/',views.age_groupe),
    # path('city_pourcentage/',views.city_poursentage),

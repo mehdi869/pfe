@@ -1,6 +1,6 @@
-import { useState, useEffect, useContext } from "react"
+import React, { useState, useEffect, useContext } from "react"
+import { AuthContext } from "../../context/AuthContext"
 import { fetchStatus } from "../../API/api.js"
-import { AuthContext } from "../../context/AuthContext.jsx"
 import { Bar, Doughnut } from "react-chartjs-2"
 import { XCircle, Lightbulb, CheckCircle, Users } from "lucide-react"
 import {
@@ -17,7 +17,7 @@ import {
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement)
 
 export const StatusChart = () => {
-  const authContext = useContext(AuthContext)
+  const authContext = useContext(AuthContext)           // ← get the context
   const [data, setData] = useState({
     list: [],
     count: 0,
@@ -29,13 +29,14 @@ export const StatusChart = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetchStatus(authContext)
+        // fetchStatus returns the already‐parsed JSON payload
+        const payload = await fetchStatus(authContext)
         setData({
-          list: response.list || [],
-          count: response.count || 0,
-          null: response.null || 0,
-          somme: response.somme || 0,
-          list_status: response.list_status || [],
+          list:        payload.list        || [],
+          count:       payload.count       || 0,
+          null:        payload.null        || 0,
+          somme:       payload.somme       || 0,
+          list_status: payload.list_status || [],
         })
       } catch (error) {
         console.error("Erreur lors de la récupération des données :", error)
