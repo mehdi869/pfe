@@ -25,6 +25,12 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { useTheme } from "@mui/material";
 import { tokens } from "../../styles/theme";
+import CommentIcon from "@mui/icons-material/Comment";
+import BallotIcon from "@mui/icons-material/Ballot";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import RuleIcon from "@mui/icons-material/Rule";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import ScaleIcon from "@mui/icons-material/Scale";
 
 ChartJS.register(
   CategoryScale,
@@ -134,15 +140,46 @@ const QuestionChart = () => {
   // Include ALL cards, including "EXPIRATION Responses"
   const cards = [
     {
-      icon: <FileText className="w-10 h-10 text-blue-600" />,
+      icon: <FileText className="w-10 h-10 text-blue-600" />, // Total Responses: blue
       value: total_responses,
       label: "Total Responses",
     },
-    ...question_types.labels.map((label, index) => ({
-      icon: getIcon(label),
-      value: question_types.counts[index],
-      label: `${label} Responses`,
-    })),
+    {
+      icon: <CommentIcon sx={{ fontSize: 40, color: "#e53935" }} />, // red
+      value: question_types.counts[0],
+      label: `${question_types.labels[0]} Responses`,
+    },
+    {
+      icon: <BallotIcon sx={{ fontSize: 40, color: "#2563eb" }} />, // blue
+      value: question_types.counts[1],
+      label: `${question_types.labels[1]} Responses`,
+    },
+    {
+      icon: <AccessTimeIcon sx={{ fontSize: 40, color: "#f59e42" }} />, // orange
+      value: question_types.counts[2],
+      label: `${question_types.labels[2]} Responses`,
+    },
+    {
+      icon: <RuleIcon sx={{ fontSize: 40, color: "#16a34a" }} />, // green
+      value: question_types.counts[3],
+      label: `${question_types.labels[3]} Responses`,
+    },
+    {
+      icon: (
+        <ChatBubbleOutlineIcon
+          sx={{ fontSize: 40, color: "#9333ea" }} // purple
+          className="text-gray-600"
+        />
+      ),
+      value: question_types.counts[4],
+      label: `${question_types.labels[4]} Responses`,
+    },
+    {
+      icon: <ScaleIcon sx={{ fontSize: 40, color: "#f59e42" }} />, // orange
+      value: question_types.counts[5],
+      label: `${question_types.labels[5]} Responses`,
+    },
+    // Add more if you have more question_types
   ];
 
   const handleExport = () => {
@@ -209,7 +246,7 @@ const QuestionChart = () => {
           if (yesNoIndex !== -1) {
             return (
               <div className="bg-white shadow-md rounded-xl p-4 flex items-center">
-                <HelpCircle className="w-8 h-8 text-gray-600" />
+                <RuleIcon sx={{ fontSize: 40, color: "#16a34a" }} />
                 <div className="ml-4">
                   <p className="text-xl font-semibold text-gray-900">
                     {question_types.counts[yesNoIndex]}
