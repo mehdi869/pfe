@@ -2,7 +2,6 @@ import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-
 /**
  * Store chart data in localStorage
  * @param {string} key
@@ -42,12 +41,23 @@ export function exportToExcel({
   sheetName = "Sheet1",
   fileName = "data.xlsx",
 }) {
-  const ws = XLSX.utils.json_to_sheet(rows);
+  // Ajoute une ligne de date en haut
+  const dateStr = new Date().toLocaleString();
+  const dateRow = {
+    [Object.keys(rows[0] || { Date: "" })[0]]: `Downloaded: ${dateStr}`,
+  };
+
+  // Décale les données d'une ligne vers le bas
+  const rowsWithDate = [dateRow, ...rows];
+
+  const ws = XLSX.utils.json_to_sheet(rowsWithDate, { skipHeader: true });
+  // Ajoute les en-têtes à la deuxième ligne
+  XLSX.utils.sheet_add_json(ws, rows, { origin: "A2", skipHeader: false });
+
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, sheetName);
   XLSX.writeFile(wb, fileName);
 }
-
 
 /**
  * Export chart data to PDF
@@ -55,14 +65,25 @@ export function exportToExcel({
  * @param {string} title - Title for the PDF
  * @param {string} fileName - Name of the PDF file
  */
-export function exportChartDataToPdf({ rows, title = "Chart Data", fileName = "chart_data.pdf" }) {
+export function exportChartDataToPdf({
+  rows,
+  title = "Chart Data",
+  fileName = "chart_data.pdf",
+}) {
   const doc = new jsPDF();
   doc.setFontSize(16);
   doc.text(title, 14, 18);
 
+  // Ajoute la date en haut à droite
+  const dateStr = new Date().toLocaleString();
+  doc.setFontSize(10);
+  doc.text(dateStr, doc.internal.pageSize.getWidth() - 14, 18, {
+    align: "right",
+  });
+
   // Get columns from keys of first row
   const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
-  const data = rows.map(row => columns.map(col => row[col]));
+  const data = rows.map((row) => columns.map((col) => row[col]));
 
   autoTable(doc, {
     head: [columns],

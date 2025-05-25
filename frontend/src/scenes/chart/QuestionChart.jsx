@@ -18,7 +18,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { exportToExcel } from "../../utils/utils";
+import { exportToExcel, exportChartDataToPdf } from "../../utils/utils";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
@@ -163,75 +163,29 @@ const QuestionChart = () => {
   };
 
   const handlePdfExport = () => {
-    // You need to implement this if you want PDF export, for now just show an alert or leave empty
-    alert("PDF export not implemented yet.");
-  };
+    const rows = question_types.labels.map((label, i) => ({
+      "Question Type": label,
+      "Number of Responses": question_types.counts[i],
+    }));
 
-  const ExportButton = ({ handleExcelExport, handlePdfExport }) => {
-    const [anchorEl, setAnchorEl] = useState(null);
-
-    const handleClick = (event) => {
-      setAnchorEl(event.currentTarget);
-    };
-
-    const handleClose = () => {
-      setAnchorEl(null);
-    };
-
-    return (
-      <div>
-        <Button
-          aria-controls="export-menu"
-          aria-haspopup="true"
-          onClick={handleClick}
-          variant="contained"
-          sx={{
-            backgroundColor: "#e53935",
-            color: "#fff",
-            fontWeight: "bold",
-            borderRadius: "10px",
-            boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
-            "&:hover": {
-              backgroundColor: "#b71c1c",
-            },
-          }}
-          startIcon={<DownloadOutlinedIcon />}
-        >
-          Export Data
-        </Button>
-        <Menu
-          id="export-menu"
-          anchorEl={anchorEl}
-          keepMounted
-          open={Boolean(anchorEl)}
-          onClose={handleClose}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          transformOrigin={{ vertical: "top", horizontal: "right" }}
-        >
-          <MenuItem
-            onClick={() => {
-              handleExcelExport();
-              handleClose();
-            }}
-          >
-            Excel
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              handlePdfExport();
-              handleClose();
-            }}
-          >
-            PDF
-          </MenuItem>
-        </Menu>
-      </div>
-    );
+    exportChartDataToPdf({
+      rows,
+      title: "Question Chart Data",
+      fileName: "question_chart_data.pdf",
+    });
   };
 
   return (
-    <div className="grid grid-rows-[15%_1fr] h-screen p-4">
-      {/* Ligne du haut : 4 premières cards */}
+    <div className="h-screen p-4 flex flex-col">
+      {/* Export Data button align right */}
+      <div className="flex justify-end mb-4">
+        <ExportButton
+          handleExcelExport={handleExcelExport}
+          handlePdfExport={handlePdfExport}
+        />
+      </div>
+
+      {/* Ligne du haut : 4 premières cards + "yes_no responses" à la place de l'ancien bouton */}
       <div className="grid grid-cols-5 gap-4 w-full mb-6">
         {cards.slice(0, 4).map((item, i) => (
           <div
@@ -247,14 +201,29 @@ const QuestionChart = () => {
             </div>
           </div>
         ))}
-        {/* Ligne du haut : Export Data à droite */}
-        <div className="flex justify-end mb-6">
-          <ExportButton
-            handleExcelExport={handleExcelExport}
-            handlePdfExport={handlePdfExport}
-          />
-        </div>
-        <div />
+        {/* Remplace la card vide par la card "yes_no responses" */}
+        {(() => {
+          const yesNoIndex = question_types.labels.findIndex(
+            (label) => label.toLowerCase() === "yes_no"
+          );
+          if (yesNoIndex !== -1) {
+            return (
+              <div className="bg-white shadow-md rounded-xl p-4 flex items-center">
+                <HelpCircle className="w-8 h-8 text-gray-600" />
+                <div className="ml-4">
+                  <p className="text-xl font-semibold text-gray-900">
+                    {question_types.counts[yesNoIndex]}
+                  </p>
+                  <p className="text-sm text-gray-500">yes_no responses</p>
+                </div>
+              </div>
+            );
+          }
+          // Si pas de "yes_no", affiche une card vide
+          return (
+            <div className="bg-white shadow-md rounded-xl p-4 flex items-center justify-center" />
+          );
+        })()}
       </div>
 
       {/* Chart + 2 dernières cards à droite */}
@@ -263,7 +232,7 @@ const QuestionChart = () => {
           <Bar data={barchart} options={options} />
         </div>
         <div className="flex flex-col justify-start gap-4 ml-4">
-          {cards.slice(4).map((item, i) => (
+          {cards.slice(5).map((item, i) => (
             <div
               key={i}
               className="bg-white shadow-md rounded-xl p-4 flex items-center"
@@ -279,6 +248,61 @@ const QuestionChart = () => {
           ))}
         </div>
       </div>
+    </div>
+  );
+};
+
+export const ExportButton = ({ handleExcelExport, handlePdfExport }) => {
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleClick = (event) => setAnchorEl(event.currentTarget);
+  const handleClose = () => setAnchorEl(null);
+
+  return (
+    <div>
+      <Button
+        aria-controls="export-menu"
+        aria-haspopup="true"
+        onClick={handleClick}
+        variant="contained"
+        sx={{
+          backgroundColor: "#e53935",
+          color: "#fff",
+          fontWeight: "bold",
+          borderRadius: "10px",
+          boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
+          "&:hover": { backgroundColor: "#b71c1c" },
+        }}
+        startIcon={<DownloadOutlinedIcon />}
+      >
+        Export Data
+      </Button>
+      <Menu
+        id="export-menu"
+        anchorEl={anchorEl}
+        keepMounted
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <MenuItem
+          onClick={() => {
+            handleExcelExport();
+            handleClose();
+          }}
+        >
+          Excel
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            handlePdfExport();
+            handleClose();
+          }}
+        >
+          PDF
+        </MenuItem>
+      </Menu>
     </div>
   );
 };
