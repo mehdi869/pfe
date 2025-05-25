@@ -1,5 +1,13 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { Box, CircularProgress, Alert, Paper, Typography, Chip, useTheme } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  Alert,
+  Paper,
+  Typography,
+  Chip,
+  useTheme,
+} from "@mui/material";
 import CityBubbleMap from "./CityBubbleMap";
 import RegionStatsList from "./RegionStatsList";
 import MapControlsPanel from "./MapControlsPanel";
@@ -7,11 +15,17 @@ import MapLegendDisplay from "./MapLegendDisplay";
 import AnalysisInsights from "./AnalysisInsights";
 import { fetchGeoNpsStats } from "../../API/api";
 import cityLocationsRawData from "../../data/cityLocations.json";
-import { getNpsColor, npsCategories, scoreIsInNpsCategory } from "../../utils/mapUtils"; // Updated imports
+import {
+  getNpsColor,
+  npsCategories,
+  scoreIsInNpsCategory,
+} from "../../utils/mapUtils"; // Updated imports
 import { tokens } from "../../styles/theme";
 import { mapDefaultCenter, mapDefaultZoom } from "../../constants/mapConfig";
 import "../../styles/map.css";
 import { useTopbar } from "../../context/TopbarContext"; // Import useTopbar
+import { ExportButton } from "../chart/QuestionChart";
+import { exportToExcel, exportChartDataToPdf } from "../../utils/utils";
 
 const AUTO_COLLAPSE_DELAY = 3000; // 3 seconds
 const MOUSE_REVEAL_THRESHOLD_TOP = 50; // Pixels from top to reveal Topbar
@@ -19,10 +33,16 @@ const MOUSE_HIDE_THRESHOLD_OFFSET = 30; // Extra pixels to move mouse down befor
 
 // Helper function to calculate NPS score (remains the same)
 const calculateNpsScore = (promoters, detractors, total_responses) => {
-  if (total_responses === 0 || typeof promoters !== 'number' || typeof detractors !== 'number' || typeof total_responses !== 'number') {
+  if (
+    total_responses === 0 ||
+    typeof promoters !== "number" ||
+    typeof detractors !== "number" ||
+    typeof total_responses !== "number"
+  ) {
     return null;
   }
-  const nps = ((promoters / total_responses) * 100) - ((detractors / total_responses) * 100);
+  const nps =
+    (promoters / total_responses) * 100 - (detractors / total_responses) * 100;
   return parseFloat(nps.toFixed(2));
 };
 
@@ -36,49 +56,69 @@ const Map = () => {
   // const [npsRange, setNpsRange] = useState([-100, 100]); // Removed
   const [minResponses, setMinResponses] = useState(0);
   const [maxResponses, setMaxResponses] = useState(Infinity); // New state for max responses
-  const [selectedNpsCategoryIds, setSelectedNpsCategoryIds] = useState(() => npsCategories.map(cat => cat.id)); // New state, all selected by default
+  const [selectedNpsCategoryIds, setSelectedNpsCategoryIds] = useState(() =>
+    npsCategories.map((cat) => cat.id)
+  ); // New state, all selected by default
 
-  const { setTopbarConfig, toggleTopbar, isTopbarExternallyControlled, isTopbarCollapsed } = useTopbar();
+  const {
+    setTopbarConfig,
+    toggleTopbar,
+    isTopbarExternallyControlled,
+    isTopbarCollapsed,
+  } = useTopbar();
 
   const isValidRawGeoNpsApiData = useCallback((data) => {
     // Validates the structure of raw data needed for processing
     const isValidItem = (item) =>
       item &&
-      typeof item.name === 'string' &&
-      item.hasOwnProperty('promoters') &&
-      item.hasOwnProperty('detractors') &&
-      item.hasOwnProperty('total_responses');
+      typeof item.name === "string" &&
+      item.hasOwnProperty("promoters") &&
+      item.hasOwnProperty("detractors") &&
+      item.hasOwnProperty("total_responses");
 
-    return data &&
-           typeof data === "object" &&
-           Array.isArray(data.cities) &&
-           Array.isArray(data.regions) &&
-           data.cities.every(isValidItem) &&
-           data.regions.every(isValidItem);
+    return (
+      data &&
+      typeof data === "object" &&
+      Array.isArray(data.cities) &&
+      Array.isArray(data.regions) &&
+      data.cities.every(isValidItem) &&
+      data.regions.every(isValidItem)
+    );
   }, []);
 
-  const processApiData = useCallback((rawData) => {
-    if (!isValidRawGeoNpsApiData(rawData)) {
-      console.warn("Invalid raw data structure for processing.", rawData);
-      return { cities: [], regions: [] };
-    }
-    return {
-      cities: rawData.cities.map(city => ({
-        ...city,
-        avg_nps: calculateNpsScore(city.promoters, city.detractors, city.total_responses),
-      })),
-      regions: rawData.regions.map(region => ({
-        ...region,
-        avg_nps: calculateNpsScore(region.promoters, region.detractors, region.total_responses),
-      })),
-    };
-  }, [isValidRawGeoNpsApiData]);
+  const processApiData = useCallback(
+    (rawData) => {
+      if (!isValidRawGeoNpsApiData(rawData)) {
+        console.warn("Invalid raw data structure for processing.", rawData);
+        return { cities: [], regions: [] };
+      }
+      return {
+        cities: rawData.cities.map((city) => ({
+          ...city,
+          avg_nps: calculateNpsScore(
+            city.promoters,
+            city.detractors,
+            city.total_responses
+          ),
+        })),
+        regions: rawData.regions.map((region) => ({
+          ...region,
+          avg_nps: calculateNpsScore(
+            region.promoters,
+            region.detractors,
+            region.total_responses
+          ),
+        })),
+      };
+    },
+    [isValidRawGeoNpsApiData]
+  );
 
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
       setError(null);
-      const cacheKey = "geoNpsMapRawApiData_v1"; 
+      const cacheKey = "geoNpsMapRawApiData_v1";
 
       try {
         let rawApiDataToProcess;
@@ -90,11 +130,16 @@ const Map = () => {
             if (isValidRawGeoNpsApiData(parsedRawCachedData)) {
               rawApiDataToProcess = parsedRawCachedData;
             } else {
-              console.warn("Cached raw GeoNPS data is invalid, removing from cache.");
+              console.warn(
+                "Cached raw GeoNPS data is invalid, removing from cache."
+              );
               localStorage.removeItem(cacheKey);
             }
           } catch (e) {
-            console.warn("Failed to parse cached raw GeoNPS data, fetching new.", e);
+            console.warn(
+              "Failed to parse cached raw GeoNPS data, fetching new.",
+              e
+            );
             localStorage.removeItem(cacheKey);
           }
         }
@@ -108,13 +153,15 @@ const Map = () => {
             throw new Error("Fetched raw GeoNPS data structure is invalid.");
           }
         }
-        
+
         const processedData = processApiData(rawApiDataToProcess);
         setNpsStats(processedData);
       } catch (err) {
         console.error("Error loading NPS geo stats:", err);
-        setError(err.message || "An unknown error occurred while fetching map data.");
-        setNpsStats({ cities: [], regions: [] }); 
+        setError(
+          err.message || "An unknown error occurred while fetching map data."
+        );
+        setNpsStats({ cities: [], regions: [] });
       } finally {
         setLoading(false);
       }
@@ -123,7 +170,12 @@ const Map = () => {
   }, [isValidRawGeoNpsApiData, processApiData]);
 
   const mergedCityData = useMemo(() => {
-    if (!npsStats.cities || !npsStats.cities.length || !cityLocationsRawData.length) return [];
+    if (
+      !npsStats.cities ||
+      !npsStats.cities.length ||
+      !cityLocationsRawData.length
+    )
+      return [];
     return cityLocationsRawData
       .map((location) => {
         const lat = Number.parseFloat(location.Latitude);
@@ -154,20 +206,23 @@ const Map = () => {
 
       // NPS Category Filter
       let npsCategoryMatch = false;
-      if (selectedNpsCategoryIds.length === 0) { // Show none if no categories selected
+      if (selectedNpsCategoryIds.length === 0) {
+        // Show none if no categories selected
         npsCategoryMatch = false;
-      } else if (selectedNpsCategoryIds.length === npsCategories.length) { // Show all if all categories selected
+      } else if (selectedNpsCategoryIds.length === npsCategories.length) {
+        // Show all if all categories selected
         npsCategoryMatch = true;
       } else {
-        npsCategoryMatch = selectedNpsCategoryIds.some(categoryId => {
-          const category = npsCategories.find(cat => cat.id === categoryId);
+        npsCategoryMatch = selectedNpsCategoryIds.some((categoryId) => {
+          const category = npsCategories.find((cat) => cat.id === categoryId);
           return category ? scoreIsInNpsCategory(nps, category) : false;
         });
       }
-      
+
       // Response Range Filter
-      const responsesMeetCriteria = responses >= minResponses && responses <= maxResponses;
-      
+      const responsesMeetCriteria =
+        responses >= minResponses && responses <= maxResponses;
+
       return npsCategoryMatch && responsesMeetCriteria;
     });
   }, [mergedCityData, selectedNpsCategoryIds, minResponses, maxResponses]);
@@ -185,14 +240,15 @@ const Map = () => {
       } else if (selectedNpsCategoryIds.length === npsCategories.length) {
         npsCategoryMatch = true;
       } else {
-        npsCategoryMatch = selectedNpsCategoryIds.some(categoryId => {
-          const category = npsCategories.find(cat => cat.id === categoryId);
+        npsCategoryMatch = selectedNpsCategoryIds.some((categoryId) => {
+          const category = npsCategories.find((cat) => cat.id === categoryId);
           return category ? scoreIsInNpsCategory(nps, category) : false;
         });
       }
 
       // Response Range Filter
-      const responsesMeetCriteria = responses >= minResponses && responses <= maxResponses;
+      const responsesMeetCriteria =
+        responses >= minResponses && responses <= maxResponses;
 
       return npsCategoryMatch && responsesMeetCriteria;
     });
@@ -202,11 +258,23 @@ const Map = () => {
     return {
       cityCount: filteredCityData.length,
       regionCount: filteredRegionData.length,
-      totalResponses: filteredCityData.reduce((sum, city) => sum + city.total_responses, 0),
+      totalResponses: filteredCityData.reduce(
+        (sum, city) => sum + city.total_responses,
+        0
+      ),
       avgNps:
         filteredCityData.length > 0
-          ? filteredCityData.reduce((sum, city) => sum + (city.avg_nps || 0) * city.total_responses, 0) /
-            Math.max(1, filteredCityData.reduce((sum, city) => sum + city.total_responses, 0))
+          ? filteredCityData.reduce(
+              (sum, city) => sum + (city.avg_nps || 0) * city.total_responses,
+              0
+            ) /
+            Math.max(
+              1,
+              filteredCityData.reduce(
+                (sum, city) => sum + city.total_responses,
+                0
+              )
+            )
           : null,
     };
   }, [filteredCityData, filteredRegionData]);
@@ -235,14 +303,46 @@ const Map = () => {
   }, []);
 
   const handleNpsCategoryChange = useCallback((categoryId) => {
-    setSelectedNpsCategoryIds(prevSelectedIds => {
+    setSelectedNpsCategoryIds((prevSelectedIds) => {
       const newSelectedIds = prevSelectedIds.includes(categoryId)
-        ? prevSelectedIds.filter(id => id !== categoryId)
+        ? prevSelectedIds.filter((id) => id !== categoryId)
         : [...prevSelectedIds, categoryId];
       return newSelectedIds;
     });
   }, []);
 
+  const handleExport = () => {
+    // Exemple : export des villes filtrées avec NPS et réponses
+    const rows = filteredCityData.map((city) => ({
+      City: city.name,
+      "Average NPS": city.avg_nps,
+      "Total Responses": city.total_responses,
+      Promoters: city.promoters,
+      Detractors: city.detractors,
+      Passives: city.passives,
+    }));
+    exportToExcel({
+      rows,
+      sheetName: "MapCities",
+      fileName: "map_cities_data.xlsx",
+    });
+  };
+  const handleExcelExport = () => handleExport();
+  const handlePdfExport = () => {
+    const rows = filteredCityData.map((city) => ({
+      City: city.name,
+      "Average NPS": city.avg_nps,
+      "Total Responses": city.total_responses,
+      Promoters: city.promoters,
+      Detractors: city.detractors,
+      Passives: city.passives,
+    }));
+    exportChartDataToPdf({
+      rows,
+      title: "Map Cities Data",
+      fileName: "map_cities_data.pdf",
+    });
+  };
 
   if (loading) {
     return (
@@ -280,7 +380,8 @@ const Map = () => {
   }
 
   return (
-    <Box sx={{
+    <Box
+      sx={{
         display: "flex",
         flexDirection: "column",
         height: "calc(100vh - 84px)", // Adjust based on your navbar/header height
@@ -293,35 +394,36 @@ const Map = () => {
     >
       <Paper
         sx={{
-          p: 1.5, // Reduced padding
+          p: 1.5,
           backgroundColor: theme.palette.background.paper,
           color: theme.palette.text.primary,
           display: "flex",
           justifyContent: "space-between",
           flexWrap: "wrap",
-          boxShadow: "0 1px 5px rgba(0,0,0,0.07)", // Softer shadow
+          boxShadow: "0 1px 5px rgba(0,0,0,0.07)",
+          alignItems: "center", // Ajouté pour aligner verticalement
         }}
       >
         <Typography
           variant="subtitle1"
           sx={{
-            fontSize: "1rem", // Reduced font size
+            fontSize: "1rem",
             display: "flex",
             alignItems: "center",
-            minHeight: "36px", // Reduced min height
+            minHeight: "36px",
             color: theme.palette.text.primary,
           }}
         >
           Showing:{" "}
           <Chip
             label={`${filteredStats.cityCount} Cities`}
-            size="small" // Changed to small
+            size="small"
             sx={{
-              ml: 1, // Reduced margin
+              ml: 1,
               backgroundColor: themeColors.primary[500],
               color: "white",
-              fontSize: "0.85rem", // Reduced font size
-              height: "28px", // Reduced height
+              fontSize: "0.85rem",
+              height: "28px",
             }}
           />
         </Typography>
@@ -329,66 +431,79 @@ const Map = () => {
         <Typography
           variant="subtitle1"
           sx={{
-            fontSize: "1rem", // Reduced font size
+            fontSize: "1rem",
             display: "flex",
             alignItems: "center",
-            minHeight: "36px", // Reduced min height
+            minHeight: "36px",
             color: theme.palette.text.primary,
           }}
         >
           Total Responses:{" "}
           <Chip
             label={filteredStats.totalResponses.toLocaleString()}
-            size="small" // Changed to small
+            size="small"
             sx={{
-              ml: 1, // Reduced margin
+              ml: 1,
               backgroundColor: themeColors.blueAccent[500],
               color: "white",
-              fontSize: "0.85rem", // Reduced font size
-              height: "28px", // Reduced height
+              fontSize: "0.85rem",
+              height: "28px",
             }}
           />
         </Typography>
 
-        <Typography
-          variant="subtitle1"
-          sx={{
-            fontSize: "1rem", // Reduced font size
-            display: "flex",
-            alignItems: "center",
-            minHeight: "36px", // Reduced min height
-            color: theme.palette.text.primary,
-          }}
-        >
-          Average NPS:{" "}
-          <Chip
-            label={filteredStats.avgNps !== null ? filteredStats.avgNps.toFixed(1) : "N/A"}
-            size="small" // Changed to small
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Typography
+            variant="subtitle1"
             sx={{
-              ml: 1, // Reduced margin
-              backgroundColor: getNpsColor(filteredStats.avgNps, themeColors),
-              color: "white",
-              fontSize: "0.85rem", // Reduced font size
-              fontWeight: "bold",
-              height: "28px", // Reduced height
+              fontSize: "1rem",
+              display: "flex",
+              alignItems: "center",
+              minHeight: "36px",
+              color: theme.palette.text.primary,
             }}
-          />
-        </Typography>
+          >
+            Average NPS:{" "}
+            <Chip
+              label={
+                filteredStats.avgNps !== null
+                  ? filteredStats.avgNps.toFixed(1)
+                  : "N/A"
+              }
+              size="small"
+              sx={{
+                ml: 1,
+                backgroundColor: getNpsColor(filteredStats.avgNps, themeColors),
+                color: "white",
+                fontSize: "0.85rem",
+                fontWeight: "bold",
+                height: "28px",
+              }}
+            />
+          </Typography>
+          <Box sx={{ ml: 2 }}>
+            <ExportButton
+              handleExcelExport={handleExcelExport}
+              handlePdfExport={handlePdfExport}
+            />
+          </Box>
+        </Box>
       </Paper>
 
-      <Box sx={{ 
-          display: "flex", 
-          flex: 1, 
-          gap: 1.5, // Reduced gap 
+      <Box
+        sx={{
+          display: "flex",
+          flex: 1,
+          gap: 1.5, // Reduced gap
           overflow: "hidden",
-          flexDirection: { xs: 'column', lg: 'row' } // Responsive direction
+          flexDirection: { xs: "column", lg: "row" }, // Responsive direction
         }}
       >
         <Box
           sx={{
             flexGrow: 1,
-            height: { xs: 'calc(55vh - 32px - 12px)', lg: '100%' }, // Adjusted for responsiveness
-            width: { xs: '100%', lg: 'auto' },
+            height: { xs: "calc(55vh - 32px - 12px)", lg: "100%" }, // Adjusted for responsiveness
+            width: { xs: "100%", lg: "auto" },
             borderRadius: "4px",
             overflow: "hidden",
             border: `1px solid ${themeColors.grey[300]}`,
@@ -413,15 +528,16 @@ const Map = () => {
           )}
         </Box>
 
-        <Box sx={{ 
-            width: { xs: '100%', lg: '290px' }, // Reduced width and responsive
-            display: "flex", 
-            flexDirection: "column", 
+        <Box
+          sx={{
+            width: { xs: "100%", lg: "290px" }, // Reduced width and responsive
+            display: "flex",
+            flexDirection: "column",
             gap: 1.5, // Reduced gap
-            p: 0, 
+            p: 0,
             overflowY: "auto",
-            height: { xs: 'auto', lg: '100%' }, // Adjusted for responsiveness
-            maxHeight: { xs: 'calc(45vh - 32px - 12px)', lg: 'none'} // Max height on small screens
+            height: { xs: "auto", lg: "100%" }, // Adjusted for responsiveness
+            maxHeight: { xs: "calc(45vh - 32px - 12px)", lg: "none" }, // Max height on small screens
           }}
         >
           <MapControlsPanel

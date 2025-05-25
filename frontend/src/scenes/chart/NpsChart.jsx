@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { fetchNpsScore } from "../../API/api.js";
-import { Bar } from 'react-chartjs-2';
-import { Boxes, Frown, Meh, Smile, HelpCircle } from 'lucide-react';
+import { Bar } from "react-chartjs-2";
+import { Boxes, Frown, Meh, Smile, HelpCircle } from "lucide-react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -9,8 +9,10 @@ import {
   BarElement,
   Title,
   Tooltip,
-  Legend
-} from 'chart.js';
+  Legend,
+} from "chart.js";
+import { ExportButton } from "./QuestionChart";
+import { exportToExcel, exportChartDataToPdf } from "../../utils/utils";
 
 ChartJS.register(
   CategoryScale,
@@ -32,13 +34,13 @@ export const NpsChart = () => {
       try {
         const response = await fetchNpsScore();
         if (!response.ok || response.status !== 200) {
-          throw new Error('Erreur dans la réponse du serveur');
+          throw new Error("Erreur dans la réponse du serveur");
         }
         const dataResponse = await response.json();
         setData(dataResponse);
         localStorage.setItem("npsData", JSON.stringify(dataResponse));
       } catch (error) {
-        console.error('Erreur de connexion front-back:', error.message);
+        console.error("Erreur de connexion front-back:", error.message);
       }
     };
 
@@ -55,10 +57,10 @@ export const NpsChart = () => {
     labels: entries.slice(1, 5).map(([key]) => key),
     datasets: [
       {
-        label: 'NPS Score',
+        label: "NPS Score",
         data: entries.slice(1, 5).map(([_, value]) => value),
-        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: "rgba(75, 192, 192, 0.6)",
+        borderColor: "rgba(75, 192, 192, 1)",
         borderWidth: 1,
         barPercentage: 1.0,
         categoryPercentage: 1.0,
@@ -116,14 +118,60 @@ export const NpsChart = () => {
     },
   ];
 
+  const handleExport = () => {
+    // Adapte les colonnes selon ce que tu veux exporter
+    const rows = [
+      {
+        "Total réponses NPS": safeGet(0),
+        "Score 0": safeGet(5),
+        "Score 1-6": safeGet(6),
+        "Score 7-8": safeGet(7),
+        "Score 9-10": safeGet(8),
+      },
+    ];
+    exportToExcel({
+      rows,
+      sheetName: "NPSChart",
+      fileName: "nps_chart_data.xlsx",
+    });
+  };
+  const handleExcelExport = () => handleExport();
+  const handlePdfExport = () => {
+    const rows = [
+      {
+        "Total réponses NPS": safeGet(0),
+        "Score 0": safeGet(5),
+        "Score 1-6": safeGet(6),
+        "Score 7-8": safeGet(7),
+        "Score 9-10": safeGet(8),
+      },
+    ];
+    exportChartDataToPdf({
+      rows,
+      title: "NPS Chart Data",
+      fileName: "nps_chart_data.pdf",
+    });
+  };
+
   return (
-    <div className="grid grid-rows-[15%_1fr] h-screen p-4">
+    <div className="h-screen p-4 flex flex-col">
+      <div className="flex justify-end mb-4">
+        <ExportButton
+          handleExcelExport={handleExcelExport}
+          handlePdfExport={handlePdfExport}
+        />
+      </div>
       <div className="grid grid-cols-5 gap-4 w-full mb-6">
         {cards.map((item, i) => (
-          <div key={i} className="bg-white shadow-md rounded-xl p-4 flex items-center">
+          <div
+            key={i}
+            className="bg-white shadow-md rounded-xl p-4 flex items-center"
+          >
             {item.icon && <div>{item.icon}</div>}
             <div className="ml-4">
-              <p className="text-xl font-semibold text-gray-900">{item.value}</p>
+              <p className="text-xl font-semibold text-gray-900">
+                {item.value}
+              </p>
               <p className="text-sm text-gray-500">{item.label}</p>
             </div>
           </div>
