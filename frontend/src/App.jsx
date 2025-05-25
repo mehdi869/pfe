@@ -81,7 +81,7 @@ function AppLayout() {
                     <Route path="/map" element={<Map />} />
                     <Route path="/invoices" element={<Invoices />} />
                     <Route path="/contacts" element={<Contacts />} />
-                    {/* <Route path="/question_chart" element={<Question_Chart />} /> */}
+                    <Route path="/question_chart" element={<QuestionChart />} />
                     <Route path="/form" element={<Form />} />
                     <Route path="/calendar" element={<Calendar />} />
                     <Route path="/survey" element={<SurveyChart/>}></Route>
