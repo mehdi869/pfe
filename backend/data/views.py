@@ -68,44 +68,32 @@ def nps_score(request):
 
 # API des groupe d'age
 @api_view(['GET'])
-@permission_classes([AllowAny]) 
-
+@permission_classes([AllowAny])
 def age_groupe(request):
-   count = age_group.objects.aggregate(
-        total_sum = Sum('total'))['total_sum']
-   
-   count_Null = age_group.objects.filter(
-        age_group ="-1").values("total").first()
-   
-   count_18_25 = age_group.objects.filter(
-        age_group = '18-25').values("total").first()
-   
-   count_26_35 = age_group.objects.filter(
-        age_group = '26-35').values("total").first()
-   
-   count_36_45 = age_group.objects.filter(
-        age_group = '36-45').values("total").first()
-   
-   count_46_55 = age_group.objects.filter(
-        age_group = '46-55').values("total").first()
-   
-   count_56_65 = age_group.objects.filter(
-        age_group = '56-65').values("total").first()
-
-   return JsonResponse({'count' : count,
-                        'Null' : count_Null["total"]*100/count,
-                        '18-25' : count_18_25["total"]*100/count,
-                        '26-35' : count_26_35["total"]*100/count,
-                        '36-45' : count_36_45["total"]*100/count,
-                        '46-55' : count_46_55["total"]*100/count,
-                        '56-65' : count_56_65["total"]*100/count,
-                        'valeur null' : count_Null["total"],
-                        'age entre 18 et 25' : count_18_25["total"],
-                        'age entre 26 et 35' : count_26_35["total"],
-                        'age entre 36 et 45' : count_36_45["total"],
-                        'age entre 46 et 55' : count_46_55["total"],
-                        'age entre 56 et 65' : count_56_65["total"],
-                        })
+    with connection.cursor() as cursor:
+        # Récupération des données depuis la vue matérialisée
+        cursor.execute("SELECT * FROM age_group_view")
+        row = cursor.fetchone()
+        
+        if not row:
+            return JsonResponse({'error': 'No data found'}, status=404)
+        
+        # Structure des données retournées
+        data = {
+            'count': row[0],  # total_count
+            '18-25': row[1],   # age_18_25_percentage
+            '26-35': row[2],   # age_26_35_percentage
+            '36-45': row[3],   # age_36_45_percentage
+            '46-55': row[4],   # age_46_55_percentage
+            '56-65': row[5],   # age_56_65_percentage
+            'age entre 18 et 25': row[6],   # age_18_25_value
+            'age entre 26 et 35': row[7],   # age_26_35_value
+            'age entre 36 et 45': row[8],   # age_36_45_value
+            'age entre 46 et 55': row[9],   # age_46_55_value
+            'age entre 56 et 65': row[10],  # age_56_65_value
+        }
+        
+        return JsonResponse(data)
 
 # API qui return le pourcentage de client qui ce trouve dans chaque city
 # @api_view(['GET'])

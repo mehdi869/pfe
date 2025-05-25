@@ -72,14 +72,24 @@ const QuestionChart = () => {
 
   const { question_types, total_responses } = data;
 
+  // Définis une palette de couleurs cohérente pour chaque type de question
+  const typeColors = [
+    "#e53935", // CommentIcon (red)
+    "#2563eb", // BallotIcon (blue)
+    "#f59e42", // AccessTimeIcon (orange)
+    "#16a34a", // RuleIcon (green)
+    "#9333ea", // ChatBubbleOutlineIcon (purple)
+    "#f59e42", // ScaleIcon (orange)
+  ];
+
   const barchart = {
     labels: question_types.labels,
     datasets: [
       {
         label: "Response Count",
         data: question_types.counts,
-        backgroundColor: "rgba(54, 162, 235, 0.6)",
-        borderColor: "rgba(54, 162, 235, 1)",
+        backgroundColor: typeColors.slice(0, question_types.labels.length),
+        borderColor: typeColors.slice(0, question_types.labels.length),
         borderWidth: 1,
         barPercentage: 0.8,
         categoryPercentage: 0.9,
@@ -145,29 +155,29 @@ const QuestionChart = () => {
       label: "Total Responses",
     },
     {
-      icon: <CommentIcon sx={{ fontSize: 40, color: "#e53935" }} />, // red
+      icon: <CommentIcon sx={{ fontSize: 40, color: typeColors[0] }} />,
       value: question_types.counts[0],
       label: `${question_types.labels[0]} Responses`,
     },
     {
-      icon: <BallotIcon sx={{ fontSize: 40, color: "#2563eb" }} />, // blue
+      icon: <BallotIcon sx={{ fontSize: 40, color: typeColors[1] }} />,
       value: question_types.counts[1],
       label: `${question_types.labels[1]} Responses`,
     },
     {
-      icon: <AccessTimeIcon sx={{ fontSize: 40, color: "#f59e42" }} />, // orange
+      icon: <AccessTimeIcon sx={{ fontSize: 40, color: typeColors[2] }} />,
       value: question_types.counts[2],
       label: `${question_types.labels[2]} Responses`,
     },
     {
-      icon: <RuleIcon sx={{ fontSize: 40, color: "#16a34a" }} />, // green
+      icon: <RuleIcon sx={{ fontSize: 40, color: typeColors[3] }} />,
       value: question_types.counts[3],
       label: `${question_types.labels[3]} Responses`,
     },
     {
       icon: (
         <ChatBubbleOutlineIcon
-          sx={{ fontSize: 40, color: "#9333ea" }} // purple
+          sx={{ fontSize: 40, color: typeColors[4] }}
           className="text-gray-600"
         />
       ),
@@ -175,7 +185,7 @@ const QuestionChart = () => {
       label: `${question_types.labels[4]} Responses`,
     },
     {
-      icon: <ScaleIcon sx={{ fontSize: 40, color: "#f59e42" }} />, // orange
+      icon: <ScaleIcon sx={{ fontSize: 40, color: typeColors[5] }} />,
       value: question_types.counts[5],
       label: `${question_types.labels[5]} Responses`,
     },
