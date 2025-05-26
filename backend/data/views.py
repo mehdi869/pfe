@@ -1,6 +1,6 @@
 import copy
 from django.http import JsonResponse
-from .models import view_status,view_nps_score,age_group,city,survey,survey_nps_score,SurveyResponseCounts,SurveyData2,CityRegionNps
+from .models import view_status,view_nps_score,age_group,city,survey,survey_nps_score,SurveyResponseCounts,SurveyData2,CityRegionNps,SurveyHandsetBrandSummary
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from django.db.models import Sum,Q,Avg , IntegerField , Count, Case, When
@@ -41,26 +41,30 @@ def status(request):
 @permission_classes([AllowAny]) 
 def nps_score(request):
 
-   nps_count = 973455
+   nps_count = 973455 # This seems like a hardcoded total, ensure it's what you intend.
    nps_1_6 = view_nps_score.objects.filter(
     nps_score__gte=1, nps_score__lte=6
-    ).aggregate(total_sum=Sum('total'))['total_sum']
+    ).aggregate(total_sum=Sum('count'))['total_sum'] or 0
    
    nps_7_8 = view_nps_score.objects.filter(
     nps_score__gte = 7,nps_score__lte = 8).aggregate(
-    total_sum=Sum('total'))['total_sum']
+    total_sum=Sum('count'))['total_sum'] or 0
    
    nps_9_10 = view_nps_score.objects.filter(
        nps_score__gte = 9, nps_score__lte = 10).aggregate(
-           total_sum= Sum('total'))['total_sum']
+           total_sum= Sum('count'))['total_sum'] or 0
    
-   nps_0 = view_nps_score.objects.filter(nps_score = 0).aggregate(total_sum=Sum('total'))['total_sum']
+   nps_0 = view_nps_score.objects.filter(nps_score = 0).aggregate(total_sum=Sum('count'))['total_sum'] or 0
    
+   # It's good practice to handle potential division by zero if nps_count could be 0
+   # and ensure all aggregated values are not None before arithmetic operations.
+   # The 'or 0' added above helps with None values from aggregation.
+
    return JsonResponse({'count': nps_count,
-                        '_0' : nps_0*100/nps_count,
-                        '1-6' : nps_1_6*100/nps_count,
-                        '7-8': nps_7_8*100/nps_count,
-                        '9-10' : nps_9_10*100/nps_count,
+                        '_0' : (nps_0*100/nps_count) if nps_count else 0,
+                        '1-6' : (nps_1_6*100/nps_count) if nps_count else 0,
+                        '7-8': (nps_7_8*100/nps_count) if nps_count else 0,
+                        '9-10' : (nps_9_10*100/nps_count) if nps_count else 0,
                         'count_0' : nps_0,
                         'count_1_6' : nps_1_6,
                         'count_7_8' : nps_7_8,
@@ -513,14 +517,14 @@ def question_type_stats_api(request):
 def quick_stats(request):
     nps_data = view_nps_score.objects.all()
 
-    promoters = nps_data.filter(nps_score__gte=9, nps_score__lte=10).aggregate(total=Sum('count'))['total'] or 0
-    passives = nps_data.filter(nps_score__gte=7, nps_score__lte=8).aggregate(total=Sum('count'))['total'] or 0
-    detractors = nps_data.filter(nps_score__gte=0, nps_score__lte=6).aggregate(total=Sum('count'))['total'] or 0
+    promoters = nps_data.filter(nps_score__gte=9, nps_score__lte=10).aggregate(total=Sum('count')).get('total') or 0
+    passives = nps_data.filter(nps_score__gte=7, nps_score__lte=8).aggregate(total=Sum('count')).get('total') or 0
+    detractors = nps_data.filter(nps_score__gte=1, nps_score__lte=6).aggregate(total=Sum('count')).get('total') or 0
 
     print( "sum of 3 : ", promoters + passives + detractors)
 
-    total_responses = nps_data.exclude(nps_score=-1).aggregate(total=Sum('count'))['total'] or 0
-    null_responses = nps_data.filter(nps_score=-1).aggregate(total=Sum('count'))['total'] or 0
+    total_responses = promoters + passives + detractors
+    null_responses = nps_data.filter(nps_score=-1).aggregate(total=Sum('count')).get('total') or 0
     print('total : ',total_responses)
     print('null : ',null_responses)
 
@@ -530,7 +534,7 @@ def quick_stats(request):
         .annotate(
     promotors=Count(Case(When(nps_score__range=(9, 10), then=1), output_field=IntegerField())),
     passives=Count(Case(When(nps_score__range=(7, 8), then=1), output_field=IntegerField())),
-    detractors=Count(Case(When(nps_score__range=(0, 6), then=1), output_field=IntegerField()))
+    detractors=Count(Case(When(nps_score__range=(1, 6), then=1), output_field=IntegerField()))
     )
 
     nps_score = 0
@@ -540,33 +544,35 @@ def quick_stats(request):
         nps_score = percent_promoters - percent_detractors
 
     # --- Response Rate ---
-    # You need to define what is the total population (all possible respondents)
-    # For now, let's assume it's the sum of all responses (including nulls)
     response_rate = total_responses / (total_responses + null_responses) * 100 if (total_responses + null_responses) > 0 else 0
    
     # --- Last Refresh Date ---
-    # the dates are flatted in the DB i.e they've used one date for all records 
-    last_refresh_date = None  # <-- You need to provide this from your DB or ETL process
+    last_refresh_date = None  
 
     # --- NPS Score Trend ---
-     #
-    nps_score_trend = []  # <-- You need to provide this from a time-series table or view
+    nps_score_trend = []  
 
-    # NPS score per device brand 
+    # Device brand distribution - Top 10 + Others
+    # Fix: Use .values() to get dictionaries instead of model instances
+    device_brand_queryset = SurveyHandsetBrandSummary.objects.all().values('handset_brand', 'total').order_by('-total')
+
+    top10_brands = list(device_brand_queryset[:10])
+    # Apply the same fix for others_count
+    others_agg_result = device_brand_queryset[10:].aggregate(total=Sum('total'))
+    others_count = others_agg_result.get('total') or 0
     
-    qs = (SurveyData2.objects
-         .filter(nps_score__gt=-1)
-         .values('handset_brand')
-         .annotate(total=Count('handset_brand'))
-         .order_by('-total'))
-
-    top5 = list(qs[:5])
-    others = qs[5:].aggregate(total=Sum('total'))['total'] or 0
-    if others:
-        top5.append({'handset_brand': 'Others', 'total': others})
-
-    labels = [b['handset_brand'] for b in top5]
-    counts = [b['total'] for b in top5]
+    # Calculate total for percentage calculation
+    total_brand_responses = sum(brand['total'] for brand in top10_brands) + others_count
+    
+    # Prepare device brand data
+    device_brand_labels = [brand['handset_brand'] for brand in top10_brands]
+    device_brand_counts = [brand['total'] for brand in top10_brands]
+    device_brand_percentages = [round((brand['total'] / total_brand_responses) * 100, 2) for brand in top10_brands]
+    
+    if others_count > 0:
+        device_brand_labels.append('Others')
+        device_brand_counts.append(others_count)
+        device_brand_percentages.append(round((others_count / total_brand_responses) * 100, 2))
 
     return JsonResponse({
         "nps_score": round(nps_score, 2),
@@ -579,10 +585,12 @@ def quick_stats(request):
         "nps_by_segment": list(nps_by_segment),
         "last_refresh_date": last_refresh_date,
         "nps_score_trend": nps_score_trend,
-        "nps_per_device_brand": {
-               "labels": labels,
-               "counts": counts
-          }
+        "device_brand_distribution": {
+            "labels": device_brand_labels,
+            "counts": device_brand_counts,
+            "percentages": device_brand_percentages,
+            "total_responses": total_brand_responses
+        }
     })
 
 @api_view(['GET'])

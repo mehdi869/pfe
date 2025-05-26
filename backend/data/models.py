@@ -119,3 +119,11 @@ class CityRegionNps(models.Model):
         managed = False
         db_table = 'mv_city_region_nps'
         unique_together = (('city_name', 'retail_region_name'),)
+
+class SurveyHandsetBrandSummary(models.Model):
+    handset_brand = models.CharField(max_length=50, primary_key=True)
+    total = models.BigIntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'survey_handset_brand_summary'

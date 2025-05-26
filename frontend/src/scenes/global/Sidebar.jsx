@@ -20,6 +20,7 @@ import { useState, useEffect, useContext } from "react"
   import LogoutIcon from "@mui/icons-material/Logout"
   import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
   import ChevronRightIcon from "@mui/icons-material/ChevronRight"
+  import HelpOutlineIcon from "@mui/icons-material/HelpOutline"
 import { Bar } from "react-chartjs-2"
 
 const Item = ({ title, to, icon, selected, setSelected, badge }) => {
@@ -302,7 +303,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
             <Item
               title="Question Chart"
               to="/question_chart"
-              icon={<InsightsIcon />}
+              icon={<HelpOutlineIcon />}
               selected={selected}
               setSelected={setSelected}
             />

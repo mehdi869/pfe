@@ -19,6 +19,9 @@ import {
   Fade,
   Zoom,
   ClickAwayListener,
+  Switch,
+  ToggleButton,        // Add this line
+  ToggleButtonGroup,   // Add this line
 } from "@mui/material"
 import { tokens } from "../../styles/theme"
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined"
@@ -65,6 +68,7 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [tabValue, setTabValue]             = useState(0)
   const [animateCharts, setAnimateCharts]   = useState(false)
+  const [showPercentage, setShowPercentage] = useState(true); // <-- Add this line
 
   // ← add export UI state
   const [showExportOptions, setShowExportOptions] = useState(false)
@@ -126,6 +130,46 @@ const Dashboard = () => {
     loadQuickStats()
   }, [])
 
+ 
+
+  // Update device brand chart when npsData changes
+  useEffect(() => {
+    if (npsData.device_brand_distribution) {
+      const { labels, counts, percentages } = npsData.device_brand_distribution;
+      
+      // Take only top 3 brands + aggregate others
+      const top3Labels = labels.slice(0, 3);
+      const top3Counts = counts.slice(0, 3);
+      const top3Percentages = percentages.slice(0, 3);
+      
+      // Calculate "Others" values if there are more than 3 brands
+      if (labels.length > 3) {
+        const othersCount = counts.slice(3).reduce((sum, count) => sum + count, 0);
+        const othersPercentage = percentages.slice(3).reduce((sum, pct) => sum + pct, 0);
+        
+        top3Labels.push('Others');
+        top3Counts.push(othersCount);
+        top3Percentages.push(othersPercentage);
+      }
+      
+      const displayData = showPercentage ? top3Percentages : top3Counts;
+      
+      setChartData((prev) => ({
+        ...prev,
+        deviceBrandDistribution: {
+          ...prev.deviceBrandDistribution,
+          labels: top3Labels,
+          datasets: [
+            {
+              ...prev.deviceBrandDistribution.datasets[0],
+              data: displayData,
+            },
+          ],
+        },
+      }));
+    }
+  }, [npsData.device_brand_distribution, showPercentage])
+
   // Optionally, add a refresh button to clear cache and refetch
   const handleRefreshStats = async () => {
     try {
@@ -147,10 +191,11 @@ const Dashboard = () => {
             Math.round(Number(passivesPercentage) || 0),
             Math.round(Number(detractorsPercentage) || 0),
           ],
+          // Order: Promoters (green), Passives (yellow), Detractors (red)
           backgroundColor: [
-            colors.greenAccent[500], // Green for promoters
-            colors.purpleAccent[500], // Orange for passives
-            colors.primary[500], // Red for detractors
+            colors.greenAccent[500],   // Promoters: Green
+            colors.yellowAccent[500],  // Passives: Yellow
+            colors.redAccent[500],     // Detractors: Red
           ],
           borderColor: theme.palette.background.paper,
           borderWidth: 2,
@@ -169,6 +214,26 @@ const Dashboard = () => {
           borderWidth: 1,
           borderRadius: 5,
           hoverBackgroundColor: colors.primary[400],
+        },
+      ],
+    },
+    deviceBrandDistribution: {
+      labels: [],
+      datasets: [
+        {
+          data: [],
+          // Use visually distinct, modern colors for up to 4 slices (top 3 + Others)
+          backgroundColor: [
+            colors.blueAccent[400],      // 1st brand: Blue
+            colors.purpleAccent[500],    // 2nd brand: Purple
+            colors.orangeAccent[300],    // 3rd brand: Orange
+            colors.grey[400],            // Others: Grey
+            // Add more if needed for extra slices
+            colors.greenAccent[400],
+            colors.redAccent[400],
+          ],
+          borderWidth: 1,
+          hoverOffset: 10,
         },
       ],
     },
@@ -266,7 +331,7 @@ const Dashboard = () => {
     const getScoreColor = (score) => {
       if (score < 0) return "#d32f2f" // Red for negative
       if (score < 30) return "#ff9800" // Orange for low
-      if (score < 50) return "#2196f3" // Blue for medium
+      return colors.purpleAccent[500] // Purple for medium
       return colors.greenAccent[500] // Green for high
     }
 
@@ -305,7 +370,7 @@ const Dashboard = () => {
             </Typography>
             <Tooltip title="Net Promoter Score measures customer loyalty and satisfaction. It ranges from -100 to 100.">
               <IconButton size="small">
-                <InfoOutlinedIcon fontSize="small" />
+                <InfoOutlinedIcon fontSize="medium" />
               </IconButton>
             </Tooltip>
           </Box>
@@ -347,13 +412,13 @@ const Dashboard = () => {
             <Grid item xs={4}>
               <Box textAlign="center">
                 <Box display="flex" alignItems="center" justifyContent="center">
-                  <RemoveIcon sx={{ color: colors.purpleAccent[500], mr: 0.5 }} />
+                  <RemoveIcon sx={{ color: colors.grey[100], mr: 0.5 }} />
                   <Typography variant="body2" color={colors.grey[100]}>
                     Passives
                   </Typography>
                 </Box>
                 <Fade in={animateCharts} timeout={800}>
-                  <Typography variant="h5" fontWeight="bold" color={colors.purpleAccent[500]}>
+                  <Typography variant="h5" fontWeight="bold" color={colors.grey[500]}>
                     {npsData.passives}
                   </Typography>
                 </Fade>
@@ -428,7 +493,7 @@ const Dashboard = () => {
               <Fade in={true} timeout={800}>
                 <Typography
                   variant="h3"
-                  color={colors.grey[100]}
+                  color={color} // Changed from colors.grey[100] to the color prop
                   fontWeight="bold"
                   mt="10px"
                   sx={{ fontSize: { xs: "1.5rem", sm: "1.75rem", md: "2rem" } }}
@@ -565,41 +630,44 @@ const Dashboard = () => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: "right",
-        align: "center",
+        position: "bottom",
+        outlined: false,
         labels: {
-          boxWidth: 12,
+          padding: 20,
           usePointStyle: true,
-          pointStyle: "circle",
           color: colors.grey[100],
-        },
-      },
-      tooltip: {
-        backgroundColor: theme.palette.mode === "dark" ? colors.primary[400] : "rgba(255, 255, 255, 0.9)",
-        titleColor: theme.palette.mode === "dark" ? "#fff" : "#000",
-        bodyColor: theme.palette.mode === "dark" ? "#fff" : "#000",
-        borderColor: theme.palette.mode === "dark" ? colors.primary[300] : "#e0e0e0",
-        borderWidth: 1,
-        padding: 12,
-        boxPadding: 6,
-        usePointStyle: true,
-        callbacks: {
-          label: (context) => {
-            const label = context.label || ""
-            const value = context.parsed
-            return `${label}: ${value}%`
+          font: {
+            size: 12,
           },
         },
       },
+      tooltip: {
+        callbacks: {
+          label: function (context) {
+            const label = context.label || '';
+            const value = context.raw;
+            // This tooltip is shared by "Response Distribution" and "Device Brand Distribution"
+            // For "Response Distribution", context.raw is always a percentage.
+            // For "Device Brand Distribution", context.raw can be a count or percentage based on `showPercentage` state.
+            if (showPercentage || context.chart.canvas.parentElement.previousElementSibling?.textContent === "Response Distribution") {
+              // If showPercentage is true OR if it's the Response Distribution chart (which always shows percentages)
+              return `${label}: ${value}%`;
+            } else {
+              // This block is for "Device Brand Distribution" when showing counts
+              const total = npsData.device_brand_distribution?.total_responses || 0;
+              const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+              return `${label}: ${value} responses (${percentage}%)`;
+            }
+          },
+        },
+        backgroundColor: colors.primary[500],
+        titleFont: { size: 14 },
+        bodyFont: { size: 13 },
+        padding: 10,
+        cornerRadius: 8,
+      },
     },
-    cutout: "65%",
-    animation: {
-      animateRotate: true,
-      animateScale: true,
-      duration: 2000,
-      easing: "easeOutQuart",
-    },
-  }
+  };
 
   const barOptions = {
     responsive: true,
@@ -786,13 +854,13 @@ const Dashboard = () => {
               </Typography>
             </Box>
             <Grid container spacing={{ xs: 2, sm: 3 }} mb="10px">
-              <Grid item xs={12} md={6} lg={4}>
+              <Grid item xs={12} md={6} lg={4} xl={5}> {/* MODIFIED HERE */}
                 <NPSScoreCard />
               </Grid>
-              <Grid item xs={12} sm={6} md={3} lg={2}>
+              <Grid item xs={12} sm={6} md={3} lg={2} xl={2}> {/* MODIFIED HERE (xl prop added for consistency) */}
                 <ResponseRateCard />
               </Grid>
-              <Grid item xs={12} sm={6} md={3} lg={2}>
+              <Grid item xs={12} sm={6} md={3} lg={2} xl={2}> {/* MODIFIED HERE (xl prop added for consistency) */}
                 <StatCard
                   title="PROMOTERS"
                   value={`${promotersPercentage}%`}
@@ -801,7 +869,7 @@ const Dashboard = () => {
                   color={colors.greenAccent[500]} // Green
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={3} lg={2}>
+              <Grid item xs={12} sm={6} md={3} lg={2} xl={2}> {/* MODIFIED HERE (xl prop added for consistency) */}
                 <StatCard
                   title="PASSIVES"
                   value={`${passivesPercentage}%`}
@@ -810,11 +878,11 @@ const Dashboard = () => {
                   color={colors.grey[400]} // Orange
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={3} lg={2}>
+              <Grid item xs={12} sm={6} md={3} lg={2} xl={1}> {/* MODIFIED HERE */}
                 <StatCard
                   title="DETRACTORS"
                   value={`${detractorsPercentage}%`}
-                  subtitle="0-6 ratings"
+                  subtitle="1-6 ratings"
                   icon={<ThumbDownAltIcon sx={{ color: "#fff", fontSize: 24 }} />}
                   color={colors.primary[500]} // Red
                 />
@@ -824,8 +892,8 @@ const Dashboard = () => {
 
           {/* CHARTS */}
           <Grid container spacing={3}>
-            
-            <Grid item xs={12} md={6} lg={4}>
+            {/* Response Distribution */}
+            <Grid item xs={12} md={6} lg={4} xl={3}> {/* MODIFIED HERE */}
               <Paper
                 elevation={0}
                 sx={{
@@ -860,7 +928,8 @@ const Dashboard = () => {
                 </Box>
               </Paper>
             </Grid>
-            <Grid item xs={12} md={6} lg={6}>
+            {/* NPS by Segment */}
+            <Grid item xs={12} md={6} lg={4} xl={6}> {/* MODIFIED HERE */}
               <Paper
                 elevation={0}
                 sx={{
@@ -868,6 +937,7 @@ const Dashboard = () => {
                   boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
                   borderRadius: "16px",
                   p: 3,
+                  height: "100%",
                   transition: "transform 0.3s ease, box-shadow 0.3s ease",
                   "&:hover": {
                     boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
@@ -892,8 +962,8 @@ const Dashboard = () => {
                       ...barOptions,
                       scales: {
                         y: {
-                          min: -10,
-                          max: 10,
+                          min: 0,
+                          max: 50,
                           ticks: {
                             stepSize: 10,
                           },
@@ -918,6 +988,61 @@ const Dashboard = () => {
                       },
                     }}
                     key={animateCharts ? "animated" : "static"}
+                  />
+                </Box>
+              </Paper>
+            </Grid>
+            {/* Top Device Brands */}
+            <Grid item xs={12} md={6} lg={4} xl={3}> {/* MODIFIED HERE */}
+              <Paper
+                elevation={0}
+                sx={{
+                  backgroundColor: theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+                  borderRadius: "16px",
+                  p: 3,
+                  height: "100%",
+                  minWidth: 320, // Set your desired min width here
+                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                  "&:hover": {
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
+                  },
+                }}
+              >
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  mb={2}
+                  width={{ }}
+                >
+                  <Typography variant="h5" fontWeight="bold">
+                    Top Device Brands
+                  </Typography>
+                  <ToggleButtonGroup
+                    value={showPercentage ? 'percentage' : 'count'}
+                    exclusive
+                    onChange={(event, newDisplayType) => {
+                      if (newDisplayType !== null) { // Ensure a value is always selected
+                        setShowPercentage(newDisplayType === 'percentage');
+                      }
+                    }}
+                    aria-label="Display type for device brands"
+                    size="small"
+                  >
+                    <ToggleButton value="percentage" aria-label="show percentage" sx={{ textTransform: 'none', px: 1.5 }}>
+                      Percentage
+                    </ToggleButton>
+                    <ToggleButton value="count" aria-label="show count" sx={{ textTransform: 'none', px: 1.5 }}>
+                      Count
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </Box>
+                <Box height={{ xs: 250, sm: 300 }} display="flex" alignItems="center" justifyContent="center">
+                  <Doughnut
+                    data={chartData.deviceBrandDistribution}
+                    options={pieOptions}
+                    key={`brands-${animateCharts ? "animated" : "static"}`}
                   />
                 </Box>
               </Paper>
@@ -969,7 +1094,6 @@ const Dashboard = () => {
           </Box>
         </Paper>
       )}
-
       {/* COMMENTS TAB */}
       {tabValue === 3 && (
         <Paper
