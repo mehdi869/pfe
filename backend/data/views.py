@@ -545,7 +545,6 @@ def quick_stats(request):
     detractors=Count(Case(When(nps_score__range=(0, 6), then=1), output_field=IntegerField()))
     )
 
-    
     nps_score = 0
     if total_responses > 0:
         percent_promoters = promoters / total_responses * 100
@@ -565,6 +564,22 @@ def quick_stats(request):
      #
     nps_score_trend = []  # <-- You need to provide this from a time-series table or view
 
+    # NPS score per device brand 
+    
+    qs = (SurveyData2.objects
+         .filter(nps_score__gt=-1)
+         .values('handset_brand')
+         .annotate(total=Count('handset_brand'))
+         .order_by('-total'))
+
+    top5 = list(qs[:5])
+    others = qs[5:].aggregate(total=Sum('total'))['total'] or 0
+    if others:
+        top5.append({'handset_brand': 'Others', 'total': others})
+
+    labels = [b['handset_brand'] for b in top5]
+    counts = [b['total'] for b in top5]
+
     return JsonResponse({
         "nps_score": round(nps_score, 2),
         "promoters": promoters,
@@ -575,7 +590,11 @@ def quick_stats(request):
         "response_rate": round(response_rate, 2),
         "nps_by_segment": list(nps_by_segment),
         "last_refresh_date": last_refresh_date,
-        "nps_score_trend": nps_score_trend
+        "nps_score_trend": nps_score_trend,
+        "nps_per_device_brand": {
+               "labels": labels,
+               "counts": counts
+          }
     })
 
 @api_view(['GET'])
