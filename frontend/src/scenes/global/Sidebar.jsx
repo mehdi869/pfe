@@ -279,7 +279,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
             />
 
             <Item
-              title="nps Chart"
+              title="NPS Chart"
               to="/nps"
               icon={<BarChartOutlinedIcon />}
               selected={selected}
@@ -303,13 +303,6 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
               title="Question Chart"
               to="/question_chart"
               icon={<InsightsIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Status Chart"
-              to="/status"
-              icon={<TimelineOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
             />
