@@ -8,20 +8,22 @@ import { useState, useEffect, useContext } from "react"
 
   // Icons
   import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined"
-  import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined"
+  // import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined"; // Removed
   import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined"
   import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutlined"
-  import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined"
+  // import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined"; // Was unused
   import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined"
   import MapOutlinedIcon from "@mui/icons-material/MapOutlined"
   import InsightsIcon from "@mui/icons-material/Insights"
-  import FeedbackIcon from "@mui/icons-material/Feedback"
+  // import FeedbackIcon from "@mui/icons-material/Feedback"; // Removed
   import AccountCircleIcon from "@mui/icons-material/AccountCircle"
   import LogoutIcon from "@mui/icons-material/Logout"
   import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
-  import ChevronRightIcon from "@mui/icons-material/ChevronRight"
+  import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
+  import ChevronRightIcon from "@mui/icons-material/ChevronRight"; // Was unused
   import HelpOutlineIcon from "@mui/icons-material/HelpOutline"
-import { Bar } from "react-chartjs-2"
+  import ScoreboardOutlinedIcon from '@mui/icons-material/ScoreboardOutlined'; // Added
+  // import { Bar } from "react-chartjs-2" // Removed unused import
 
 const Item = ({ title, to, icon, selected, setSelected, badge }) => {
   const theme = useTheme()
@@ -111,12 +113,12 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
     else if (path === "/comments") setSelected("Comment Analysis")
     else if (path === "/benchmarks") setSelected("Benchmarks")
     else if (path === "/admin-panel") setSelected("Admin Panel")
-    else if (path === "/profile") setSelected("Profile")
+    // else if (path === "/profile") setSelected("Profile") // Already removed in logic, ensure item is removed below
     else if (path === "/status") setSelected("Status Chart")
     else if (path === "/nps") setSelected("NPS Chart")
     else if (path === "/age") setSelected("Age Chart")
     else if (path === "/survey") setSelected("Survey Chart")
-    else if (path === "/status") setSelected("Line Chart") // Changed name to avoid duplication
+    else if (path === "/status") setSelected("Line Chart") 
     else if (path === "/question_chart") setSelected("Question Chart")
     else if (path === "/Map") setSelected("Geography Chart")
     else if (path === "/barchart") setSelected("Bar Chart")
@@ -241,7 +243,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                   <Typography variant="h3" color={colors.grey[100]} fontWeight="bold" sx={{ m: "10px 0 0 0" }}>
                     {user?.username || "Guest"}
                   </Typography>
-                  <Typography variant="body2" color={colors.primary[500]} fontWeight="500">
+                  <Typography variant="body2" color={colors.primary[500]} fontWeight="bold"> {/* Changed fontWeight */}
                     {user?.user_type || ""}
                   </Typography>
                 </Box>
@@ -282,14 +284,14 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
             <Item
               title="NPS Chart"
               to="/nps"
-              icon={<BarChartOutlinedIcon />}
+              icon={<ScoreboardOutlinedIcon />} /* Changed icon */
               selected={selected}
               setSelected={setSelected}
             />
             <Item
               title="Age Chart"
               to="/age"
-              icon={<BarChartOutlinedIcon />}
+              icon={<GroupOutlinedIcon />} 
               selected={selected}
               setSelected={setSelected}
             />
@@ -339,16 +341,16 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                     setSelected={setSelected}
                   />
                 )}
-                <Item
-                  title="Feedback Collection"
+                {/* <Item
+                  title="Feedback Collection" // This was already commented out or removed in previous steps
                   to="/feedback"
                   icon={<FeedbackIcon />}
                   selected={selected}
                   setSelected={setSelected}
-                />
+                /> */}
 
-                {/* USER */}
-                <Typography
+                {/* USER Typography and Profile Item Removed */}
+                {/* <Typography
                   variant="body2"
                   color={colors.grey[300]}
                   sx={{
@@ -360,18 +362,18 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                   }}
                 >
                   User
-                </Typography>
-                <Item
+                </Typography> */}
+                {/* <Item
                   title="Profile"
                   to="/profile"
                   icon={<PersonOutlinedIcon />}
                   selected={selected}
                   setSelected={setSelected}
-                />
+                /> */}
               </Box>
 
               {/* LOGOUT BUTTON AT BOTTOM */}
-              <Box mt="auto" mb={2}>
+              <Box mt="auto" mb={2} sx={{ paddingLeft: isCollapsed ? undefined : "10%" }}>
                 <MenuItem
                   onClick={handleLogout}
                   icon={<LogoutIcon />}

@@ -24,6 +24,9 @@ const MapControlsPanel = React.memo(
     maxResponses,
     onMaxResponsesChange, // New prop
     themeColors,
+    // Add new props for search, if needed in the future
+    // onSearchChange, 
+    // searchValue,
   }) => {
     const theme = useTheme();
     const [expanded, setExpanded] = useState(true);
@@ -135,7 +138,44 @@ const MapControlsPanel = React.memo(
               </ToggleButtonGroup>
             </Box>
 
-            <Divider sx={{ my: 2, borderColor: theme.palette.divider }} /> {/* Reduced margin */}
+            {/* Search Input Field */}
+            <Box sx={{ mt: 2, mb: 2 }}>
+              <Typography
+                gutterBottom
+                variant="subtitle1"
+                sx={{
+                  color: theme.palette.text.secondary,
+                  fontSize: "0.9rem",
+                  mb: 1,
+                }}
+              >
+                Search
+              </Typography>
+              <TextField
+                label="Search City/Region"
+                variant="outlined"
+                fullWidth
+                size="small"
+                // value={searchValue} // For future implementation
+                // onChange={onSearchChange} // For future implementation
+                placeholder="Enter name..."
+                InputProps={{
+                  sx: { height: "40px" },
+                }}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: theme.palette.mode === 'dark' ? themeColors.grey[600] : themeColors.grey[400] },
+                    "&:hover fieldset": { borderColor: themeColors.primary[500] },
+                    "&.Mui-focused fieldset": { borderColor: themeColors.primary[500] },
+                    backgroundColor: theme.palette.background.paper, // Ensure consistent background
+                  },
+                  "& .MuiInputLabel-root": { fontSize: "0.9rem", color: theme.palette.text.secondary },
+                  "& .MuiInputBase-input": { color: theme.palette.text.primary, fontSize: "0.9rem" }
+                }}
+              />
+            </Box>
+
+            <Divider sx={{ my: 2, borderColor: theme.palette.divider }} />
 
             <Typography
               variant="subtitle1"

@@ -224,9 +224,11 @@ const Dashboard = () => {
           data: [],
           // Use visually distinct, modern colors for up to 4 slices (top 3 + Others)
           backgroundColor: [
-            colors.blueAccent[400],      // 1st brand: Blue
-            colors.purpleAccent[500],    // 2nd brand: Purple
-            colors.orangeAccent[300],    // 3rd brand: Orange
+            colors.blueAccent[300],
+            colors.blueAccent[400],    //
+            colors.blueAccent[600],    //
+            colors.purpleAccent[500],    // 
+            colors.orangeAccent[800],    
             colors.grey[400],            // Others: Grey
             // Add more if needed for extra slices
             colors.greenAccent[400],

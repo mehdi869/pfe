@@ -89,6 +89,7 @@ function AppLayout() {
                     <Route path="/nps" element={<NpsChart />} />
                     <Route path="/age" element={<AgeChart />} />
                     <Route path="/status" element={<StatusChart />} />
+                    <Route path= "/profile" element={<Profile />} />
                     <Route element={<AdminRoute />}>
                       <Route path="/admin-panel" element={<Admin />} />
                     </Route>
