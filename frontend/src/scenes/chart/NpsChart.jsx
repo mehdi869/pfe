@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { fetchNpsScore } from "../../API/api.js";
 import { Bar } from "react-chartjs-2";
 import { Boxes, Frown, Meh, Smile, HelpCircle } from "lucide-react";
+import { AuthContext } from "../../context/AuthContext.jsx"; // Assuming this is the correct path
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -24,6 +25,7 @@ ChartJS.register(
 );
 
 export const NpsChart = () => {
+  const authContext = useContext(AuthContext); // Get authContext
   const [data, setData] = useState(() => {
     const cached = localStorage.getItem("npsData");
     return cached ? JSON.parse(cached) : null;
@@ -31,21 +33,26 @@ export const NpsChart = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!authContext) {
+        console.error("AuthContext is not available yet.");
+        return;
+      }
       try {
-        const response = await fetchNpsScore();
-        if (!response.ok || response.status !== 200) {
-          throw new Error("Erreur dans la réponse du serveur");
-        }
-        const dataResponse = await response.json();
+        const dataResponse = await fetchNpsScore(authContext); // This returns parsed JSON, not Response object
+        console.log("Debug: Data from fetchNpsScore:", dataResponse);
         setData(dataResponse);
         localStorage.setItem("npsData", JSON.stringify(dataResponse));
       } catch (error) {
-        console.error("Erreur de connexion front-back:", error.message);
+        console.error("Erreur de connexion front-back:", error.message, error.stack);
       }
     };
 
     fetchData();
-  }, []);
+  }, [authContext]); // Add authContext to dependency array
+
+  if (!data) {
+    return <div className="p-4 text-center">Loading...</div>;
+  }
 
   const entries = Object.entries(data);
 
