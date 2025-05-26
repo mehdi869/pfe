@@ -58,14 +58,22 @@ export const NpsChart = () => {
 
   const entries = Object.entries(data);
 
+  // Palette cohérente pour chaque catégorie NPS (même ordre que les icônes)
+  const npsColors = [
+    "#2563eb", // Score 0 (HelpCircle - bleu)
+    "#e53935", // Score 1-6 (Frown - rouge)
+    "#eab308", // Score 7-8 (Meh - jaune)
+    "#166534", // Score 9-10 (Smile - vert foncé)
+  ];
+
   const barchart = {
     labels: entries.slice(1, 5).map(([key]) => key),
     datasets: [
       {
         label: "NPS Score",
         data: entries.slice(1, 5).map(([_, value]) => value),
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
-        borderColor: "rgba(75, 192, 192, 1)",
+        backgroundColor: npsColors,
+        borderColor: npsColors,
         borderWidth: 1,
         barPercentage: 1.0,
         categoryPercentage: 1.0,

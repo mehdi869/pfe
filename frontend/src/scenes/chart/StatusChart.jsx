@@ -1,8 +1,8 @@
-import { useState, useEffect, useContext } from "react"
-import { AuthContext } from "../../context/AuthContext"
-import { fetchStatus } from "../../API/api.js"
-import { Bar, Doughnut } from "react-chartjs-2"
-import { XCircle, Lightbulb, CheckCircle, Users } from "lucide-react"
+import { useState, useEffect, useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
+import { fetchStatus } from "../../API/api.js";
+import { Bar, Doughnut } from "react-chartjs-2";
+import { XCircle, Lightbulb, CheckCircle, Users } from "lucide-react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -29,7 +29,7 @@ ChartJS.register(
 );
 
 export const StatusChart = () => {
-  const authContext = useContext(AuthContext)           
+  const authContext = useContext(AuthContext);
   const [data, setData] = useState({
     list: [],
     count: 0,
@@ -42,14 +42,14 @@ export const StatusChart = () => {
     const fetchData = async () => {
       try {
         // fetchStatus returns the already‐parsed JSON payload
-        const payload = await fetchStatus(authContext)
+        const payload = await fetchStatus(authContext);
         setData({
-          list:        payload.list        || [],
-          count:       payload.count       || 0,
-          null:        payload.null        || 0,
-          somme:       payload.somme       || 0,
+          list: payload.list || [],
+          count: payload.count || 0,
+          null: payload.null || 0,
+          somme: payload.somme || 0,
           list_status: payload.list_status || [],
-        })
+        });
       } catch (error) {
         console.error("Erreur lors de la récupération des données :", error);
       }
@@ -57,40 +57,56 @@ export const StatusChart = () => {
     fetchData();
   }, [authContext]);
 
-  const colors_background = (data.list || []).map((_, index) =>
-    index % 2 === 0 ? "#FF6666" : "#E60000"
+  // Filtrer les statuts pour enlever "-1" et "5"
+  const filteredList = (data.list || []).filter(
+    (item) => item.status !== "-1" && item.status !== "5"
   );
-  const colors_border = (data.list || []).map((_, index) =>
-    index % 2 === 1 ? "#FF6666" : "#E60000"
+  const filteredListStatus = (data.list_status || []).filter(
+    (item) => item.status !== "-1" && item.status !== "5"
   );
 
+  // Palette de couleurs unique et cohérente pour chaque statut
+  const statusColors = [
+    "#2563eb", // bleu
+    "#eab308", // jaune
+    "#16a34a", // vert
+    "#e53935", // rouge
+    "#9333ea", // violet
+    "#f59e42", // orange
+    "#00bcd4", // cyan
+    "#ff1493", // rose
+    "#607d8b", // gris
+    "#ff9800", // orange foncé
+  ];
+
+  // Bar Chart
   const chart = {
-    labels: data.list.map((item) => item.status),
+    labels: filteredList.map((item) => item.status),
     datasets: [
       {
         label: "Status de 2021 à 2023",
-        data: data.list.map((item) => Number(item.total)),
-        backgroundColor: ["#FF6666"],
-        borderColor: ["#E60000"],
+        data: filteredList.map((item) => Number(item.total)),
+        backgroundColor: filteredList.map(
+          (_, i) => statusColors[i % statusColors.length]
+        ),
+        borderColor: filteredList.map(
+          (_, i) => statusColors[i % statusColors.length]
+        ),
         borderWidth: 3,
         borderRadius: 5,
       },
     ],
   };
 
+  // Doughnut Chart
   const chart_cercle = {
-    labels: data.list_status.map((item) => item.status),
+    labels: filteredListStatus.map((item) => item.status),
     datasets: [
       {
-        data: data.list_status.map((item) => item.total),
-        backgroundColor: [
-          "#E60000",
-          "#FF6666",
-          "#E60000",
-          "#FF6666",
-          "#E60000",
-          "#FF6666",
-        ],
+        data: filteredListStatus.map((item) => item.total),
+        backgroundColor: filteredListStatus.map(
+          (_, i) => statusColors[i % statusColors.length]
+        ),
       },
     ],
   };
@@ -145,11 +161,18 @@ export const StatusChart = () => {
           p: 2,
           mb: 3,
           borderRadius: "16px",
-          backgroundColor: theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
+          backgroundColor:
+            theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
           boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
         }}
       >
-        <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2}>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          flexWrap="wrap"
+          gap={2}
+        >
           <Typography variant="h2">STATUS ANALYSIS</Typography>
           <ExportButton
             handleExcelExport={handleExcelExport}
@@ -208,13 +231,13 @@ export const StatusChart = () => {
           </div>
 
           {/* Table + Doughnut */}
-          <div className="grid grid-rows-2 gap-4 h-full">
+          <div className="flex flex-col gap-4">
             {/* Status Table */}
             <div className="bg-white shadow-md rounded-xl p-4 overflow-auto">
               <h2 className="text-xl font-semibold text-gray-600 mb-4">
                 Tableau des statuts
               </h2>
-              <table className="w-full ">
+              <table className="w-full">
                 <thead>
                   <tr
                     className="text-left "
@@ -232,7 +255,7 @@ export const StatusChart = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.list_status.map((item, index) => (
+                  {filteredListStatus.map((item, index) => (
                     <tr key={index}>
                       <td className="text-black pl-[3%] font-medium text-[15px] border-b-1">
                         0{index + 1}
@@ -250,12 +273,15 @@ export const StatusChart = () => {
             </div>
 
             {/* Doughnut Chart */}
-            <div className="bg-white shadow-md rounded-xl p-6 flex flex-col h-full">
-              <h2 className="text-xl font-semibold text-gray-600 mb-6 ">
+            <div className="bg-white shadow-md rounded-xl p-2 flex flex-col h-fit">
+              <h2 className="text-base font-semibold text-gray-600 mb-2">
                 Analyse des statuts
               </h2>
-
-              <div className="flex flex-row justify-center items-center flex-grow"></div>
+              <div className="flex justify-center items-center">
+                <div className="h-[40px] w-[40px]">
+                  <Doughnut data={chart_cercle} options={cerclechartOptions} />
+                </div>
+              </div>
             </div>
           </div>
         </div>
