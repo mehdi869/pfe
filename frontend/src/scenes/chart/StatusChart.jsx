@@ -15,6 +15,8 @@ import {
 } from "chart.js";
 import { ExportButton } from "./QuestionChart";
 import { exportToExcel, exportChartDataToPdf } from "../../utils/utils";
+import { Box, Typography, Paper, useTheme } from "@mui/material";
+import { tokens } from "../../styles/theme";
 
 ChartJS.register(
   CategoryScale,
@@ -132,114 +134,132 @@ export const StatusChart = () => {
     });
   };
 
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+
   return (
-    <div className="flex flex-col h-full mr-8 ml-8">
-      <div className="flex justify-end mb-2">
-        <ExportButton
-          handleExcelExport={handleExcelExport}
-          handlePdfExport={handlePdfExport}
-        />
-      </div>
-      <div className="grid grid-cols-4 gap-4 w-[99%] mb-4">
-        {[
-          {
-            icon: <Users className="w-10 h-10 text-blue-600" />,
-            value: data.count,
-            label: "Nombre total des réponses",
-          },
-          {
-            icon: <XCircle className="w-10 h-10 text-red-600" />,
-            value: data.null,
-            label: "Réponses non validées",
-          },
-          {
-            icon: <CheckCircle className="w-10 h-10 text-green-600" />,
-            value: data.somme,
-            label: "Réponses validées",
-          },
-          {
-            icon: <Lightbulb className="w-10 h-10 text-yellow-500" />,
-            value: data.list_status.length,
-            label: "Nombre de statuts possibles",
-          },
-        ].map((item, i) => (
-          <div
-            key={i}
-            className="bg-white shadow-md rounded-xl p-4 flex items-center"
-          >
-            {item.icon}
-            <div className="ml-4">
-              <p className="text-xl font-semibold text-gray-900">
-                {item.value}
-              </p>
-              <p className="text-sm text-gray-500">{item.label}</p>
+    <Box m="20px">
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          mb: 3,
+          borderRadius: "16px",
+          backgroundColor: theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+        }}
+      >
+        <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2}>
+          <Typography variant="h2">STATUS ANALYSIS</Typography>
+          <ExportButton
+            handleExcelExport={handleExcelExport}
+            handlePdfExport={handlePdfExport}
+          />
+        </Box>
+      </Paper>
+
+      <div className="flex flex-col h-full mr-8 ml-8">
+        <div className="grid grid-cols-4 gap-4 w-[99%] mb-4">
+          {[
+            {
+              icon: <Users className="w-10 h-10 text-blue-600" />,
+              value: data.count,
+              label: "Nombre total des réponses",
+            },
+            {
+              icon: <XCircle className="w-10 h-10 text-red-600" />,
+              value: data.null,
+              label: "Réponses non validées",
+            },
+            {
+              icon: <CheckCircle className="w-10 h-10 text-green-600" />,
+              value: data.somme,
+              label: "Réponses validées",
+            },
+            {
+              icon: <Lightbulb className="w-10 h-10 text-yellow-500" />,
+              value: data.list_status.length,
+              label: "Nombre de statuts possibles",
+            },
+          ].map((item, i) => (
+            <div
+              key={i}
+              className="bg-white shadow-md rounded-xl p-4 flex items-center"
+            >
+              {item.icon}
+              <div className="ml-4">
+                <p className="text-xl font-semibold text-gray-900">
+                  {item.value}
+                </p>
+                <p className="text-sm text-gray-500">{item.label}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Charts and Table */}
+        <div className="grid grid-cols-[70%_30%] gap-4 h-[80%] w-[98%]">
+          {/* Bar Chart */}
+          <div className="bg-white shadow-md rounded-xl p-6 ">
+            <h2 className="text-xl font-semibold text-gray-600 mb-6">
+              Histogramme des statuts
+            </h2>
+            <Bar data={chart} />
+          </div>
+
+          {/* Table + Doughnut */}
+          <div className="grid grid-rows-2 gap-4 h-full">
+            {/* Status Table */}
+            <div className="bg-white shadow-md rounded-xl p-4 overflow-auto">
+              <h2 className="text-xl font-semibold text-gray-600 mb-4">
+                Tableau des statuts
+              </h2>
+              <table className="w-full ">
+                <thead>
+                  <tr
+                    className="text-left "
+                    style={{ backgroundColor: "#E60000" }}
+                  >
+                    <th className="pl-[3%] text-white font-extrabold text-[18px] rounded-tl-md rounded-bl-md">
+                      #
+                    </th>
+                    <th className="text-white pl-[10%] font-extrabold text-[15px]">
+                      Status
+                    </th>
+                    <th className="text-white pl-[3%] font-extrabold text-[15px] rounded-tr-md rounded-br-md">
+                      Total
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.list_status.map((item, index) => (
+                    <tr key={index}>
+                      <td className="text-black pl-[3%] font-medium text-[15px] border-b-1">
+                        0{index + 1}
+                      </td>
+                      <td className="text-black pl-[10%] font-medium text-[15px] border-b-1">
+                        {item.status}
+                      </td>
+                      <td className="text-black pl-[3%] font-medium text-[15px] border-b-1">
+                        {item.total}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Doughnut Chart */}
+            <div className="bg-white shadow-md rounded-xl p-6 flex flex-col h-full">
+              <h2 className="text-xl font-semibold text-gray-600 mb-6 ">
+                Analyse des statuts
+              </h2>
+
+              <div className="flex flex-row justify-center items-center flex-grow"></div>
             </div>
           </div>
-        ))}
-      </div>
-
-      {/* Charts and Table */}
-      <div className="grid grid-cols-[70%_30%] gap-4 h-[80%] w-[98%]">
-        {/* Bar Chart */}
-        <div className="bg-white shadow-md rounded-xl p-6 ">
-          <h2 className="text-xl font-semibold text-gray-600 mb-6">
-            Histogramme des statuts
-          </h2>
-          <Bar data={chart} />
-        </div>
-
-        {/* Table + Doughnut */}
-        <div className="grid grid-rows-2 gap-4 h-full">
-          {/* Status Table */}
-          <div className="bg-white shadow-md rounded-xl p-4 overflow-auto">
-            <h2 className="text-xl font-semibold text-gray-600 mb-4">
-              Tableau des statuts
-            </h2>
-            <table className="w-full ">
-              <thead>
-                <tr
-                  className="text-left "
-                  style={{ backgroundColor: "#E60000" }}
-                >
-                  <th className="pl-[3%] text-white font-extrabold text-[18px] rounded-tl-md rounded-bl-md">
-                    #
-                  </th>
-                  <th className="text-white pl-[10%] font-extrabold text-[15px]">
-                    Status
-                  </th>
-                  <th className="text-white pl-[3%] font-extrabold text-[15px] rounded-tr-md rounded-br-md">
-                    Total
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.list_status.map((item, index) => (
-                  <tr key={index}>
-                    <td className="text-black pl-[3%] font-medium text-[15px] border-b-1">
-                      0{index + 1}
-                    </td>
-                    <td className="text-black pl-[10%] font-medium text-[15px] border-b-1">
-                      {item.status}
-                    </td>
-                    <td className="text-black pl-[3%] font-medium text-[15px] border-b-1">
-                      {item.total}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Doughnut Chart */}
-          <div className="bg-white shadow-md rounded-xl p-6 flex flex-col h-full">
-            <h2 className="text-xl font-semibold text-gray-600 mb-6 ">
-              Analyse des statuts
-            </h2>
-
-            <div className="flex flex-row justify-center items-center flex-grow"></div>
-          </div>
         </div>
       </div>
-    </div>
+    </Box>
   );
 };

@@ -31,6 +31,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import RuleIcon from "@mui/icons-material/Rule";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import ScaleIcon from "@mui/icons-material/Scale";
+import { Box, Typography, Paper } from "@mui/material";
 
 ChartJS.register(
   CategoryScale,
@@ -223,63 +224,39 @@ const QuestionChart = () => {
   };
 
   return (
-    <div className="h-screen p-4 flex flex-col">
-      {/* Export Data button align right */}
-      <div className="flex justify-end mb-4">
-        <ExportButton
-          handleExcelExport={handleExcelExport}
-          handlePdfExport={handlePdfExport}
-        />
-      </div>
+    <Box m="20px">
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          mb: 3,
+          borderRadius: "16px",
+          backgroundColor:
+            theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+        }}
+      >
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          flexWrap="wrap"
+          gap={2}
+        >
+          <Typography variant="h2">QUESTION TYPE ANALYSIS</Typography>
+          <ExportButton
+            handleExcelExport={handleExcelExport}
+            handlePdfExport={handlePdfExport}
+          />
+        </Box>
+      </Paper>
 
-      {/* Ligne du haut : 4 premières cards + "yes_no responses" à la place de l'ancien bouton */}
-      <div className="grid grid-cols-5 gap-4 w-full mb-6">
-        {cards.slice(0, 4).map((item, i) => (
-          <div
-            key={i}
-            className="bg-white shadow-md rounded-xl p-4 flex items-center"
-          >
-            {item.icon && <div>{item.icon}</div>}
-            <div className="ml-4">
-              <p className="text-xl font-semibold text-gray-900">
-                {item.value}
-              </p>
-              <p className="text-sm text-gray-500">{item.label}</p>
-            </div>
-          </div>
-        ))}
-        {/* Remplace la card vide par la card "yes_no responses" */}
-        {(() => {
-          const yesNoIndex = question_types.labels.findIndex(
-            (label) => label.toLowerCase() === "yes_no"
-          );
-          if (yesNoIndex !== -1) {
-            return (
-              <div className="bg-white shadow-md rounded-xl p-4 flex items-center">
-                <RuleIcon sx={{ fontSize: 40, color: "#16a34a" }} />
-                <div className="ml-4">
-                  <p className="text-xl font-semibold text-gray-900">
-                    {question_types.counts[yesNoIndex]}
-                  </p>
-                  <p className="text-sm text-gray-500">yes_no responses</p>
-                </div>
-              </div>
-            );
-          }
-          // Si pas de "yes_no", affiche une card vide
-          return (
-            <div className="bg-white shadow-md rounded-xl p-4 flex items-center justify-center" />
-          );
-        })()}
-      </div>
+      <div className="h-screen p-4 flex flex-col">
+        {/* Remove the old export buttons section */}
 
-      {/* Chart + 2 dernières cards à droite */}
-      <div className="flex w-full h-[80%]">
-        <div className="bg-white rounded shadow flex-1 p-4 flex justify-center items-center">
-          <Bar data={barchart} options={options} />
-        </div>
-        <div className="flex flex-col justify-start gap-4 ml-4">
-          {cards.slice(5).map((item, i) => (
+        {/* Ligne du haut : 4 premières cards + "yes_no responses" à la place de l'ancien bouton */}
+        <div className="grid grid-cols-5 gap-4 w-full mb-6">
+          {cards.slice(0, 4).map((item, i) => (
             <div
               key={i}
               className="bg-white shadow-md rounded-xl p-4 flex items-center"
@@ -293,9 +270,55 @@ const QuestionChart = () => {
               </div>
             </div>
           ))}
+          {/* Remplace la card vide par la card "yes_no responses" */}
+          {(() => {
+            const yesNoIndex = question_types.labels.findIndex(
+              (label) => label.toLowerCase() === "yes_no"
+            );
+            if (yesNoIndex !== -1) {
+              return (
+                <div className="bg-white shadow-md rounded-xl p-4 flex items-center">
+                  <RuleIcon sx={{ fontSize: 40, color: "#16a34a" }} />
+                  <div className="ml-4">
+                    <p className="text-xl font-semibold text-gray-900">
+                      {question_types.counts[yesNoIndex]}
+                    </p>
+                    <p className="text-sm text-gray-500">yes_no responses</p>
+                  </div>
+                </div>
+              );
+            }
+            // Si pas de "yes_no", affiche une card vide
+            return (
+              <div className="bg-white shadow-md rounded-xl p-4 flex items-center justify-center" />
+            );
+          })()}
+        </div>
+
+        {/* Chart + 2 dernières cards à droite */}
+        <div className="flex w-full h-[80%]">
+          <div className="bg-white rounded shadow flex-1 p-4 flex justify-center items-center">
+            <Bar data={barchart} options={options} />
+          </div>
+          <div className="flex flex-col justify-start gap-4 ml-4">
+            {cards.slice(5).map((item, i) => (
+              <div
+                key={i}
+                className="bg-white shadow-md rounded-xl p-4 flex items-center"
+              >
+                {item.icon && <div>{item.icon}</div>}
+                <div className="ml-4">
+                  <p className="text-xl font-semibold text-gray-900">
+                    {item.value}
+                  </p>
+                  <p className="text-sm text-gray-500">{item.label}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </Box>
   );
 };
 

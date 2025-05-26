@@ -6,14 +6,27 @@ const Hero = () => {
       <div className="hero-overlay" />
       <div className="hero-content">
         <div className="hero-text">
-          <h1>NPS Analysis for Djezzy</h1>
-          <h2>Transforming Customer Feedback into Actionable Insights</h2>
+          {/* updated to reflect the actual project */}
+          <h1>PFE NPS Dashboard for Djezzy</h1>
+          <h2>Explore, Contribute & Analyze Customer Feedback</h2>
           <p>
-            Track customer satisfaction, uncover trends, and make data-driven decisions to enhance service quality.
+            Log in to access interactive analytics or visit the GitHub repo to
+            see the source, contribute, and track issues.
           </p>
           <div className="hero-buttons">
-            <Link to="/register" className="btn btn-primary">Get Started</Link>
-            <a href="#how-it-works" className="btn btn-secondary">Learn More</a>
+            {/* Get Started now points to login */}
+            <Link to="/login" className="btn btn-primary">
+              Get Started
+            </Link>
+            {/* Learn More now opens the GitHub repository */}
+            <a
+              href="https://github.com/mehdi869/pfe/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-secondary" 
+            >
+              Learn More
+            </a>
           </div>
         </div>
         <div className="hero-image">

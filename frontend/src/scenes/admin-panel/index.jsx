@@ -23,14 +23,15 @@ import { tokens } from "../../styles/theme";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import Header from "../../components/Header";
 import SearchIcon from "@mui/icons-material/Search";
-import FilterListIcon from "@mui/icons-material/FilterList";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditIcon from "@mui/icons-material/Edit";
-import PersonIcon from "@mui/icons-material/Person"; // Import a default user icon
+import PersonIcon from "@mui/icons-material/Person";
 import { useState, useEffect, useContext } from "react";
 import {
   fetchUsers,
@@ -38,7 +39,7 @@ import {
   updateUser,
   deleteUser,
 } from "../../API/api";
-import { AuthContext } from "../../context/AuthContext"; // adjust path as needed
+import { AuthContext } from "../../context/AuthContext";
 
 const Admin = () => {
   const theme = useTheme();
@@ -164,14 +165,14 @@ const Admin = () => {
               mr: 1,
               border: `2px solid ${
                 row.user_type === "admin"
-                  ? colors.blueAccent[400] // Admin color
-                  : colors.redAccent[300]   // Agent color
+                  ? colors.orangeAccent[400]
+                  : colors.cyanAccent[400]
               }`,
-              backgroundColor: // Optional: if you want a background color for the icon Avatar
+              backgroundColor:
                 row.user_type === "admin"
-                  ? colors.blueAccent[900]
-                  : colors.redAccent[800],
-              color: colors.grey[100] // Icon color
+                  ? colors.orangeAccent[800]
+                  : colors.cyanAccent[800],
+              color: colors.grey[100]
             }}
           >
             <PersonIcon fontSize="small" />
@@ -200,27 +201,33 @@ const Admin = () => {
             row.user_type === "admin" ? (
               <AdminPanelSettingsOutlinedIcon fontSize="small" />
             ) : (
-              <LockOpenOutlinedIcon fontSize="small" />
+              <SupportAgentIcon fontSize="small" />
             )
           }
-          label={row.user_type.charAt(0).toUpperCase() + row.user_type.slice(1)} // Capitalize
+          label={row.user_type.charAt(0).toUpperCase() + row.user_type.slice(1)}
           size="small"
           sx={{
             backgroundColor:
               row.user_type === "admin"
-                ? colors.blueAccent[900]  // Admin background
-                : colors.redAccent[800],   // Agent background
+                ? colors.orangeAccent[600]
+                : colors.cyanAccent[600],
             color:
               row.user_type === "admin"
-                ? colors.blueAccent[400]  // Admin text/icon
-                : colors.redAccent[300],   // Agent text/icon
-            borderRadius: "4px",
+                ? colors.orangeAccent[100]
+                : colors.cyanAccent[100],
+            borderRadius: "8px",
             fontWeight: "bold",
+            fontSize: "12px",
+            border: `1px solid ${
+              row.user_type === "admin"
+                ? colors.orangeAccent[400]
+                : colors.cyanAccent[400]
+            }`,
             "& .MuiChip-icon": {
               color:
                 row.user_type === "admin"
-                  ? colors.blueAccent[400]
-                  : colors.redAccent[300],
+                  ? colors.orangeAccent[200]
+                  : colors.cyanAccent[200],
             },
           }}
         />
@@ -230,7 +237,7 @@ const Admin = () => {
       field: "actions",
       headerName: "Actions",
       flex: 0.5,
-      filterable: false, // <-- Add this line
+      filterable: false,
       renderCell: ({ row }) => (
         <Box>
           <IconButton
@@ -245,32 +252,32 @@ const Admin = () => {
   ];
 
   return (
-    <Box // Root container for the Admin page
+    <Box
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        height: '100%', // Take full height available from parent (Outlet)
+        height: '100%',
         p: '20px',
-        boxSizing: 'border-box', // Padding included in height calculation
-        overflow: 'hidden', // Prevent this Box from scrolling
+        boxSizing: 'border-box',
+        overflow: 'hidden',
       }}
     >
       {/* Header and Add Button Row */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} flexShrink={0}>
-        <Header title="TEAM" subtitle="Managing the Team Members" />
+        <Header title="ADMIN PANEL" subtitle="Managing the Team Members" />
         <Button
           variant="contained"
           startIcon={<AddIcon />}
           onClick={handleAddClick}
           sx={{
-            backgroundColor: colors.primary[500], // Use primary red from theme
+            backgroundColor: colors.primary[500],
             color: colors.grey[100],
             fontSize: "14px",
             fontWeight: "bold",
             padding: "10px 20px",
             borderRadius: "8px",
             "&:hover": {
-              backgroundColor: colors.primary[600], // Darker shade from theme
+              backgroundColor: colors.primary[600],
             },
           }}
         >
@@ -285,7 +292,7 @@ const Admin = () => {
         alignItems="center"
         p={2}
         mb={2}
-        bgcolor={colors.primary[400]} // Consistent with DataGrid background
+        bgcolor={colors.primary[400]}
         borderRadius="8px"
         boxShadow="0 4px 20px rgba(0, 0, 0, 0.1)"
         flexShrink={0}
@@ -295,7 +302,7 @@ const Admin = () => {
           placeholder="Search by username or email..."
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
-          sx={{ width: "300px" /* Other styles inherited from theme */ }}
+          sx={{ width: "300px" }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -306,23 +313,23 @@ const Admin = () => {
         />
       </Box>
 
-      {/* DataGrid Container - Takes remaining space and handles its own scroll */}
+      {/* DataGrid Container */}
       <Box
         sx={{
-          flexGrow: 1, // Allow this box to grow and fill available vertical space
-          minHeight: 0, // Important for flex children to shrink correctly and allow internal scrolling
+          flexGrow: 1,
+          minHeight: 0,
           '& .MuiDataGrid-root': {
             border: 'none',
             borderRadius: '8px',
             boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-            backgroundColor: colors.primary[400], // Ensure this matches overall theme
-            height: '100%', // Make DataGrid fill this container
+            backgroundColor: colors.primary[400],
+            height: '100%',
           },
           '& .MuiDataGrid-cell': {
             borderBottom: `1px solid ${colors.grey[800]}`,
           },
           '& .MuiDataGrid-columnHeaders': {
-            backgroundColor: colors.primary[500], // Darker header
+            backgroundColor: colors.primary[500],
             borderBottom: 'none',
             color: colors.grey[100],
           },
@@ -344,12 +351,11 @@ const Admin = () => {
           disableSelectionOnClick
           loading={loading}
           getRowId={(row) => row.id}
-          hideFooter={true} // Keeps pagination hidden
-          // No explicit height on DataGrid, it will fill its parent Box
+          hideFooter={true}
         />
       </Box>
 
-      {/* Actions Menu, Delete Dialog, Edit Dialog, Add Dialog remain the same */}
+      {/* Actions Menu */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}

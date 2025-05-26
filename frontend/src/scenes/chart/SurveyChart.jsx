@@ -4,6 +4,10 @@ import {
   fetchSurvey4Type, fetchSurvey5Type, fetchSurvey6Type, fetchSurvey8Type
 } from "../../API/api";
 import { Bar } from "react-chartjs-2";
+import { ExportButton } from "./QuestionChart";
+import { exportToExcel, exportChartDataToPdf } from "../../utils/utils";
+import { Box, Typography, Paper, useTheme } from "@mui/material";
+import { tokens } from "../../styles/theme";
 
 // Config : ces fetchers sont utilisés pour les tableaux et chartData
 const surveyFetchers = [
@@ -47,6 +51,8 @@ export const SurveyChart = () => {
   const [chartData, setChartData] = useState(null);
   const [surveyData, setSurveyData] = useState({});
   const [chartSurveyData, setChartSurveyData] = useState({});
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -149,31 +155,90 @@ export const SurveyChart = () => {
     },
   };
 
+  const handleExcelExport = () => {
+    const rows = surveyFetchers.map(({ label }) => {
+      const data = surveyData[label];
+      if (data) {
+        const entries = Object.entries(data).slice(0, 3);
+        return {
+          Survey: label,
+          ...Object.fromEntries(entries)
+        };
+      }
+      return { Survey: label };
+    });
+    exportToExcel({
+      rows,
+      sheetName: "SurveyChart",
+      fileName: "survey_chart_data.xlsx",
+    });
+  };
+
+  const handlePdfExport = () => {
+    const rows = surveyFetchers.map(({ label }) => {
+      const data = surveyData[label];
+      if (data) {
+        const entries = Object.entries(data).slice(0, 3);
+        return {
+          Survey: label,
+          ...Object.fromEntries(entries)
+        };
+      }
+      return { Survey: label };
+    });
+    exportChartDataToPdf({
+      rows,
+      title: "Survey Chart Data",
+      fileName: "survey_chart_data.pdf",
+    });
+  };
+
   if (!chartData) return <div>Chargement en cours...</div>;
 
   return (
-    <div className="h-full w-full p-4 space-y-6">
-      {/* 7 tableaux */}
-      <div className="grid grid-cols-4 gap-2">
-        {surveyFetchers.slice(0, 4).map(({ label }) => (
-          <SurveyTable key={label} title={`Informations de "${label}"`} data={surveyData[label]} />
-        ))}
-      </div>
-      <div className="grid grid-cols-3 gap-2">
-        {surveyFetchers.slice(4).map(({ label }) => (
-          <SurveyTable key={label} title={`Informations de "${label}"`} data={surveyData[label]} />
-        ))}
-      </div>
+    <Box m="20px">
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          mb: 3,
+          borderRadius: "16px",
+          backgroundColor: theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+        }}
+      >
+        <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2}>
+          <Typography variant="h2">SURVEY ANALYSIS</Typography>
+          <ExportButton
+            handleExcelExport={handleExcelExport}
+            handlePdfExport={handlePdfExport}
+          />
+        </Box>
+      </Paper>
+      
+      <div className="h-full w-full p-4 space-y-6">
+        {/* 7 tableaux */}
+        <div className="grid grid-cols-4 gap-2">
+          {surveyFetchers.slice(0, 4).map(({ label }) => (
+            <SurveyTable key={label} title={`Informations de "${label}"`} data={surveyData[label]} />
+          ))}
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {surveyFetchers.slice(4).map(({ label }) => (
+            <SurveyTable key={label} title={`Informations de "${label}"`} data={surveyData[label]} />
+          ))}
+        </div>
 
-      {/* Graphiques */}
-      <div className="grid grid-cols-[45%_55%]">
-        <div className="border bg-white p-2 m-2 rounded-xl">
-          <Bar data={chartSurvey} />
-        </div>
-        <div className="border bg-white p-2 m-2 rounded-xl">
-          <Bar data={chartData} options={option} />
+        {/* Graphiques */}
+        <div className="grid grid-cols-[45%_55%]">
+          <div className="border bg-white p-2 m-2 rounded-xl">
+            <Bar data={chartSurvey} />
+          </div>
+          <div className="border bg-white p-2 m-2 rounded-xl">
+            <Bar data={chartData} options={option} />
+          </div>
         </div>
       </div>
-    </div>
+    </Box>
   );
 };

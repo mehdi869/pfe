@@ -12,6 +12,8 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { Box, Typography, Paper, useTheme } from "@mui/material";
+import { tokens } from "../../styles/theme";
 import { ExportButton } from "./QuestionChart";
 import { exportToExcel, exportChartDataToPdf } from "../../utils/utils";
 
@@ -115,7 +117,7 @@ export const NpsChart = () => {
       label: "Total réponses entre 7 et 8",
     },
     {
-      icon: <Smile className="w-10 h-10 text-green-600" />,
+      icon: <Smile className="w-10 h-10 text-green-800" />,
       value: safeGet(8),
       label: "Total réponses entre 9 et 10",
     },
@@ -156,31 +158,59 @@ export const NpsChart = () => {
     });
   };
 
-  return (
-    <div className="h-screen p-4 flex flex-col">
-      <div className="flex justify-end mb-4">
-        <ExportButton
-          handleExcelExport={handleExcelExport}
-          handlePdfExport={handlePdfExport}
-        />
-      </div>
-      <div className="grid grid-cols-5 gap-4 w-full mb-6">
-        {cards.map((item, i) => (
-          <div key={i} className="bg-white shadow-md rounded-xl p-4 flex items-center transform transition duration-300 hover:-translate-y-2">
-            {item.icon && <div>{item.icon}</div>}
-            <div className="ml-4">
-              <p className="text-xl font-semibold text-gray-900">
-                {item.value}
-              </p>
-              <p className="text-sm text-gray-500">{item.label}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
 
-      <div className="bg-white w-full h-[80%] p-4 rounded shadow flex justify-center">
-        <Bar data={barchart} options={options} />
+  return (
+    <Box m="20px">
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          mb: 3,
+          borderRadius: "16px",
+          backgroundColor:
+            theme.palette.mode === "dark" ? colors.primary[400] : "#fff",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+        }}
+      >
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          flexWrap="wrap"
+          gap={2}
+        >
+          <Typography variant="h2">NPS SCORE ANALYSIS</Typography>
+          <ExportButton
+            handleExcelExport={handleExcelExport}
+            handlePdfExport={handlePdfExport}
+          />
+        </Box>
+      </Paper>
+
+      <div className="h-screen p-4 flex flex-col">
+        <div className="grid grid-cols-5 gap-4 w-full mb-6">
+          {cards.map((item, i) => (
+            <div
+              key={i}
+              className="bg-white shadow-md rounded-xl p-4 flex items-center transform transition duration-300 hover:-translate-y-2"
+            >
+              {item.icon && <div>{item.icon}</div>}
+              <div className="ml-4">
+                <p className="text-xl font-semibold text-gray-900">
+                  {item.value}
+                </p>
+                <p className="text-sm text-gray-500">{item.label}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="bg-white w-full h-[80%] p-4 rounded shadow flex justify-center">
+          <Bar data={barchart} options={options} />
+        </div>
       </div>
-    </div>
+    </Box>
   );
 };

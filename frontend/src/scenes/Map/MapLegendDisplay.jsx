@@ -48,7 +48,7 @@ const MapLegendDisplay = React.memo(({ themeColors, selectedNpsCategoryIds, onNp
             fontSize: "1rem", // Reduced font size
           }}
         >
-          Legend
+          Legend & Filter
         </Typography>
         <IconButton
           onClick={toggleExpanded}
