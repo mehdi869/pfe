@@ -31,7 +31,6 @@
     "react-leaflet": "^5.0.0",
     "react-pro-sidebar": "^0.7.1",
     "react-router-dom": "^6.30.0",
-    "react-scripts": "^5.0.1",
     "styled-components": "^6.1.17",
     "web-vitals": "^2.1.4",
     "xlsx": "^0.18.5",
@@ -40,7 +39,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest"
   },
   "eslintConfig": {
     "extends": []

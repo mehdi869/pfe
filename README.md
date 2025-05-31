@@ -93,11 +93,11 @@ Potential root cause:
 - [x] Create the frontend endpoints
 
 ### 2. NPS Map Page
-- [ ] Create the DB view for the NPS Map page
-- [ ] Create the backend endpoints (views, urls, serializers)
-- [ ] Create the frontend components
-- [ ] Create the frontend endpoints
-- [ ] Create the frontend data visualization
+- [x] Create the DB view for the NPS Map page
+- [x] Create the backend endpoints (views, urls, serializers)
+- [x] Create the frontend components
+- [x] Create the frontend endpoints
+- [x] Create the frontend data visualization
 
 ### Map Features
 - [ ] Interactive choropleth -need geojson data for both city and region boundaries-
@@ -124,31 +124,30 @@ Potential root cause:
 - [x] Table: Counts and NPS per group
 
 #### 4.2 By Survey Type
-- [ ] Title: "Survey Type Performance"
-- [ ] Chart: Grouped bar showing count vs NPS per type
-- [ ] Filters: Select survey types to compare
+- [x] Title: "Survey Type Performance"
+- [x] Chart: Grouped bar showing count vs NPS per type
+- [x] Filters: Select survey types to compare
 
 #### 4.3 By Question Type
-- [ ] Title: "Responses by Question Number"
-- [ ] Chart: Bar chart of counts or avg score per question
+- [x] Title: "Responses by Question Number"
+- [x] Chart: Bar chart of counts or avg score per question
 
 Annotations: Highlight significant drops or peaks
-- Real Data Integration From DB
-- Advanced Data Filtering and Search
-- Prevelege and Authorization Levels (Admin,Agent) -Aymen-
-- Data Cashing featues -Aymen-
-- Remeber me Func -Aymen-
-- Session Management
-- Testing : Unit Testing
-- Enhance security and performance.
-- Enahance Logging and Error handling
-- Data Visualization Customization
-- App appearence parameteres and UI Customization
-- Report Generation and Export -Aymen-
-- User Profile Management -Aymen-
-- CSRF Protection
-- PWA and offline support
-- CSRF Protection
+- Real Data Integration From DB -✅ done- 
+- Advanced Data Filtering and Search -✅ done (still the map needs some enhancement) -
+- Prevelege and Authorization Levels (Admin,Agent) -✅ done (still need that the agent when he sign up a request is made for approval by admin) -
+- Data Cashing featues -✅ done -
+- Remeber me Func -✅ done -
+- Session Management -✅ done -
+- Testing : Unit Testing -✅ done -
+- Enhance security and performance. -✅ done -
+- Enahance Logging and Error handling -✅ done -
+- Data Visualization Customization -✅ done -
+- App appearence parameteres and UI Customization -✅ done -
+- Report Generation and Export -✅ done -
+- User Profile Management -✅ done -
+- CSRF Protection -✅ done -
+- PWA and offline support -🌀 pending -
 
 > **Important🚨** : Contact the team before editing the code, or create a new branch. or just code, YOU ARE FREE.
 
