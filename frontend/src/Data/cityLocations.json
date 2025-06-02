@@ -781,8 +781,8 @@
     },
     {
         "ville": "AMOURA",
-        "Latitude": 41.6364686,
-        "Longitude": -83.48812649999999
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "ANNABA",
@@ -871,8 +871,8 @@
     },
     {
         "ville": "AZIZ",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "AZZABA",
@@ -1126,8 +1126,8 @@
     },
     {
         "ville": "BENHAR",
-        "Latitude": -46.2242475,
-        "Longitude": 169.7937087
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "BENI ABBES",
@@ -1371,8 +1371,8 @@
     },
     {
         "ville": "BENIAN",
-        "Latitude": 41.3221949,
-        "Longitude": 19.7836652
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "BENSEKRANE",
@@ -1691,8 +1691,8 @@
     },
     {
         "ville": "BOUDA",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "BOUDERBALA",
@@ -1846,8 +1846,8 @@
     },
     {
         "ville": "BOUKANEFIS",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "BOUKHADRA",
@@ -1861,8 +1861,8 @@
     },
     {
         "ville": "BOULEHILET",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "BOULHAF DYR",
@@ -1951,8 +1951,8 @@
     },
     {
         "ville": "BOUSSIF OULED AKSEUR",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "BOUTALEB",
@@ -2021,13 +2021,13 @@
     },
     {
         "ville": "BRIDA",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "CASBAH",
-        "Latitude": 32.7302513,
-        "Longitude": -117.1719208
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "CHAABET EL HAM",
@@ -2076,8 +2076,8 @@
     },
     {
         "ville": "CHEFIA",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "CHEGUIG",
@@ -2211,8 +2211,8 @@
     },
     {
         "ville": "CHIR",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "CHLEF",
@@ -2231,23 +2231,23 @@
     },
     {
         "ville": "COLLA",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "COLLO",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "CONSTANTINE",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "CORSO",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "DAHMOUNI",
@@ -2261,8 +2261,8 @@
     },
     {
         "ville": "DAHRA",
-        "Latitude": 15.3558802,
-        "Longitude": -15.4829681
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "DAMOUS",
@@ -2286,8 +2286,8 @@
     },
     {
         "ville": "DAR YAGHMOURASSENE",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "DARGUINA",
@@ -2351,23 +2351,23 @@
     },
     {
         "ville": "DHAYA",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "DHAYET BENDAHOUA",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "DIDOUCHE MOURAD",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "DIRAH",
-        "Latitude": 24.0476032,
-        "Longitude": 45.2488481
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "DJAAFRA",
@@ -2466,8 +2466,8 @@
     },
     {
         "ville": "DJERMA",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "DJEZZAR",
@@ -2561,8 +2561,8 @@
     },
     {
         "ville": "DREA",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "DREAN",
@@ -2586,8 +2586,8 @@
     },
     {
         "ville": "EL ABBADIA",
-        "Latitude": 43.1452947,
-        "Longitude": 11.8223612
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "EL ABIODH SIDI CHEIKH",
@@ -2621,8 +2621,8 @@
     },
     {
         "ville": "EL ALLIA",
-        "Latitude": 37.1727454,
-        "Longitude": 10.0331692
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "EL AMIRIA",
@@ -2696,8 +2696,8 @@
     },
     {
         "ville": "EL AZIZIA",
-        "Latitude": 32.532396,
-        "Longitude": 13.0159079
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "EL BAYADH",
@@ -2826,8 +2826,8 @@
     },
     {
         "ville": "EL GUEITNA",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "EL GUELBELKEBIR",
@@ -2841,8 +2841,8 @@
     },
     {
         "ville": "EL GUETTAR",
-        "Latitude": 34.3386982,
-        "Longitude": 8.9493751
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "EL HACAIBA",
@@ -2851,8 +2851,8 @@
     },
     {
         "ville": "EL HACHEM",
-        "Latitude": 33.9067906,
-        "Longitude": 35.5899319
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "EL HACHIMIA",
@@ -2916,8 +2916,8 @@
     },
     {
         "ville": "EL HAOUAITA",
-        "Latitude": 37.0534622,
-        "Longitude": 11.0117917
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "EL HAOUCH",
@@ -3001,8 +3001,8 @@
     },
     {
         "ville": "EL KARMA",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "EL KENNAR NOUCHFI",
@@ -3086,13 +3086,13 @@
     },
     {
         "ville": "EL MAMOUNIA",
-        "Latitude": 48.517498,
-        "Longitude": 2.64384
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "EL MANSOURA",
-        "Latitude": 31.0409483,
-        "Longitude": 31.3784704
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "EL MARSA",
@@ -3151,8 +3151,8 @@
     },
     {
         "ville": "EL MOKRANI",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "EL MOURADIA",
@@ -3211,8 +3211,8 @@
     },
     {
         "ville": "EL ZORG",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "EMDJEZ EDCHICH",
@@ -3221,8 +3221,8 @@
     },
     {
         "ville": "EMIR ABDELKADER",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "ENSIGHA",
@@ -3451,8 +3451,8 @@
     },
     {
         "ville": "GUEMAR",
-        "Latitude": 48.1890575,
-        "Longitude": 7.396109199999999
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "GUENZET TASSAMEURT",
@@ -3561,8 +3561,8 @@
     },
     {
         "ville": "HAMADIA",
-        "Latitude": 32.519773,
-        "Longitude": 35.520568
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "HAMALA",
@@ -3746,8 +3746,8 @@
     },
     {
         "ville": "HASSI EL GARAA",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "HASSI EL GHELLA",
@@ -3801,8 +3801,8 @@
     },
     {
         "ville": "HELIOPOLIS",
-        "Latitude": 30.112315,
-        "Longitude": 31.3438507
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "HENAYA",
@@ -3966,8 +3966,8 @@
     },
     {
         "ville": "ISSER",
-        "Latitude": 5.6544922,
-        "Longitude": -0.1844072
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "JIJEL",
@@ -4271,8 +4271,8 @@
     },
     {
         "ville": "LAYOUNE",
-        "Latitude": 27.1500384,
-        "Longitude": -13.1990758
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "LAZHARIA",
@@ -4356,13 +4356,13 @@
     },
     {
         "ville": "MAGRA",
-        "Latitude": 44.25147844762719,
-        "Longitude": 9.879547023350145
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "MAHDIA",
-        "Latitude": 35.5024461,
-        "Longitude": 11.045721
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "MAHELMA",
@@ -4371,8 +4371,8 @@
     },
     {
         "ville": "MAKDA",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "MAKEDRA",
@@ -4386,8 +4386,8 @@
     },
     {
         "ville": "MANSOURA",
-        "Latitude": 31.0409483,
-        "Longitude": 31.3784704
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "MANSOURAH",
@@ -4421,8 +4421,8 @@
     },
     {
         "ville": "MATMORE",
-        "Latitude": 22.7138748,
-        "Longitude": 76.3781984
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "MAZOUNA",
@@ -4476,8 +4476,8 @@
     },
     {
         "ville": "MED",
-        "Latitude": "",
-        "Longitude": ""
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "MEDEA",
@@ -4486,8 +4486,8 @@
     },
     {
         "ville": "MEDIOUNA",
-        "Latitude": 33.4540939,
-        "Longitude": -7.516602000000001
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "MEDJANA",
@@ -4563,7 +4563,6 @@
         "ville": "MELAAB",
         "Latitude": 31.5810875,
         "Longitude": -4.746639699999999
-
     },
     {
         "ville": "MELBOU",
@@ -4587,8 +4586,8 @@
     },
     {
         "ville": "MENDES",
-        "Latitude": -22.5254639,
-        "Longitude": -43.7312103
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "MERAHNA",
@@ -4607,8 +4606,8 @@
     },
     {
         "ville": "MERINE",
-        "Latitude": 40.3332974,
-        "Longitude": 18.2227374
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "MEROUANA",
@@ -4637,8 +4636,8 @@
     },
     {
         "ville": "MESRA",
-        "Latitude": 23.4270906,
-        "Longitude": 85.4120942
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "MESSAAD",
@@ -4712,8 +4711,8 @@
     },
     {
         "ville": "MILA",
-        "Latitude": 25.790219,
-        "Longitude": -80.13673310000001
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "MILIANA",
@@ -4827,8 +4826,8 @@
     },
     {
         "ville": "MRARA",
-        "Latitude": -4.2090165,
-        "Longitude": 35.7593248
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "MSARA",
@@ -4847,8 +4846,8 @@
     },
     {
         "ville": "MTARFA",
-        "Latitude": 35.8889628,
-        "Longitude": 14.3940755
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "MTOUSSA",
@@ -4872,8 +4871,8 @@
     },
     {
         "ville": "NADOR",
-        "Latitude": 35.1739466,
-        "Longitude": -2.9342366
+        "Latitude": null,
+        "Longitude": null
     },
     {
         "ville": "NADORAH",

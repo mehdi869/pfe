@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import {
   Box,
   Button,
@@ -45,7 +45,8 @@ import {
   LineElement,
   Filler,
 } from "chart.js"
-import { fetchQuickStats } from "../../API/api" // Add this import
+import { useCachedApi } from '../../hooks/useCachedApi';
+import { fetchQuickStats } from "../../API/api"
 import { exportToExcel } from "../../utils/utils"          // ← your Excel helper
 
 // Register ChartJS components
@@ -65,26 +66,44 @@ ChartJS.register(
 const Dashboard = () => {
   const theme = useTheme()
   const colors = tokens(theme.palette.mode)
-  const [isLoading, setIsLoading] = useState(false)
   const [tabValue, setTabValue]             = useState(0)
   const [animateCharts, setAnimateCharts]   = useState(false)
-  const [showPercentage, setShowPercentage] = useState(true); // <-- Add this line
-
-  // ← add export UI state
+  const [showPercentage, setShowPercentage] = useState(true)
   const [showExportOptions, setShowExportOptions] = useState(false)
 
-  const [npsData, setNpsData] = useState({
-    nps_score: null,
-    promoters: null,
-    passives: null,
-    detractors: null,
-    total_responses: null,
-    null_responses: null,
-    response_rate: null,
-    last_refresh_date: null,
-    nps_score_trend: null,
-  })
-  // real data integration
+  // Add constants at the top
+  const CHART_ANIMATION_DELAY = 500
+  const LOADING_SIMULATION_TIME = 1500
+  const CHART_ANIMATION_DURATION = 2000
+  const TOP_BRANDS_LIMIT = 3
+
+  // Use the custom hook instead of manual caching
+  const {
+    data: npsData,
+    loading: isLoading,
+    error,
+    refresh: refreshNpsData
+  } = useCachedApi(
+    fetchQuickStats,
+    'quickStats',
+    [], // dependencies
+    {
+      ttl: 10 * 60 * 1000, // 10 minutes cache
+      fallbackData: {
+        nps_score: 0,
+        promoters: 0,
+        passives: 0,
+        detractors: 0,
+        total_responses: 0,
+        null_responses: 0,
+        response_rate: 0,
+        last_refresh_date: null,
+        nps_by_segment: [],
+        device_brand_distribution: null
+      }
+    }
+  );
+
   // Utility to validate quick stats data
   const isValidQuickStats = (data) => {
     return (
@@ -97,89 +116,18 @@ const Dashboard = () => {
       typeof data.total_responses === "number"
     )
   }
-  // create some variables to hold the percentage of promoters, passives, and detractors\
-  const promotersPercentage = ((npsData.promoters / npsData.total_responses) * 100).toFixed(2)
-  const passivesPercentage = ((npsData.passives / npsData.total_responses) * 100).toFixed(2)
-  const detractorsPercentage = ((npsData.detractors / npsData.total_responses) * 100).toFixed(2)
 
-  // Fetch and cache quick stats
-  useEffect(() => {
-    const loadQuickStats = async () => {
-      // Try to get from localStorage
-      const cached = localStorage.getItem("quickStats")
-      if (cached) {
-        try {
-          const parsed = JSON.parse(cached)
-          if (isValidQuickStats(parsed)) {
-            setNpsData(parsed)
-            return
-          }
-        } catch (e) {
-          // Ignore and fetch from server
-        }
-      }
-      // Fetch from server if missing or invalid
-      try {
-        const stats = await fetchQuickStats()
-        setNpsData(stats)
-        localStorage.setItem("quickStats", JSON.stringify(stats))
-      } catch (e) {
-        // handle error (show message or fallback)
-      }
-    }
-    loadQuickStats()
-  }, [])
+  // create some variables to hold the percentage of promoters, passives, and detractors
+  const promotersPercentage = npsData.total_responses > 0 
+  ? ((npsData.promoters / npsData.total_responses) * 100).toFixed(2) 
+  : "0.00"
+  const passivesPercentage = npsData.total_responses > 0 
+  ? ((npsData.passives / npsData.total_responses) * 100).toFixed(2) 
+  : "0.00"
+  const detractorsPercentage = npsData.total_responses > 0 
+  ? ((npsData.detractors / npsData.total_responses) * 100).toFixed(2) 
+  : "0.00"
 
- 
-
-  // Update device brand chart when npsData changes
-  useEffect(() => {
-    if (npsData.device_brand_distribution) {
-      const { labels, counts, percentages } = npsData.device_brand_distribution;
-      
-      // Take only top 3 brands + aggregate others
-      const top3Labels = labels.slice(0, 3);
-      const top3Counts = counts.slice(0, 3);
-      const top3Percentages = percentages.slice(0, 3);
-      
-      // Calculate "Others" values if there are more than 3 brands
-      if (labels.length > 3) {
-        const othersCount = counts.slice(3).reduce((sum, count) => sum + count, 0);
-        const othersPercentage = percentages.slice(3).reduce((sum, pct) => sum + pct, 0);
-        
-        top3Labels.push('Others');
-        top3Counts.push(othersCount);
-        top3Percentages.push(othersPercentage);
-      }
-      
-      const displayData = showPercentage ? top3Percentages : top3Counts;
-      
-      setChartData((prev) => ({
-        ...prev,
-        deviceBrandDistribution: {
-          ...prev.deviceBrandDistribution,
-          labels: top3Labels,
-          datasets: [
-            {
-              ...prev.deviceBrandDistribution.datasets[0],
-              data: displayData,
-            },
-          ],
-        },
-      }));
-    }
-  }, [npsData.device_brand_distribution, showPercentage])
-
-  // Optionally, add a refresh button to clear cache and refetch
-  const handleRefreshStats = async () => {
-    try {
-      const stats = await fetchQuickStats()
-      setNpsData(stats)
-      localStorage.setItem("quickStats", JSON.stringify(stats))
-    } catch (e) {
-      // handle error
-    }
-  }
   // Nps per chart
   const [chartData, setChartData] = useState({
     responseDistribution: {
@@ -241,6 +189,45 @@ const Dashboard = () => {
     },
   })
 
+  // Update device brand chart when npsData changes
+  useEffect(() => {
+    if (npsData.device_brand_distribution) {
+      const { labels, counts, percentages } = npsData.device_brand_distribution;
+      
+      // Take only top 3 brands + aggregate others
+      const top3Labels = labels.slice(0, 3);
+      const top3Counts = counts.slice(0, 3);
+      const top3Percentages = percentages.slice(0, 3);
+      
+      // Calculate "Others" values if there are more than 3 brands
+      if (labels.length > 3) {
+        const othersCount = counts.slice(3).reduce((sum, count) => sum + count, 0);
+        const othersPercentage = percentages.slice(3).reduce((sum, pct) => sum + pct, 0);
+        
+        top3Labels.push('Others');
+        top3Counts.push(othersCount);
+        top3Percentages.push(othersPercentage);
+      }
+      
+      const displayData = showPercentage ? top3Percentages : top3Counts;
+      
+      setChartData((prev) => ({
+        ...prev,
+        deviceBrandDistribution: {
+          ...prev.deviceBrandDistribution,
+          labels: top3Labels,
+          datasets: [
+            {
+              ...prev.deviceBrandDistribution.datasets[0],
+              data: displayData,
+            },
+          ],
+        },
+      }));
+    }
+  }, [npsData.device_brand_distribution, showPercentage])
+
+  // All your useEffect hooks
   useEffect(() => {
     if (npsData.total_responses > 0) {
       setChartData((prev) => ({
@@ -262,7 +249,6 @@ const Dashboard = () => {
     }
   }, [promotersPercentage, passivesPercentage, detractorsPercentage])
 
-  // Add this useEffect after your other useEffects
   useEffect(() => {
     if (Array.isArray(npsData.nps_by_segment) && npsData.nps_by_segment.length > 0) {
       const labels = npsData.nps_by_segment.map((seg) => seg.segment_type)
@@ -290,7 +276,31 @@ const Dashboard = () => {
     }
   }, [npsData.nps_by_segment])
 
-  // Function to handle refresh
+  // Trigger initial animation on mount
+  useEffect(() => {
+    setTimeout(() => {
+      setAnimateCharts(true)
+    }, CHART_ANIMATION_DELAY)
+  }, [])
+
+  // All your callback functions
+  const handleRefreshStats = useCallback(async () => {
+    try {
+      await refreshNpsData();
+      setSnackbar({
+        open: true,
+        message: "Data refreshed successfully!",
+        severity: "success"
+      });
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: "Failed to refresh data",
+        severity: "error"
+      });
+    }
+  }, [refreshNpsData]);
+
   const handleRefresh = () => {
     setIsLoading(true)
     setAnimateCharts(false)
@@ -300,31 +310,41 @@ const Dashboard = () => {
       // Simulate updated data
       const updatedNpsData = {
         ...npsData,
-        currentScore: Math.floor(Math.random() * 20) + 30, // Random score between 30-50
+        currentScore: Math.floor(Math.random() * 20) + 30,
         lastUpdated: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       }
 
       setNpsData(updatedNpsData)
       setIsLoading(false)
 
-      // Trigger chart animations after data update
       setTimeout(() => {
         setAnimateCharts(true)
       }, 300)
-    }, 1500)
+    }, LOADING_SIMULATION_TIME)
   }
 
-  // Handle tab change
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue)
   }
 
-  // Trigger initial animation on mount
-  useEffect(() => {
-    setTimeout(() => {
-      setAnimateCharts(true)
-    }, 500)
-  }, [])
+  const handleExportClose = () => setShowExportOptions(false)
+
+  // Removed duplicate declaration of handleExcelExport
+
+  // Removed duplicate declaration of handlePdfExport
+
+  // Memoize calculated percentages
+  const calculatedPercentages = useMemo(() => {
+    if (!npsData.total_responses || npsData.total_responses === 0) {
+      return { promoters: "0.00", passives: "0.00", detractors: "0.00" }
+    }
+    
+    return {
+      promoters: ((npsData.promoters / npsData.total_responses) * 100).toFixed(2),
+      passives: ((npsData.passives / npsData.total_responses) * 100).toFixed(2),
+      detractors: ((npsData.detractors / npsData.total_responses) * 100).toFixed(2),
+    }
+  }, [npsData.promoters, npsData.passives, npsData.detractors, npsData.total_responses])
 
   // NPS Score Card Component
   const NPSScoreCard = () => {
@@ -648,14 +668,17 @@ const Dashboard = () => {
           label: function (context) {
             const label = context.label || '';
             const value = context.raw;
-            // This tooltip is shared by "Response Distribution" and "Device Brand Distribution"
-            // For "Response Distribution", context.raw is always a percentage.
-            // For "Device Brand Distribution", context.raw can be a count or percentage based on `showPercentage` state.
-            if (showPercentage || context.chart.canvas.parentElement.previousElementSibling?.textContent === "Response Distribution") {
-              // If showPercentage is true OR if it's the Response Distribution chart (which always shows percentages)
+            const datasetLabel = context.dataset.label || '';
+            
+            // Check if this is the response distribution chart
+            if (context.chart.canvas.id === 'response-distribution-chart') {
+              return `${label}: ${value}%`;
+            }
+            
+            // For device brand distribution
+            if (showPercentage) {
               return `${label}: ${value}%`;
             } else {
-              // This block is for "Device Brand Distribution" when showing counts
               const total = npsData.device_brand_distribution?.total_responses || 0;
               const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
               return `${label}: ${value} responses (${percentage}%)`;
@@ -712,7 +735,7 @@ const Dashboard = () => {
       },
     },
     animation: {
-      duration: 2000,
+      duration: CHART_ANIMATION_DURATION,
       easing: "easeOutQuart",
     },
     barPercentage: 0.7,
@@ -720,30 +743,48 @@ const Dashboard = () => {
   }
 
   // ← add handlers
-  const handleExportClose = () => setShowExportOptions(false)
-
-  const handleExcelExport = () => {
+  const handleExcelExport = useCallback(() => {
     exportToExcel({
       rows: [
         {
-          "NPS Score":       npsData.nps_score,
-          Promoters:         npsData.promoters,
-          Passives:          npsData.passives,
-          Detractors:        npsData.detractors,
+          "NPS Score": npsData.nps_score,
+          Promoters: npsData.promoters,
+          Passives: npsData.passives,
+          Detractors: npsData.detractors,
           "Total Responses": npsData.total_responses,
         },
       ],
       sheetName: "Dashboard",
-      fileName:  "dashboard_data.xlsx",
+      fileName: "dashboard_data.xlsx",
     })
     handleExportClose()
-  }
+  }, [npsData])
 
   const handlePdfExport = () => {
     alert("PDF export not implemented yet.")
     handleExportClose()
   }
 
+  // MOVE CONDITIONAL RENDERING TO THE END, AFTER ALL HOOKS
+  if (error) {
+    return (
+      <Box m="20px" display="flex" justifyContent="center" alignItems="center" height="50vh">
+        <Typography variant="h5" color="error">
+          Failed to load dashboard data. Please try again.
+        </Typography>
+      </Box>
+    )
+  }
+
+  if (isLoading) {
+    return (
+      <Box m="20px" display="flex" justifyContent="center" alignItems="center" height="50vh">
+        <CircularProgress size={60} />
+      </Box>
+    )
+  }
+
+  // Main render JSX
   return (
     <Box m="20px">
       {/* HEADER */}
@@ -1096,6 +1137,7 @@ const Dashboard = () => {
           </Box>
         </Paper>
       )}
+
       {/* COMMENTS TAB */}
       {tabValue === 3 && (
         <Paper

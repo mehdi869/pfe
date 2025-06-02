@@ -1,20 +1,20 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import {
   Box,
   CircularProgress,
   Alert,
   Paper,
   Typography,
+  TextField,
   Chip,
+  List,
+  ListItem,
+  ListItemText,
+  Paper as MuiPaper,
   useTheme,
 } from "@mui/material";
-import CityBubbleMap from "./CityBubbleMap";
-import RegionStatsList from "./RegionStatsList";
-import MapControlsPanel from "./MapControlsPanel";
-import MapLegendDisplay from "./MapLegendDisplay";
-import AnalysisInsights from "./AnalysisInsights";
 import { fetchGeoNpsStats } from "../../API/api";
-import cityLocationsRawData from "../../data/cityLocations.json";
+import cityLocationsData from "../../Data/cityLocations.json"; // Import city locations
 import {
   getNpsColor,
   npsCategories,
@@ -26,6 +26,12 @@ import "../../styles/map.css";
 import { useTopbar } from "../../context/TopbarContext"; // Import useTopbar
 import { ExportButton } from "../chart/QuestionChart";
 import { exportToExcel, exportChartDataToPdf } from "../../utils/utils";
+
+import CityBubbleMap from "./CityBubbleMap";
+import RegionStatsList from "./RegionStatsList";
+import MapControlsPanel from "./MapControlsPanel";
+import MapLegendDisplay from "./MapLegendDisplay";
+import AnalysisInsights from "./AnalysisInsights";
 
 const AUTO_COLLAPSE_DELAY = 3000; // 3 seconds
 const MOUSE_REVEAL_THRESHOLD_TOP = 50; // Pixels from top to reveal Topbar
@@ -59,6 +65,11 @@ const Map = () => {
   const [selectedNpsCategoryIds, setSelectedNpsCategoryIds] = useState(() =>
     npsCategories.map((cat) => cat.id)
   ); // New state, all selected by default
+  const [searchTerm, setSearchTerm] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+
+  const mapContainerRef = useRef(null);
+  const mapRef = useRef(null);
 
   const {
     setTopbarConfig,
@@ -169,14 +180,19 @@ const Map = () => {
     loadData();
   }, [isValidRawGeoNpsApiData, processApiData]);
 
+  const allCityNames = useMemo(() => {
+    if (!cityLocationsData) return [];
+    return cityLocationsData.map((city) => city.ville);
+  }, []);
+
   const mergedCityData = useMemo(() => {
     if (
       !npsStats.cities ||
       !npsStats.cities.length ||
-      !cityLocationsRawData.length
+      !cityLocationsData.length
     )
       return [];
-    return cityLocationsRawData
+    return cityLocationsData
       .map((location) => {
         const lat = Number.parseFloat(location.Latitude);
         const lon = Number.parseFloat(location.Longitude);
@@ -197,18 +213,56 @@ const Map = () => {
         };
       })
       .filter((item) => item !== null);
-  }, [npsStats.cities]);
+  }, [npsStats.cities, cityLocationsData]);
+
+  const handleSearchTermChange = (eventOrValue) => {
+    const newTerm =
+      typeof eventOrValue === "string"
+        ? eventOrValue
+        : eventOrValue.target.value;
+    setSearchTerm(newTerm);
+    if (newTerm) {
+      const filteredSuggestions = allCityNames
+        .filter((name) => name.toLowerCase().startsWith(newTerm.toLowerCase()))
+        .slice(0, 3);
+      setSuggestions(filteredSuggestions);
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  const handleSuggestionClick = (cityName) => {
+    setSearchTerm(cityName);
+    setSuggestions([]);
+    // Optionally, you might want to trigger a map focus/zoom to the selected city here
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setSuggestions([]);
+  };
 
   const filteredCityData = useMemo(() => {
-    return mergedCityData.filter((city) => {
+    let dataToFilter = mergedCityData;
+
+    if (searchTerm) {
+      dataToFilter = dataToFilter.filter((city) =>
+        city.name.toLowerCase().startsWith(searchTerm.toLowerCase())
+      );
+    }
+
+    return dataToFilter.filter((city) => {
       const nps = city.avg_nps;
       const responses = city.total_responses;
 
       // NPS Category Filter
       let npsCategoryMatch = false;
-      if (selectedNpsCategoryIds.length === 0) {
-        // Show none if no categories selected
+      if (selectedNpsCategoryIds.length === 0 && !searchTerm) {
+        // If no categories and no search, show none
         npsCategoryMatch = false;
+      } else if (selectedNpsCategoryIds.length === 0 && searchTerm) {
+        // If search term exists, ignore category filter initially
+        npsCategoryMatch = true;
       } else if (selectedNpsCategoryIds.length === npsCategories.length) {
         // Show all if all categories selected
         npsCategoryMatch = true;
@@ -219,13 +273,18 @@ const Map = () => {
         });
       }
 
+      if (searchTerm && selectedNpsCategoryIds.length === 0) {
+        // If search term active and no categories selected, bypass category check
+        npsCategoryMatch = true;
+      }
+
       // Response Range Filter
       const responsesMeetCriteria =
         responses >= minResponses && responses <= maxResponses;
 
       return npsCategoryMatch && responsesMeetCriteria;
     });
-  }, [mergedCityData, selectedNpsCategoryIds, minResponses, maxResponses]);
+  }, [mergedCityData, selectedNpsCategoryIds, minResponses, maxResponses, searchTerm, npsCategories]); // Added searchTerm and npsCategories
 
   const filteredRegionData = useMemo(() => {
     if (!npsStats.regions) return [];
@@ -500,6 +559,7 @@ const Map = () => {
         }}
       >
         <Box
+          ref={mapContainerRef} // Add this ref to the container Box
           sx={{
             flexGrow: 1,
             height: { xs: "calc(55vh - 32px - 12px)", lg: "100%" }, // Adjusted for responsiveness
@@ -518,6 +578,8 @@ const Map = () => {
               mapZoom={mapDefaultZoom}
               themeColors={themeColors}
               theme={theme}
+              mapRef={mapRef} // Pass the map ref
+              mapContainerRef={mapContainerRef} // Pass the container ref
             />
           ) : (
             <RegionStatsList
@@ -549,6 +611,11 @@ const Map = () => {
             maxResponses={maxResponses} // Pass new state and handler
             onMaxResponsesChange={handleMaxResponsesChange} // Pass new state and handler
             themeColors={themeColors}
+            searchTerm={searchTerm}
+            onSearchTermChange={handleSearchTermChange}
+            onClearSearch={handleClearSearch}
+            citySuggestions={suggestions}
+            onSuggestionClick={handleSuggestionClick}
           />
           <MapLegendDisplay
             themeColors={themeColors}

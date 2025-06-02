@@ -2,17 +2,24 @@ import React, { useState } from "react";
 import {
   Box,
   Typography,
-  TextField,
-  Paper,
-  Grid,
-  ToggleButton,
   ToggleButtonGroup,
-  Divider,
-  // Chip, // Chip removed as NPS Score Range is gone
-  useTheme,
+  ToggleButton,
+  Slider,
+  TextField,
+  InputAdornment,
   IconButton,
-  Collapse,
+  Paper as MuiPaper, // Paper is imported as MuiPaper
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Chip,
+  Divider,
+  useTheme,
+  Collapse, // Added Collapse
+  Grid // Added Grid
 } from "@mui/material";
+import { Search, Clear } from "@mui/icons-material"; // Import Clear icon
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 const MapControlsPanel = React.memo(
@@ -24,19 +31,23 @@ const MapControlsPanel = React.memo(
     maxResponses,
     onMaxResponsesChange, // New prop
     themeColors,
-    // Add new props for search, if needed in the future
-    // onSearchChange, 
     // searchValue,
+    searchTerm,
+    onSearchTermChange,
+    onClearSearch,
+    citySuggestions,
+    onSuggestionClick
   }) => {
     const theme = useTheme();
     const [expanded, setExpanded] = useState(true);
+    const [currentViewMode, setCurrentViewMode] = useState(viewMode);
 
     const toggleExpanded = () => {
       setExpanded(!expanded);
     };
 
     return (
-      <Paper
+      <MuiPaper // Changed Paper to MuiPaper
         sx={{
           backgroundColor: theme.palette.background.paper,
           color: theme.palette.text.primary,
@@ -90,9 +101,9 @@ const MapControlsPanel = React.memo(
                 View Mode
               </Typography>
               <ToggleButtonGroup
-                value={viewMode}
+                value={currentViewMode}
                 exclusive
-                onChange={onViewModeChange}
+                onChange={(event, newMode) => { if (newMode) onViewModeChange(newMode);}}
                 aria-label="View mode"
                 fullWidth
                 sx={{ height: "40px" }} // Reduced height
@@ -139,42 +150,88 @@ const MapControlsPanel = React.memo(
             </Box>
 
             {/* Search Input Field */}
-            <Box sx={{ mt: 2, mb: 2 }}>
+            <Box sx={{ mt: 2, mb: 1, position: 'relative' }}>
               <Typography
                 gutterBottom
-                variant="subtitle1"
+                variant="subtitle2"
                 sx={{
                   color: theme.palette.text.secondary,
                   fontSize: "0.9rem",
                   mb: 1,
                 }}
               >
-                Search
+                Search City
               </Typography>
               <TextField
-                label="Search City/Region"
+                label="Search City"
                 variant="outlined"
                 fullWidth
                 size="small"
-                // value={searchValue} // For future implementation
-                // onChange={onSearchChange} // For future implementation
-                placeholder="Enter name..."
+                value={searchTerm}
+                onChange={onSearchTermChange}
+                placeholder="Enter city name..."
                 InputProps={{
-                  sx: { height: "40px" },
+                  sx: { height: "40px", fontSize: "0.9rem" },
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Search />
+                    </InputAdornment>
+                  ),
+                  endAdornment: searchTerm && (
+                    <InputAdornment position="end">
+                      <IconButton onClick={onClearSearch} size="small">
+                        <Clear />
+                      </IconButton>
+                    </InputAdornment>
+                  )
                 }}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     "& fieldset": { borderColor: theme.palette.mode === 'dark' ? themeColors.grey[600] : themeColors.grey[400] },
                     "&:hover fieldset": { borderColor: themeColors.primary[500] },
                     "&.Mui-focused fieldset": { borderColor: themeColors.primary[500] },
-                    backgroundColor: theme.palette.background.paper, // Ensure consistent background
+                    backgroundColor: theme.palette.background.default, // Adjusted for better contrast potentially
                   },
-                  "& .MuiInputLabel-root": { fontSize: "0.9rem", color: theme.palette.text.secondary },
-                  "& .MuiInputBase-input": { color: theme.palette.text.primary, fontSize: "0.9rem" }
                 }}
               />
+              {citySuggestions.length > 0 && (
+                <MuiPaper
+                  elevation={3}
+                  sx={{
+                    position: 'absolute',
+                    top: '100%', // Position below the TextField
+                    left: 0,
+                    right: 0,
+                    zIndex: 1200, // Ensure it's above other elements
+                    mt: 0.5,
+                    maxHeight: '200px',
+                    overflowY: 'auto',
+                    backgroundColor: theme.palette.background.paper,
+                  }}
+                >
+                  <List dense disablePadding>
+                    {citySuggestions.map((suggestion, index) => (
+                      <ListItemButton key={index} onClick={() => onSuggestionClick(suggestion)} dense>
+                        <ListItemText primary={suggestion} primaryTypographyProps={{ fontSize: '0.85rem' }} />
+                      </ListItemButton>
+                    ))}
+                  </List>
+                </MuiPaper>
+              )}
             </Box>
 
+            {/* Display Search Tag */}
+            {searchTerm && citySuggestions.length === 0 && ( // Show tag when search term is set and no suggestions are active (i.e., a term is "committed")
+              <Box sx={{ mt: 1, display: 'flex', justifyContent: 'center' }}>
+                <Chip
+                  label={searchTerm}
+                  onDelete={onClearSearch}
+                  color="primary"
+                  size="small"
+                  sx={{ backgroundColor: themeColors.primary[500], color: 'white' }}
+                />
+              </Box>
+            )}
             <Divider sx={{ my: 2, borderColor: theme.palette.divider }} />
 
             <Typography
@@ -255,7 +312,7 @@ const MapControlsPanel = React.memo(
             </Box>
           </Box>
         </Collapse>
-      </Paper>
+      </MuiPaper>
     );
   },
 );
