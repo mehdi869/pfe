@@ -278,7 +278,7 @@ export const StatusChart = () => {
                 Analyse des statuts
               </h2>
               <div className="flex justify-center items-center">
-                <div className="h-[40px] w-[40px]">
+                <div className="h-[250px] w-[250px]"> {/* Adjusted size */}
                   <Doughnut data={chart_cercle} options={cerclechartOptions} />
                 </div>
               </div>

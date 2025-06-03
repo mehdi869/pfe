@@ -52,8 +52,13 @@ class view_nps_score (models.Model):
 
 class age_group(models.Model):
     id = models.IntegerField(primary_key=True)
-    age_group = models.CharField(max_length = 20)
-    total = models.BigIntegerField()
+    age_group = models.CharField(max_length=20)
+    total_valid = models.BigIntegerField()
+    promotors = models.BigIntegerField()
+    passives = models.BigIntegerField()
+    detractors = models.BigIntegerField()
+    avg_nps = models.DecimalField(max_digits=5, decimal_places=2, null=True)
+    
     class Meta:
         managed = False
         db_table = 'age_group_view'

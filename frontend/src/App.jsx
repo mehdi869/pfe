@@ -23,10 +23,6 @@ import Dashboard from "./scenes/dashboard"
 import Topbar from "./scenes/global/Topbar"
 import Sidebar from "./scenes/global/Sidebar"
 import Admin from "./scenes/admin-panel"
-import Invoices from "./scenes/invoices"
-import Contacts from "./scenes/contacts"
-import Form from "./scenes/form"
-import Calendar from "./scenes/calendar"
 import Profile from "./scenes/profile";
 import Map from "./scenes/Map/map.jsx"
 import './style.css'
@@ -79,11 +75,7 @@ function AppLayout() {
                   <Route element={<AppLayout />}> {/* Use the AppLayout */}
                     <Route path="/Dashboard" element={<Dashboard />} />
                     <Route path="/map" element={<Map />} />
-                    <Route path="/invoices" element={<Invoices />} />
-                    <Route path="/contacts" element={<Contacts />} />
                     <Route path="/question_chart" element={<QuestionChart />} />
-                    <Route path="/form" element={<Form />} />
-                    <Route path="/calendar" element={<Calendar />} />
                     <Route path="/survey" element={<SurveyChart/>}></Route>
                     <Route path="/barChart" element={<StatusChart />} />
                     <Route path="/nps" element={<NpsChart />} />

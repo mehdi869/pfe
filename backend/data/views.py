@@ -75,41 +75,69 @@ def nps_score(request):
 @permission_classes([AllowAny]) 
 
 def age_groupe(request):
-   count = age_group.objects.aggregate(
-        total_sum = Sum('total'))['total_sum']
+    # Get total count of valid responses (excluding -1)
+    total_data = age_group.objects.aggregate(
+        total_sum=Sum('total_valid'))['total_sum'] or 0
    
-   count_Null = age_group.objects.filter(
-        age_group ="-1").values("total").first()
-   
-   count_18_25 = age_group.objects.filter(
-        age_group = '18-25').values("total").first()
-   
-   count_26_35 = age_group.objects.filter(
-        age_group = '26-35').values("total").first()
-   
-   count_36_45 = age_group.objects.filter(
-        age_group = '36-45').values("total").first()
-   
-   count_46_55 = age_group.objects.filter(
-        age_group = '46-55').values("total").first()
-   
-   count_56_65 = age_group.objects.filter(
-        age_group = '56-65').values("total").first()
+    # Get data for each age group
+    age_groups_data = {}
+    age_group_records = age_group.objects.all()
+    
+    for record in age_group_records:
+        age_key = record.age_group
+        total_valid = record.total_valid or 0
+        promotors = record.promotors or 0
+        passives = record.passives or 0
+        detractors = record.detractors or 0
+        
+        # Calculate NPS score (excluding 0 from detractors as requested)
+        total_responses = promotors + passives + detractors
+        nps_score = None
+        if total_responses > 0:
+            nps_score = ((promotors / total_responses) * 100) - ((detractors / total_responses) * 100)
+            nps_score = round(nps_score, 2)
+        
+        age_groups_data[age_key] = {
+            'total': total_valid,
+            'percentage': (total_valid * 100 / total_data) if total_data > 0 else 0,
+            'nps_score': nps_score,
+            'promotors': promotors,
+            'passives': passives,
+            'detractors': detractors,
+            'avg_nps': float(record.avg_nps) if record.avg_nps else None
+        }
 
-   return JsonResponse({'count' : count,
-                        'Null' : count_Null["total"]*100/count,
-                        '18-25' : count_18_25["total"]*100/count,
-                        '26-35' : count_26_35["total"]*100/count,
-                        '36-45' : count_36_45["total"]*100/count,
-                        '46-55' : count_46_55["total"]*100/count,
-                        '56-65' : count_56_65["total"]*100/count,
-                        'valeur null' : count_Null["total"],
-                        'age entre 18 et 25' : count_18_25["total"],
-                        'age entre 26 et 35' : count_26_35["total"],
-                        'age entre 36 et 45' : count_36_45["total"],
-                        'age entre 46 et 55' : count_46_55["total"],
-                        'age entre 56 et 65' : count_56_65["total"],
-                        })
+    # Extract individual counts for backward compatibility
+    null_data = age_groups_data.get('-1', {'total': 0, 'percentage': 0, 'nps_score': None})
+    age_18_25 = age_groups_data.get('18-25', {'total': 0, 'percentage': 0, 'nps_score': None})
+    age_26_35 = age_groups_data.get('26-35', {'total': 0, 'percentage': 0, 'nps_score': None})
+    age_36_45 = age_groups_data.get('36-45', {'total': 0, 'percentage': 0, 'nps_score': None})
+    age_46_55 = age_groups_data.get('46-55', {'total': 0, 'percentage': 0, 'nps_score': None})
+    age_56_65 = age_groups_data.get('56-65', {'total': 0, 'percentage': 0, 'nps_score': None})
+
+    return JsonResponse({
+        'count': total_data,
+        'Null': null_data['percentage'],
+        '18-25': age_18_25['percentage'],
+        '26-35': age_26_35['percentage'],
+        '36-45': age_36_45['percentage'],
+        '46-55': age_46_55['percentage'],
+        '56-65': age_56_65['percentage'],
+        'valeur null': null_data['total'],
+        'age entre 18 et 25': age_18_25['total'],
+        'age entre 26 et 35': age_26_35['total'],
+        'age entre 36 et 45': age_36_45['total'],
+        'age entre 46 et 55': age_46_55['total'],
+        'age entre 56 et 65': age_56_65['total'],
+        # Add NPS scores
+        'nps_18_25': age_18_25['nps_score'],
+        'nps_26_35': age_26_35['nps_score'],
+        'nps_36_45': age_36_45['nps_score'],
+        'nps_46_55': age_46_55['nps_score'],
+        'nps_56_65': age_56_65['nps_score'],
+        # Add detailed breakdown for each age group
+        'age_groups_detail': age_groups_data
+    })
 # API qui return le pourcentage de client qui ce trouve dans chaque city
 # @api_view(['GET'])
 # def city_poursentage(request): 

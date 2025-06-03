@@ -31,6 +31,8 @@ import RemoveIcon from "@mui/icons-material/Remove"
 import TrendingUpIcon from "@mui/icons-material/TrendingUp"
 import PeopleIcon from "@mui/icons-material/People"
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined"
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
+import ExpandLessIcon from "@mui/icons-material/ExpandLess"
 import { Bar, Doughnut } from "react-chartjs-2"
 import {
   Chart as ChartJS,
@@ -70,6 +72,7 @@ const Dashboard = () => {
   const [animateCharts, setAnimateCharts]   = useState(false)
   const [showPercentage, setShowPercentage] = useState(true)
   const [showExportOptions, setShowExportOptions] = useState(false)
+  const [expandedBrandView, setExpandedBrandView] = useState(false) // New state for expanded view
 
   // Add constants at the top
   const CHART_ANIMATION_DELAY = 500
@@ -170,17 +173,19 @@ const Dashboard = () => {
       datasets: [
         {
           data: [],
-          // Use visually distinct, modern colors for up to 4 slices (top 3 + Others)
+          // Use visually distinct, modern colors for up to 11 slices (top 10 + Others)
           backgroundColor: [
             colors.blueAccent[300],
-            colors.blueAccent[400],    //
-            colors.blueAccent[600],    //
-            colors.purpleAccent[500],    // 
-            colors.orangeAccent[800],    
-            colors.grey[400],            // Others: Grey
-            // Add more if needed for extra slices
+            colors.blueAccent[400],
+            colors.blueAccent[600],
+            colors.purpleAccent[500],
+            colors.purpleAccent[800],
             colors.greenAccent[400],
-            colors.redAccent[400],
+            colors.redAccent[900],
+            colors.orangeAccent[800],
+            colors.yellowAccent[600],
+            colors.blueAccent[500],
+            colors.grey[800],            // Others: Grey
           ],
           borderWidth: 1,
           hoverOffset: 10,
@@ -189,33 +194,63 @@ const Dashboard = () => {
     },
   })
 
-  // Update device brand chart when npsData changes
+  // Function to prepare device brand chart data
+  const prepareDeviceBrandData = useCallback((brandData, expanded = false) => {
+    if (!brandData) return { labels: [], counts: [], percentages: [] };
+
+    const { labels, counts, percentages } = brandData;
+    const topLimit = expanded ? 10 : 3;
+    
+    // Take top brands based on view
+    const topLabels = labels.slice(0, topLimit);
+    const topCounts = counts.slice(0, topLimit);
+    const topPercentages = percentages.slice(0, topLimit);
+    
+    // Calculate "Others" values if there are more brands than the limit
+    if (labels.length > topLimit) {
+      const othersCount = counts.slice(topLimit).reduce((sum, count) => sum + count, 0);
+      const othersPercentage = percentages.slice(topLimit).reduce((sum, pct) => sum + pct, 0);
+      
+      topLabels.push('Others');
+      topCounts.push(othersCount);
+      topPercentages.push(othersPercentage);
+    }
+    
+    return {
+      labels: topLabels,
+      counts: topCounts,
+      percentages: topPercentages
+    };
+  }, []);
+
+  // Handle click on pie chart segments
+  const handleDeviceBrandChartClick = useCallback((event, elements) => {
+    if (elements.length > 0) {
+      const clickedIndex = elements[0].index;
+      const clickedLabel = chartData.deviceBrandDistribution.labels[clickedIndex];
+      
+      // If "Others" segment is clicked and we're in collapsed view, expand
+      if (clickedLabel === 'Others' && !expandedBrandView) {
+        setExpandedBrandView(true);
+      }
+    }
+  }, [chartData.deviceBrandDistribution.labels, expandedBrandView]);
+
+  // Update device brand chart when npsData changes or view toggles
   useEffect(() => {
     if (npsData.device_brand_distribution) {
-      const { labels, counts, percentages } = npsData.device_brand_distribution;
+      const { labels, counts, percentages } = prepareDeviceBrandData(
+        npsData.device_brand_distribution, 
+        expandedBrandView
+      );
       
-      // Take only top 3 brands + aggregate others
-      const top3Labels = labels.slice(0, 3);
-      const top3Counts = counts.slice(0, 3);
-      const top3Percentages = percentages.slice(0, 3);
-      
-      // Calculate "Others" values if there are more than 3 brands
-      if (labels.length > 3) {
-        const othersCount = counts.slice(3).reduce((sum, count) => sum + count, 0);
-        const othersPercentage = percentages.slice(3).reduce((sum, pct) => sum + pct, 0);
-        
-        top3Labels.push('Others');
-        top3Counts.push(othersCount);
-        top3Percentages.push(othersPercentage);
-      }
-      
-      const displayData = showPercentage ? top3Percentages : top3Counts;
+      const displayData = showPercentage ? percentages : counts;
       
       setChartData((prev) => ({
         ...prev,
         deviceBrandDistribution: {
           ...prev.deviceBrandDistribution,
-          labels: top3Labels,
+          labels: labels,
           datasets: [
             {
               ...prev.deviceBrandDistribution.datasets[0],
@@ -225,7 +260,7 @@ const Dashboard = () => {
         },
       }));
     }
-  }, [npsData.device_brand_distribution, showPercentage])
+  }, [npsData.device_brand_distribution, showPercentage, expandedBrandView, prepareDeviceBrandData]);
 
   // All your useEffect hooks
   useEffect(() => {
@@ -329,9 +364,10 @@ const Dashboard = () => {
 
   const handleExportClose = () => setShowExportOptions(false)
 
-  // Removed duplicate declaration of handleExcelExport
-
-  // Removed duplicate declaration of handlePdfExport
+  // Toggle expanded brand view
+  const toggleBrandView = () => {
+    setExpandedBrandView(!expandedBrandView);
+  }
 
   // Memoize calculated percentages
   const calculatedPercentages = useMemo(() => {
@@ -646,10 +682,10 @@ const Dashboard = () => {
   }
 
   // Chart options
-
   const pieOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    onClick: handleDeviceBrandChartClick, // Add click handler
     plugins: {
       legend: {
         position: "bottom",
@@ -677,11 +713,21 @@ const Dashboard = () => {
             
             // For device brand distribution
             if (showPercentage) {
-              return `${label}: ${value}%`;
+              const tooltipText = `${label}: ${value}%`;
+              // Add hint for "Others" segment when in collapsed view
+              if (label === 'Others' && !expandedBrandView) {
+                return [tooltipText, 'Click to expand view'];
+              }
+              return tooltipText;
             } else {
               const total = npsData.device_brand_distribution?.total_responses || 0;
               const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-              return `${label}: ${value} responses (${percentage}%)`;
+              const tooltipText = `${label}: ${value} responses (${percentage}%)`;
+              // Add hint for "Others" segment when in collapsed view
+              if (label === 'Others' && !expandedBrandView) {
+                return [tooltipText, 'Click to expand view'];
+              }
+              return tooltipText;
             }
           },
         },
@@ -965,7 +1011,23 @@ const Dashboard = () => {
                 <Box height={{ xs: 250, sm: 300 }} display="flex" alignItems="center" justifyContent="center">
                   <Doughnut
                     data={chartData.responseDistribution}
-                    options={pieOptions}
+                    options={{
+                      ...pieOptions,
+                      onClick: undefined, // Remove click handler for response distribution
+                      plugins: {
+                        ...pieOptions.plugins,
+                        tooltip: {
+                          ...pieOptions.plugins.tooltip,
+                          callbacks: {
+                            label: function (context) {
+                              const label = context.label || '';
+                              const value = context.raw;
+                              return `${label}: ${value}%`;
+                            },
+                          }
+                        }
+                      }
+                    }}
                     key={animateCharts ? "animated" : "static"}
                   />
                 </Box>
@@ -1060,34 +1122,48 @@ const Dashboard = () => {
                   width={{ }}
                 >
                   <Typography variant="h5" fontWeight="bold">
-                    Top Device Brands
+                    {expandedBrandView ? 'Top 10 Device Brands' : 'Top Device Brands'}
                   </Typography>
-                  <ToggleButtonGroup
-                    value={showPercentage ? 'percentage' : 'count'}
-                    exclusive
-                    onChange={(event, newDisplayType) => {
-                      if (newDisplayType !== null) { // Ensure a value is always selected
-                        setShowPercentage(newDisplayType === 'percentage');
-                      }
-                    }}
-                    aria-label="Display type for device brands"
-                    size="small"
-                  >
-                    <ToggleButton value="percentage" aria-label="show percentage" sx={{ textTransform: 'none', px: 1.5 }}>
-                      Percentage
-                    </ToggleButton>
-                    <ToggleButton value="count" aria-label="show count" sx={{ textTransform: 'none', px: 1.5 }}>
-                      Count
-                    </ToggleButton>
-                  </ToggleButtonGroup>
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <ToggleButtonGroup
+                      value={showPercentage ? 'percentage' : 'count'}
+                      exclusive
+                      onChange={(event, newDisplayType) => {
+                        if (newDisplayType !== null) { // Ensure a value is always selected
+                          setShowPercentage(newDisplayType === 'percentage');
+                        }
+                      }}
+                      aria-label="Display type for device brands"
+                      size="small"
+                    >
+                      <ToggleButton value="percentage" aria-label="show percentage" sx={{ textTransform: 'none', px: 1.5 }}>
+                        %
+                      </ToggleButton>
+                      <ToggleButton value="count" aria-label="show count" sx={{ textTransform: 'none', px: 1.5 }}>
+                        #
+                      </ToggleButton>
+                    </ToggleButtonGroup>
+                    <Tooltip title={expandedBrandView ? "Collapse to top 3" : "Expand to top 10"}>
+                      <IconButton onClick={toggleBrandView} size="small">
+                        {expandedBrandView ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
                 </Box>
                 <Box height={{ xs: 250, sm: 300 }} display="flex" alignItems="center" justifyContent="center">
                   <Doughnut
                     data={chartData.deviceBrandDistribution}
                     options={pieOptions}
-                    key={`brands-${animateCharts ? "animated" : "static"}`}
+                    key={`brands-${expandedBrandView ? 'expanded' : 'collapsed'}-${animateCharts ? "animated" : "static"}`}
                   />
                 </Box>
+                {!expandedBrandView && (
+                  <Box mt={1} display="flex" justifyContent="center">
+                    <Typography variant="caption" color={colors.grey[500]} sx={{ fontStyle: 'italic' }}>
+                      💡 Click "Others" to see more brands
+                    </Typography>
+                  </Box>
+                )}
               </Paper>
             </Grid>
           </Grid>
