@@ -530,10 +530,15 @@ def survey_8_nps(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def question_type_stats_api(request):
+    # Récupération des données depuis la vue matérialisée
     rows = SurveyResponseCounts.objects.all().order_by('-response_count')
+
     labels = []
     counts = []
+    nps_scores = []
     total = 0
+    total_promoters = 0
+    total_detractors = 0
 
     for row in rows:
         labels.append(row.question_type)
@@ -541,13 +546,35 @@ def question_type_stats_api(request):
         counts.append(count)
         total += count
 
+        # Ces champs existent dans la vue matérialisée
+        promoter_count = int(getattr(row, 'promoter_count', 0))
+        detractor_count = int(getattr(row, 'detractor_count', 0))
+        total_promoters += promoter_count
+        total_detractors += detractor_count
+
+        # Calcul du NPS pour ce type de question
+        nps = 0
+        if count > 0:
+            nps = ((promoter_count - detractor_count) / count) * 100
+        nps_scores.append(round(nps, 2))  # Arrondi à 2 décimales
+
+    # Calcul du NPS global
+    global_nps = 0
+    if total > 0:
+        global_nps = ((total_promoters - total_detractors) / total) * 100
+
     response_data = {
         'question_types': {
             'labels': labels,
-            'counts': counts
+            'counts': counts,
+            'nps_scores': nps_scores
         },
-        'total_responses': total
+        'totals': {
+            'responses': total,
+            'nps': round(global_nps, 2)
+        }
     }
+
     return JsonResponse(response_data)
 
 

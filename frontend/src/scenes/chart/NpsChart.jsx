@@ -45,7 +45,11 @@ export const NpsChart = () => {
         setData(dataResponse);
         localStorage.setItem("npsData", JSON.stringify(dataResponse));
       } catch (error) {
-        console.error("Erreur de connexion front-back:", error.message, error.stack);
+        console.error(
+          "Erreur de connexion front-back:",
+          error.message,
+          error.stack
+        );
       }
     };
 

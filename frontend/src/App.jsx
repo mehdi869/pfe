@@ -26,7 +26,7 @@ import Admin from "./scenes/admin-panel"
 import Profile from "./scenes/profile";
 import Map from "./scenes/Map/map.jsx"
 import './style.css'
-import QuestionChart from "./scenes/chart/QuestionChart.jsx"; // Import QuestionChart
+import { QuestionChart } from "./scenes/chart/QuestionChart.jsx"; // Import QuestionChart
 import { TopbarProvider, useTopbar, TOPBAR_HEIGHT } from "./context/TopbarContext"; // Import TopbarProvider and useTopbar
 
 // Layout component that includes Sidebar and Topbar

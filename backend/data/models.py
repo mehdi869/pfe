@@ -106,6 +106,8 @@ class NpsQuestions(models.Model):
 class SurveyResponseCounts(models.Model):
     question_type = models.CharField(max_length=20, primary_key=True)
     response_count = models.BigIntegerField()
+    promoter_count = models.BigIntegerField()
+    detractor_count = models.BigIntegerField()
 
     class Meta:
         managed = False
