@@ -519,7 +519,7 @@ def survey_8_nps(request):
       
       return JsonResponse({'count' : count,
                            'null' : count_null['total'],
-                           'not_null' : count_not_null,
+                           'not null' : count_not_null,
                            '_0' : survey_nps_0['total']*100/count_not_null,
                            '1-6' : survey_nps_1_6*100/count_not_null,
                            '7-8' : survey_nps_7_8*100/count_not_null,
